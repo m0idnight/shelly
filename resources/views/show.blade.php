@@ -18,6 +18,7 @@
         <button type="submit">✨ {{ $set->summary ? 'Re-make' : 'Make' }} summary</button>
     </form>
     <p><a href="/sets/{{ $set->id }}/flashcards">🃏 Flashcards</a></p>
+    <p><a href="/sets/{{ $set->id }}/quiz">🎀 Quiz</a></p>
     @if ($set->summary)
         <h2>Summary</h2>
         <div>{!! Str::markdown($set->summary, ['html_input' => 'escape']) !!}</div>

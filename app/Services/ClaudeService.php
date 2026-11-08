@@ -100,4 +100,20 @@ class ClaudeService
 
         return $cards;
     }
+        public function quiz(StudySet $set): array
+    {
+        $system = "You are Shelly, a friendly study helper. Use ONLY the provided material. Never invent facts. Reply with JSON only.";
+
+        $instruction = 'Make 10 multiple-choice questions from this material. Return a JSON array of objects, each with: "question" (string), "options" (array of exactly 4 short answer choices), "correct_index" (number 0 to 3 for the right option), and "explanation" (1 to 2 sentences explaining WHY that answer is correct, based on the material). Vary which position holds the correct answer.';
+
+        $raw = $this->ask($system, $this->sourceParts($set, $instruction), true);
+        $raw = trim(preg_replace('/^```(?:json)?|```$/m', '', $raw));
+        $items = json_decode($raw, true);
+
+        if (!is_array($items)) {
+            throw new \Exception('Shelly could not make a quiz this time. Please try again.');
+        }
+
+        return $items;
+    }
 }
