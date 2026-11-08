@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
 use ZipArchive;
 use App\Services\ClaudeService;
+use App\Models\Flashcard;
 
 class StudySetController extends Controller
 {
@@ -57,6 +58,32 @@ class StudySetController extends Controller
     }
 
     return redirect('/sets/' . $set->id);
+}
+public function flashcards(StudySet $set)
+{
+    return view('flashcards', compact('set'));
+}
+
+public function makeFlashcards(StudySet $set, ClaudeService $claude)
+{
+    try {
+        $cards = $claude->flashcards($set);
+
+        $set->flashcards()->delete();
+        foreach ($cards as $card) {
+            if (!empty($card['front']) && !empty($card['back'])) {
+                Flashcard::create([
+                    'study_set_id' => $set->id,
+                    'front' => $card['front'],
+                    'back' => $card['back'],
+                ]);
+            }
+        }
+    } catch (\Throwable $e) {
+        return redirect('/sets/' . $set->id . '/flashcards')->withErrors(['ai' => $e->getMessage()]);
+    }
+
+    return redirect('/sets/' . $set->id . '/flashcards');
 }
     private function extractText(string $path, string $ext): string
     {
