@@ -1,175 +1,771 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quiz</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    <style>
-        body { font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 16px; }
-        .opt { display: block; width: 100%; text-align: left; padding: 14px; margin: 8px 0; font-size: 16px;
-               border: 2px solid #f9a8d4; border-radius: 12px; background: #fff0f6; cursor: pointer; }
-        .opt.right { background: #bbf7d0; border-color: #22c55e; }
-        .opt.wrong { background: #fecaca; border-color: #ef4444; }
-        #feedback { margin: 14px 0; padding: 14px; border-radius: 12px; background: #fce7f3; }
-        #next { padding: 10px 20px; font-size: 16px; }
-        .hidden { display: none; }
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        #popup { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0;
-                 padding: 14px 22px; border-radius: 999px; background: #f472b6; color: white; font-size: 18px;
-                 font-weight: bold; box-shadow: 0 6px 20px rgba(244,114,182,0.5); z-index: 999;
-                 pointer-events: none; text-align: center; max-width: 90%; }
-        #popup.show { animation: pop 2s ease forwards; }
-        #popup.sad { background: #c084fc; box-shadow: 0 6px 20px rgba(192,132,252,0.5); }
+    <title>Shelly | Quiz</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pink: #e99bb9;
+            --pink-dark: #a85e7d;
+            --pink-light: #fff0f6;
+            --pink-soft: #fff8fb;
+            --cream: #fffdfb;
+            --ink: #604b56;
+            --muted: #a58c98;
+            --line: #f3dce6;
+            --green: #8bbd9b;
+            --purple: #c4a6df;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 28px 16px 60px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% 10%, #ffe8f1 0, transparent 28%),
+                radial-gradient(circle at 90% 85%, #f9e8f3 0, transparent 30%),
+                var(--cream);
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            color: var(--pink-dark);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 25px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            padding: 10px 15px;
+            transition: .2s;
+        }
+
+        .back-link:hover {
+            color: var(--pink-dark);
+            background: var(--pink-light);
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .heading .bow {
+            font-size: 34px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(25px, 6vw, 34px);
+            color: var(--pink-dark);
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .quiz-card {
+            position: relative;
+            background: rgba(255,255,255,.94);
+            border: 1px solid var(--line);
+            border-radius: 27px;
+            padding: 26px;
+            box-shadow: 0 12px 35px rgba(173, 105, 137, .09);
+        }
+
+        .quiz-card::before {
+            content: "♡";
+            position: absolute;
+            top: 13px;
+            right: 19px;
+            color: #f2c3d6;
+            font-size: 22px;
+        }
+
+        .generate-form {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .generate-button {
+            border: 0;
+            border-radius: 30px;
+            padding: 12px 20px;
+            color: white;
+            background: var(--pink);
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 5px 12px rgba(233, 155, 185, .25);
+            transition: .2s;
+        }
+
+        .generate-button:hover {
+            background: var(--pink-dark);
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            background: #fff0f0;
+            color: #a94c5b;
+            font-size: 13px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+            margin-bottom: 24px;
+        }
+
+        .stat {
+            padding: 13px 7px;
+            text-align: center;
+            background: var(--pink-soft);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--pink-dark);
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #f9e7ef;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #f3b5ce, #d88aaa);
+            border-radius: inherit;
+            transition: width .3s ease;
+        }
+
+        .question-label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        #question {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 22px;
+            line-height: 1.4;
+            margin: 0 0 22px;
+            color: var(--ink);
+        }
+
+        #options {
+            display: grid;
+            gap: 11px;
+        }
+
+        .opt {
+            display: block;
+            width: 100%;
+            padding: 15px 17px;
+            text-align: left;
+            color: var(--ink);
+            background: var(--pink-soft);
+            border: 1.5px solid var(--line);
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .2s;
+        }
+
+        .opt:hover:not(:disabled) {
+            background: var(--pink-light);
+            border-color: var(--pink);
+            transform: translateY(-1px);
+        }
+
+        .opt:disabled {
+            cursor: default;
+            opacity: 1;
+        }
+
+        .opt.right {
+            background: #edf8f0;
+            border-color: var(--green);
+            color: #527b5d;
+        }
+
+        .opt.wrong {
+            background: #fff0f2;
+            border-color: #e6a0ae;
+            color: #a85e6d;
+        }
+
+        #feedback {
+            margin-top: 19px;
+            padding: 15px 17px;
+            border-radius: 15px;
+            background: #fff5f9;
+            border: 1px dashed #eec5d6;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        #feedback p {
+            margin: 5px 0;
+        }
+
+        .feedback-title {
+            color: var(--pink-dark);
+            font-weight: 800;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .next-button {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            color: white;
+            background: var(--pink-dark);
+            border: 0;
+            border-radius: 30px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .next-button:hover {
+            background: #82435f;
+            transform: translateY(-1px);
+        }
+
+        .save-status {
+            min-height: 18px;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        #popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            z-index: 999;
+            max-width: 90%;
+            padding: 13px 22px;
+            border-radius: 999px;
+            background: #f4b0cc;
+            color: #7a2e52;
+            font-size: 15px;
+            font-weight: 800;
+            box-shadow: 0 6px 20px rgba(244,114,182,.3);
+            pointer-events: none;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(-50%) scale(.5);
+        }
+
+        #popup.show {
+            animation: pop 2s ease forwards;
+        }
+
+        #popup.sad {
+            background: #e7d6f5;
+            color: #70518b;
+            box-shadow: 0 6px 20px rgba(192,132,252,.25);
+        }
+
         @keyframes pop {
-            0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+            0% { transform: translateX(-50%) scale(.5); opacity: 0; }
             15% { transform: translateX(-50%) scale(1.1); opacity: 1; }
             25% { transform: translateX(-50%) scale(1); opacity: 1; }
             85% { transform: translateX(-50%) scale(1); opacity: 1; }
-            100% { transform: translateX(-50%) scale(0.9); opacity: 0; }
+            100% { transform: translateX(-50%) scale(.9); opacity: 0; }
+        }
+
+        .result {
+            text-align: center;
+            padding: 18px 5px;
+        }
+
+        .result-icon {
+            font-size: 54px;
+            margin-bottom: 12px;
+        }
+
+        .result h2 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--pink-dark);
+            font-size: 29px;
+            margin: 0 0 10px;
+        }
+
+        .result p {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .result-score {
+            display: inline-block;
+            margin: 15px 0;
+            padding: 12px 22px;
+            border-radius: 20px;
+            background: var(--pink-light);
+            color: var(--pink-dark);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 24px;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 18px 12px 40px;
+            }
+
+            .quiz-card {
+                padding: 20px 16px;
+                border-radius: 22px;
+            }
+
+            #question {
+                font-size: 20px;
+            }
+
+            .opt {
+                padding: 14px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="popup"></div>
 
-    <a href="/sets/{{ $set->id }}">← Back</a>
-    <h1>🎀 Quiz: {{ $set->title }}</h1>
+    <main class="page">
+        <nav class="topbar">
+            <a href="{{ route('dashboard') }}" class="brand">🎀 shelly</a>
+            <a href="{{ route('sets.show', $set) }}" class="back-link">← Back to study set</a>
+        </nav>
 
-    @if ($errors->any())
-        <p style="color:red">{{ $errors->first() }}</p>
-    @endif
+        <header class="heading">
+            <div class="bow">🎀</div>
+            <h1>Little Quiz Time!</h1>
+            <p class="subtitle">{{ $set->title }}</p>
+        </header>
 
-    <form method="POST" action="/sets/{{ $set->id }}/quiz/generate">
-        @csrf
-        <button type="submit">✨ {{ $set->questions->count() ? 'Re-make' : 'Make' }} quiz</button>
-    </form>
+        <section class="quiz-card">
+            @if ($errors->any())
+                <div class="error-message">
+                    {{ $errors->first() }}
+                </div>
+            @endif
 
-    @if ($set->questions->count())
-        <div id="game">
-            <p><span id="progress"></span> · ⭐ Score: <span id="score">0</span> · 🔥 Streak: <span id="streak">0</span></p>
-            <h2 id="question"></h2>
-            <div id="options"></div>
-            <div id="feedback" class="hidden"></div>
-            <button id="next" class="hidden" onclick="next()">Next →</button>
-        </div>
+            <form class="generate-form" method="POST" action="{{ route('sets.quiz.make', $set) }}">
+                @csrf
+                <button type="submit" class="generate-button">
+                    ✨ {{ $set->questions->count() ? 'Re-make quiz' : 'Make my quiz' }}
+                </button>
+            </form>
 
+            @if (count($questions))
+                <div id="game">
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-label">Question</span>
+                            <span class="stat-value" id="progress">1/{{ count($questions) }}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Score</span>
+                            <span class="stat-value" id="score">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Streak</span>
+                            <span class="stat-value" id="streak">0</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <p class="question-label">♡ Your question</p>
+                    <h2 id="question"></h2>
+
+                    <div id="options"></div>
+
+                    <div id="feedback" class="hidden"></div>
+
+                    <p id="saveStatus" class="save-status" aria-live="polite"></p>
+
+                    <button id="next" class="next-button hidden" type="button" onclick="next()">
+                        Next →
+                    </button>
+                </div>
+            @else
+                <div class="result">
+                    <div class="result-icon">🌷</div>
+                    <h2>Your quiz is waiting!</h2>
+                    <p>Make a little quiz using the button above to start practicing.</p>
+                </div>
+            @endif
+        </section>
+    </main>
+
+    @if (count($questions))
         <script>
             const qs = @json($questions);
             const lines = @json(config('shelly'));
-            let i = 0, score = 0, streak = 0, answered = false;
+
+            const logUrl = @json(route('study-log.store'));
+            const studySetId = @json($set->id);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+            let i = 0;
+            let score = 0;
+            let streak = 0;
+            let answered = false;
             let audioCtx = null;
 
-            function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+            function pick(list, fallback) {
+                return Array.isArray(list) && list.length
+                    ? list[Math.floor(Math.random() * list.length)]
+                    : fallback;
+            }
 
             function tone(freq, start, duration, type) {
-                const o = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                o.type = type;
-                o.frequency.value = freq;
-                g.gain.setValueAtTime(0.25, audioCtx.currentTime + start);
-                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + duration);
-                o.connect(g);
-                g.connect(audioCtx.destination);
-                o.start(audioCtx.currentTime + start);
-                o.stop(audioCtx.currentTime + start + duration);
+                try {
+                    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+                    const oscillator = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    oscillator.type = type;
+                    oscillator.frequency.value = freq;
+
+                    gain.gain.setValueAtTime(0.18, audioCtx.currentTime + start);
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.001,
+                        audioCtx.currentTime + start + duration
+                    );
+
+                    oscillator.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    oscillator.start(audioCtx.currentTime + start);
+                    oscillator.stop(audioCtx.currentTime + start + duration);
+                } catch (error) {
+                    console.warn('Audio is unavailable:', error);
+                }
             }
 
             function playDing() {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
                 tone(880, 0, 0.25, 'sine');
                 tone(1320, 0.12, 0.4, 'sine');
             }
 
             function playBuzz() {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
                 tone(160, 0, 0.35, 'sawtooth');
             }
 
-            function showPopup(message, sad) {
-                const p = document.getElementById('popup');
-                p.textContent = message;
-                p.className = '';
-                void p.offsetWidth;
-                p.className = 'show' + (sad ? ' sad' : '');
+            function showPopup(message, sad = false) {
+                const popup = document.getElementById('popup');
+
+                popup.textContent = message;
+                popup.className = '';
+
+                void popup.offsetWidth;
+
+                popup.className = 'show' + (sad ? ' sad' : '');
+            }
+
+            // Save each answer to the Laravel study_logs table.
+            async function saveAnswer(question, correct) {
+                const status = document.getElementById('saveStatus');
+
+                if (!question.id) {
+                    status.textContent = '⚠️ This question has no database ID, so its progress was not saved.';
+                    console.error('Missing question ID:', question);
+                    return;
+                }
+
+                status.textContent = '♡ Saving your progress...';
+
+                try {
+                    const response = await fetch(logUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            study_set_id: studySetId,
+                            question_id: question.id,
+                            type: 'quiz',
+                            correct: correct
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const details = await response.text();
+                        console.error('Study log request failed:', response.status, details);
+                        status.textContent = '⚠️ Progress could not be saved. Please check your connection.';
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    if (result.ok) {
+                        status.textContent = '♡ Progress saved! +' + (correct ? 10 : 2) + ' points';
+                    } else {
+                        status.textContent = '⚠️ Progress could not be saved.';
+                    }
+                } catch (error) {
+                    console.error('Could not save quiz progress:', error);
+                    status.textContent = '⚠️ Connection problem. Your answer was not saved.';
+                }
             }
 
             function render() {
                 answered = false;
-                const q = qs[i];
-                document.getElementById('progress').textContent = 'Question ' + (i + 1) + '/' + qs.length;
-                document.getElementById('question').textContent = q.question;
+
+                const question = qs[i];
+
+                document.getElementById('progress').textContent =
+                    (i + 1) + '/' + qs.length;
+
+                document.getElementById('progressFill').style.width =
+                    ((i / qs.length) * 100) + '%';
+
+                document.getElementById('question').textContent = question.question;
+
                 document.getElementById('feedback').classList.add('hidden');
                 document.getElementById('next').classList.add('hidden');
+                document.getElementById('saveStatus').textContent = '';
 
                 const box = document.getElementById('options');
                 box.innerHTML = '';
-                q.options.forEach((text, idx) => {
-                    const b = document.createElement('button');
-                    b.className = 'opt';
-                    b.textContent = text;
-                    b.onclick = () => choose(idx);
-                    box.appendChild(b);
+
+                question.options.forEach((text, idx) => {
+                    const button = document.createElement('button');
+
+                    button.type = 'button';
+                    button.className = 'opt';
+                    button.textContent = text;
+                    button.onclick = () => choose(idx);
+
+                    box.appendChild(button);
                 });
             }
 
             function choose(idx) {
                 if (answered) return;
+
                 answered = true;
 
-                const q = qs[i];
+                const question = qs[i];
                 const buttons = document.querySelectorAll('.opt');
-                const correct = idx === q.correct_index;
+                const correct = idx === Number(question.correct_index);
 
-                buttons[q.correct_index].classList.add('right');
+                // Prevent selecting another answer.
+                buttons.forEach(button => button.disabled = true);
+
+                // Highlight the correct answer.
+                if (buttons[question.correct_index]) {
+                    buttons[question.correct_index].classList.add('right');
+                }
 
                 if (correct) {
                     score++;
                     streak++;
+
                     playDing();
-                    confetti({ particleCount: 90, spread: 70, origin: { y: 0.7 }, colors: ['#f9a8d4', '#f472b6', '#fbcfe8', '#ffffff'] });
-                    showPopup((streak === 3 || streak === 5) ? pick(lines.streak) : pick(lines.correct), false);
+
+                    if (typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 90,
+                            spread: 70,
+                            origin: { y: 0.7 },
+                            colors: ['#fbcfe0', '#f4b0cc', '#fbcfe8', '#ffffff']
+                        });
+                    }
+
+                    const message = (streak === 3 || streak === 5)
+                        ? pick(lines.streak, 'Amazing streak! 🎀')
+                        : pick(lines.correct, 'You got it! ♡');
+
+                    showPopup(message);
                 } else {
                     streak = 0;
-                    buttons[idx].classList.add('wrong');
+
+                    if (buttons[idx]) {
+                        buttons[idx].classList.add('wrong');
+                    }
+
                     playBuzz();
-                    showPopup(pick(lines.wrong), true);
+                    showPopup(pick(lines.wrong, 'Keep learning! 🌷'), true);
                 }
 
                 document.getElementById('score').textContent = score;
                 document.getElementById('streak').textContent = streak;
 
-                const fb = document.getElementById('feedback');
-                fb.innerHTML = '';
-                const a = document.createElement('p');
-                a.textContent = '✅ Correct answer: ' + q.options[q.correct_index];
-                const why = document.createElement('p');
-                why.textContent = '💡 Why: ' + q.explanation;
-                fb.append(a, why);
-                fb.classList.remove('hidden');
+                // Save this answer independently.
+                saveAnswer(question, correct);
 
-                const nextBtn = document.getElementById('next');
-                nextBtn.textContent = (i === qs.length - 1) ? 'See results 🎉' : 'Next →';
-                nextBtn.classList.remove('hidden');
+                const feedback = document.getElementById('feedback');
+                feedback.innerHTML = '';
+
+                const title = document.createElement('p');
+                title.className = 'feedback-title';
+                title.textContent = correct
+                    ? '♡ Correct! You earned 10 points!'
+                    : '♡ Not quite! You earned 2 points for trying.';
+
+                const answer = document.createElement('p');
+                answer.textContent = 'Correct answer: ' + question.options[question.correct_index];
+
+                const explanation = document.createElement('p');
+                explanation.textContent = '💡 Why: ' + question.explanation;
+
+                feedback.append(title, answer, explanation);
+                feedback.classList.remove('hidden');
+
+                const nextButton = document.getElementById('next');
+
+                nextButton.textContent = (i === qs.length - 1)
+                    ? 'See my results 🎉'
+                    : 'Next question →';
+
+                nextButton.classList.remove('hidden');
             }
 
             function next() {
                 i++;
-                if (i >= qs.length) { finish(); } else { render(); }
+
+                if (i >= qs.length) {
+                    finish();
+                } else {
+                    render();
+                }
             }
 
             function finish() {
+                document.getElementById('progressFill').style.width = '100%';
+
                 const game = document.getElementById('game');
                 game.innerHTML = '';
-                const h = document.createElement('h2');
-                h.textContent = '🎉 You got ' + score + ' out of ' + qs.length + '!';
-                const p = document.createElement('p');
-                p.textContent = pick(lines.done);
+
+                const result = document.createElement('div');
+                result.className = 'result';
+
+                const icon = document.createElement('div');
+                icon.className = 'result-icon';
+                icon.textContent = '🎀';
+
+                const heading = document.createElement('h2');
+                heading.textContent = 'You did it!';
+
+                const scoreBox = document.createElement('div');
+                scoreBox.className = 'result-score';
+                scoreBox.textContent = score + ' / ' + qs.length + ' correct';
+
+                const message = document.createElement('p');
+                message.textContent = pick(
+                    lines.done,
+                    'Every little step counts. Keep learning! ♡'
+                );
+
+                const points = document.createElement('p');
+                points.textContent = 'You earned ' + ((score * 10) + ((qs.length - score) * 2)) + ' points!';
+
                 const again = document.createElement('button');
+                again.type = 'button';
+                again.className = 'next-button';
                 again.textContent = '🔁 Try again';
                 again.onclick = () => location.reload();
-                game.append(h, p, again);
-                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#f9a8d4', '#f472b6', '#fbcfe8'] });
+
+                result.append(icon, heading, scoreBox, message, points, again);
+                game.appendChild(result);
+
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 200,
+                        spread: 100,
+                        origin: { y: 0.6 },
+                        colors: ['#fbcfe0', '#f4b0cc', '#fbcfe8']
+                    });
+                }
             }
 
             render();
