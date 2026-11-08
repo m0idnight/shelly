@@ -6,6 +6,7 @@ use App\Models\StudySet;
 use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
 use ZipArchive;
+use App\Services\ClaudeService;
 
 class StudySetController extends Controller
 {
@@ -47,7 +48,16 @@ class StudySetController extends Controller
     {
         return view('show', compact('set'));
     }
+    public function summarize(StudySet $set, ClaudeService $claude)
+{
+    try {
+        $set->update(['summary' => $claude->summarize($set)]);
+    } catch (\Throwable $e) {
+        return redirect('/sets/' . $set->id)->withErrors(['ai' => $e->getMessage()]);
+    }
 
+    return redirect('/sets/' . $set->id);
+}
     private function extractText(string $path, string $ext): string
     {
         if ($ext === 'pdf') {
