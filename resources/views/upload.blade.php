@@ -1,83 +1,72 @@
-
 @extends('layouts.app')
 
-@section('title', 'Your Cozy Study Corner')
+@section('title', 'Upload Materials')
 
 @section('content')
-<div class="shelly-upload-page">
 
-    <div class="shelly-decoration butterfly butterfly-one">🦋</div>
-    <div class="shelly-decoration butterfly butterfly-two">🦋</div>
-    <div class="shelly-decoration little-bow bow-one">🎀</div>
-    <div class="shelly-decoration little-bow bow-two">୨୧</div>
+<div class="upload-page">
 
-    <section class="welcome-grid">
+    <div class="upload-decoration butterfly butterfly-one">🦋</div>
+    <div class="upload-decoration butterfly butterfly-two">🦋</div>
+    <div class="upload-decoration bow bow-one">୨୧</div>
+    <div class="upload-decoration bow bow-two">୨୧</div>
 
-        <div class="welcome-copy">
+    <section class="upload-layout">
 
-            <div class="welcome-label">
+        <div class="upload-intro">
+
+            <div class="intro-label">
                 <span>✿</span>
-                A LITTLE SPACE FOR BIG IDEAS
+                YOUR LITTLE STUDY SPACE
             </div>
 
-            <h1 class="page-title">
+            <h1>
                 Make studying<br>
                 feel a little <span>sweeter.</span>
             </h1>
 
-            <p class="page-description">
-                Welcome to Shelly's cozy little study corner!
-                Turn your notes and learning materials into
-                summaries, flashcards, and fun quizzes.
-                Let's make learning a little more magical.
+            <p class="intro-description">
+                Welcome to Shelly's cozy little study corner.
+                Upload your learning materials and turn them
+                into summaries, flashcards, and fun quizzes.
+                One little step at a time.
             </p>
 
-            <div class="welcome-details">
-                <div>
-                    <span class="detail-icon">♡</span>
-                    Simple study tools
-                </div>
-
-                <div>
-                    <span class="detail-icon">♡</span>
-                    Made for your pace
-                </div>
-
-                <div>
-                    <span class="detail-icon">♡</span>
-                    Your own study space
-                </div>
+            <div class="intro-features">
+                <div><span>♡</span> Simple study tools</div>
+                <div><span>♡</span> Learn at your own pace</div>
+                <div><span>♡</span> Your personal study space</div>
             </div>
 
-            <div class="welcome-note">
-                <span class="note-bunny">🐰</span>
+            <div class="reminder-card">
+                <div class="reminder-bunny">🐰</div>
+
                 <div>
                     <strong>A little reminder</strong>
                     <p>You're doing lovely. One page at a time!</p>
                 </div>
+
+                <span class="reminder-bow">୨୧</span>
             </div>
 
-            <div class="floating-bow">୨୧</div>
         </div>
 
+        <section class="upload-card">
 
-        <section class="upload-card panel">
+            <div class="card-ribbon">🎀</div>
 
-            <div class="card-top-decoration">
-                <span>🎀</span>
-            </div>
+            <div class="upload-heading">
+                <span class="section-label">LET'S GET STARTED</span>
 
-            <div class="upload-card-heading">
-                <span class="page-kicker">LET'S GET STARTED</span>
-                <h2>Add your study material</h2>
+                <h2>Add your study materials</h2>
 
-                <p class="upload-description">
-                    Pick a file from your device and let Shelly
-                    help you make studying easier.
+                <p>
+                    Choose one or more files, preview them,
+                    and let Shelly help make studying easier.
                 </p>
             </div>
 
-            <div class="bunny-divider">
+            <div class="divider-decoration">
                 <span>♡</span>
                 <span>✿</span>
                 <span>♡</span>
@@ -85,7 +74,8 @@
 
             @if ($errors->any())
                 <div class="error-message" role="alert">
-                    <strong>Oopsie! Please check your file.</strong>
+                    <strong>Oopsie! Please check your information.</strong>
+
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -105,297 +95,471 @@
                 action="{{ route('sets.store', [], false) }}"
                 enctype="multipart/form-data"
                 class="upload-form"
+                id="upload-form"
             >
                 @csrf
 
-                <label class="file-drop" for="study-file">
+                {{-- Study set title --}}
+                <div class="study-title-field">
 
-                    <div class="upload-icon">
-                        <span>♡</span>
-                    </div>
+                    <label for="study-title">
+                        Give your study set a name
+                    </label>
 
-                    <strong class="file-heading">
-                        Choose your study file
-                    </strong>
-
-                    <span class="file-subheading">
-                        PDF, DOCX, TXT, or an image
-                    </span>
-
-                    <span class="file-picker-button">
-                        <span>＋</span> Browse files
-                    </span>
-
-                    <span class="selected-file" id="file-name">
-                        No file selected yet
-                    </span>
+                    <p>
+                        Choose a title that helps you recognize these materials later.
+                    </p>
 
                     <input
-                        id="study-file"
-                        type="file"
-                        name="file"
-                        accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp"
+                        type="text"
+                        id="study-title"
+                        name="title"
+                        value="{{ old('title') }}"
+                        placeholder="e.g. Nursing - Chapter 1"
+                        maxlength="255"
                         required
                     >
-                </label>
+
+                    @error('title')
+                        <span class="title-error">{{ $message }}</span>
+                    @enderror
+
+                </div>
+
+                {{-- File picker --}}
+                <div class="file-picker-wrapper">
+
+                    <input
+                        type="file"
+                        id="study-file"
+                        name="files[]"
+                        accept=".pdf,.txt,.docx,.jpg,.jpeg,.png,.webp"
+                        multiple
+                        hidden
+                    >
+
+                    <label class="file-drop" for="study-file">
+
+                        <div class="upload-icon">♡</div>
+
+                        <span class="file-title">
+                            Drop your files here
+                        </span>
+
+                        <span class="file-description">
+                            PDF, TXT, DOCX, JPG, PNG, WEBP
+                        </span>
+
+                        <span class="browse-button">
+                            <span>＋</span>
+                            Browse files
+                        </span>
+
+                        <span class="selected-file" id="file-count">
+                            No files selected yet
+                        </span>
+
+                    </label>
+
+                    {{-- Selected files --}}
+                    <div class="file-selection" id="file-selection" hidden>
+
+                        <div class="selection-heading">
+                            <span class="selection-label">
+                                YOUR SELECTED FILES
+                            </span>
+
+                            <span class="selection-limit" id="selection-limit">
+                                0 / 10
+                            </span>
+                        </div>
+
+                        <div
+                            class="selected-file-list"
+                            id="selected-file-list"
+                        ></div>
+
+                        <button
+                            type="button"
+                            class="add-files-button"
+                            id="add-files-button"
+                        >
+                            <span>＋</span>
+                            Add more files
+                        </button>
+
+                    </div>
+
+                    <p
+                        class="file-limit-message"
+                        id="file-limit-message"
+                        role="alert"
+                        hidden
+                    >
+                        You can select up to 10 files at a time.
+                    </p>
+
+                </div>
 
                 <button class="button upload-button" type="submit">
-                    <span>Upload my materials</span>
-                    <span class="button-sparkle">✧</span>
+                    Upload my materials
+                    <span>✧</span>
                 </button>
+
             </form>
 
-            <div class="upload-footer">
+            <div class="upload-card-footer">
                 <span>🎀</span>
-                Your study corner, one topic at a time ♡
-                <span>🦋</span>
+                Your study corner, one topic at a time.
+                <span>♡</span>
             </div>
 
         </section>
 
     </section>
 
-    <div class="bottom-message">
-        <span>୨୧</span>
-        Made with a little love and lots of learning
-        <span>୨୧</span>
+</div>
+
+
+{{-- FILE PREVIEW MODAL --}}
+<div class="preview-modal" id="preview-modal" hidden>
+
+    <div
+        class="preview-backdrop"
+        id="preview-backdrop"
+    ></div>
+
+    <div
+        class="preview-window"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="preview-title"
+    >
+
+        <div class="preview-header">
+
+            <div>
+                <span class="section-label">
+                    YOUR STUDY MATERIAL
+                </span>
+
+                <h3 id="preview-title">
+                    File Preview
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                class="preview-close"
+                id="preview-close"
+                aria-label="Close preview"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div
+            class="preview-content"
+            id="preview-content"
+        ></div>
+
+        <div class="preview-footer">
+            <span>♡</span>
+            Your file stays private until you upload it.
+        </div>
+
     </div>
 
 </div>
 
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap');
 
-.shelly-upload-page {
-    --shelly-pink: #e88db2;
-    --shelly-dark-pink: #c76d97;
-    --shelly-light-pink: #fff0f6;
-    --shelly-pale: #fff9fb;
-    --shelly-cream: #fffaf5;
-    --shelly-text: #795568;
-    --shelly-muted: #ad8d9d;
+/* =========================================
+   UPLOAD PAGE
+========================================= */
 
+.upload-page {
     position: relative;
     isolation: isolate;
     width: 100%;
-    min-height: 680px;
-    padding: 42px 0 18px;
-    overflow: hidden;
-    color: var(--shelly-text);
-    font-family: 'DM Sans', sans-serif;
+    padding: 38px 0 25px;
+    color: var(--ink);
+    font-family: "Nunito", sans-serif;
 }
 
-.shelly-upload-page *,
-.shelly-upload-page *::before,
-.shelly-upload-page *::after {
-    box-sizing: border-box;
-}
-
-.welcome-grid {
+.upload-layout {
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr);
     align-items: center;
-    gap: clamp(35px, 6vw, 85px);
-    max-width: 1120px;
+    gap: clamp(35px, 6vw, 80px);
+    max-width: 1080px;
     margin: 0 auto;
 }
 
-.welcome-copy {
+
+/* =========================================
+   WELCOME SECTION
+========================================= */
+
+.upload-intro {
     position: relative;
-    padding: 30px 0 50px;
+    padding: 25px 0;
+    transform: translateY(-20px);
 }
 
-.welcome-label {
-    display: inline-flex;
+.intro-label {
+    display: flex;
     align-items: center;
     gap: 9px;
-    margin-bottom: 21px;
-    color: var(--shelly-dark-pink);
+    margin-bottom: 20px;
+    color: var(--pink-dark);
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 900;
     letter-spacing: 2px;
 }
 
-.welcome-label span {
-    font-size: 18px;
+.intro-label span {
+    font-size: 19px;
 }
 
-.page-title {
+.upload-intro h1 {
     margin: 0;
     color: #755267;
-    font-family: 'Fredoka', sans-serif;
-    font-size: clamp(38px, 4.4vw, 57px);
+    font-family: "Playfair Display", serif;
+    font-size: clamp(38px, 4.5vw, 57px);
     font-weight: 600;
-    line-height: 1.12;
-    letter-spacing: -1.8px;
+    line-height: 1.17;
+    letter-spacing: -1.5px;
 }
 
-.page-title span {
-    color: #df83a9;
+.upload-intro h1 span {
+    color: #d982a6;
 }
 
-.page-description {
-    max-width: 510px;
-    margin: 23px 0 0;
-    color: #a08393;
-    font-size: 15px;
+.intro-description {
+    max-width: 480px;
+    margin: 22px 0 0;
+    color: var(--muted);
+    font-size: 14px;
     line-height: 1.9;
 }
 
-.welcome-details {
+.intro-features {
     display: flex;
     flex-wrap: wrap;
-    gap: 13px 20px;
-    margin-top: 28px;
+    gap: 13px 19px;
+    margin-top: 27px;
 }
 
-.welcome-details div {
+.intro-features div {
     display: flex;
     align-items: center;
     gap: 7px;
-    color: #987789;
+    color: #927486;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
-.detail-icon {
-    color: #df8caf;
+.intro-features span {
+    color: #d982a6;
     font-size: 17px;
 }
 
-.welcome-note {
+.reminder-card {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 13px;
     width: fit-content;
     max-width: 100%;
-    margin-top: 42px;
-    padding: 13px 20px;
-    border: 1px solid #f6dce7;
+    margin-top: 38px;
+    padding: 14px 19px;
+    border: 1px solid #f0dce4;
     border-radius: 18px;
-    background: rgba(255,255,255,.62);
+    background: rgba(255, 255, 255, .75);
 }
 
-.note-bunny {
-    font-size: 27px;
+.reminder-bunny {
+    font-size: 28px;
 }
 
-.welcome-note strong {
-    color: #bd7897;
-    font-family: 'Fredoka', sans-serif;
+.reminder-card strong {
+    color: #a65f7b;
+    font-family: "Playfair Display", serif;
     font-size: 14px;
 }
 
-.welcome-note p {
-    margin: 3px 0 0;
-    color: #a88d9b;
+.reminder-card p {
+    margin: 4px 0 0;
+    color: var(--muted);
     font-size: 11px;
 }
 
-.floating-bow {
-    position: absolute;
-    right: 10%;
-    bottom: -5px;
-    color: #e9a4c0;
-    font-size: 52px;
-    transform: rotate(-12deg);
+.reminder-bow {
+    margin-left: 12px;
+    color: #d98eaa;
+    font-size: 25px;
 }
 
 
-/* Upload card */
+/* =========================================
+   UPLOAD CARD
+========================================= */
 
 .upload-card {
     position: relative;
-    padding: 36px;
+    padding: 35px;
     overflow: hidden;
-    border: 1px solid #f3dce6;
-    border-radius: 30px;
-    background: rgba(255, 253, 252, .94);
-    box-shadow: 0 18px 55px rgba(188, 124, 151, .10);
+    border: 1px solid var(--line);
+    border-radius: 27px;
+    background: rgba(255, 253, 251, .96);
+    box-shadow: var(--shadow);
 }
 
-.card-top-decoration {
+.card-ribbon {
     position: absolute;
-    top: 20px;
-    right: 24px;
+    top: 19px;
+    right: 22px;
     display: grid;
     place-items: center;
     width: 43px;
     height: 43px;
     border-radius: 15px;
-    background: #fff0f5;
-    font-size: 23px;
+    background: var(--pink-light);
+    font-size: 22px;
     transform: rotate(8deg);
 }
 
-.upload-card-heading {
-    padding-right: 24px;
+.upload-heading {
+    padding-right: 25px;
 }
 
-.upload-card .page-kicker {
-    color: #bf7797;
+.section-label {
+    color: var(--pink-dark);
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 900;
     letter-spacing: 2px;
 }
 
-.upload-card h2 {
-    margin: 13px 0 9px;
+.upload-heading h2 {
+    margin: 12px 0 8px;
     color: #755267;
-    font-family: 'Fredoka', sans-serif;
+    font-family: "Playfair Display", serif;
     font-size: 25px;
     font-weight: 600;
     line-height: 1.3;
 }
 
-.upload-description {
+.upload-heading p {
     margin: 0;
-    color: #a48998;
-    font-size: 13px;
+    color: var(--muted);
+    font-size: 12px;
     line-height: 1.8;
 }
 
-.bunny-divider {
+.divider-decoration {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    margin: 23px 0;
-    color: #e6a1bd;
+    gap: 14px;
+    margin: 24px 0;
+    color: #d98eaa;
     font-size: 15px;
 }
 
-.bunny-divider::before,
-.bunny-divider::after {
+.divider-decoration::before,
+.divider-decoration::after {
     content: "";
     flex: 1;
     height: 1px;
-    background: #f3dce6;
+    background: var(--line);
 }
 
 
-/* File upload */
+/* =========================================
+   UPLOAD FORM AND TITLE
+========================================= */
 
 .upload-form {
     display: grid;
     gap: 17px;
 }
 
+.study-title-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.study-title-field label {
+    color: #805d72;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.study-title-field p {
+    margin: 0 0 3px;
+    color: #a88d9b;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.study-title-field input {
+    width: 100%;
+    min-height: 47px;
+    padding: 12px 14px;
+    border: 1px solid #edcbd9;
+    border-radius: 13px;
+    outline: none;
+    background: #fffafd;
+    color: #755267;
+    font-family: "Nunito", sans-serif;
+    font-size: 12px;
+    transition: .2s ease;
+}
+
+.study-title-field input::placeholder {
+    color: #c2a8b5;
+}
+
+.study-title-field input:focus {
+    border-color: #d982a6;
+    box-shadow: 0 0 0 3px rgba(217, 130, 166, .13);
+}
+
+.title-error {
+    color: #a34e65;
+    font-size: 11px;
+}
+
+
+/* =========================================
+   FILE PICKER
+========================================= */
+
+.file-picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 .file-drop {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
     min-height: 205px;
-    padding: 24px 17px;
-    border: 2px dashed #edbed1;
-    border-radius: 23px;
+    padding: 23px 16px;
+    border: 2px dashed #e8b8cc;
+    border-radius: 21px;
     background:
-        radial-gradient(circle at 10% 15%, #fff0f6 0, transparent 25%),
+        radial-gradient(circle at 10% 15%, #fff0f6 0, transparent 28%),
         #fff8fb;
     color: #89677a;
     text-align: center;
@@ -404,13 +568,13 @@
 }
 
 .file-drop:hover {
-    border-color: #df8eaf;
+    border-color: #d98eaa;
     background-color: #fff0f6;
     transform: translateY(-2px);
 }
 
 .file-drop:focus-within {
-    outline: 3px solid rgba(224, 139, 175, .25);
+    outline: 3px solid #f3c5d6;
     outline-offset: 3px;
 }
 
@@ -419,276 +583,551 @@
     place-items: center;
     width: 53px;
     height: 53px;
-    border-radius: 19px;
+    border-radius: 18px;
     background: #ffe8f1;
     color: #d27fa2;
-    font-size: 30px;
+    font-size: 29px;
 }
 
-.file-heading {
+.file-title {
     color: #805d72;
-    font-family: 'Fredoka', sans-serif;
+    font-family: "Playfair Display", serif;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-.file-subheading {
-    color: #b194a3;
+.file-description {
+    color: #a88d9b;
     font-size: 11px;
 }
 
-.file-picker-button {
+.browse-button {
     display: inline-flex;
     align-items: center;
     gap: 7px;
     margin-top: 3px;
     padding: 9px 17px;
-    border: 1px solid #f0ccdb;
+    border: 1px solid #edcbd9;
     border-radius: 30px;
     background: white;
-    color: #bd7898;
+    color: var(--pink-dark);
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 900;
 }
 
-.file-picker-button span {
+.browse-button span {
     font-size: 17px;
 }
 
 .selected-file {
     max-width: 100%;
-    overflow-wrap: anywhere;
-    color: #b18d9f;
-    font-size: 10px;
-}
-
-.file-drop input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
+    color: #a88d9b;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 
-/* Submit button */
+/* =========================================
+   SELECTED FILES
+========================================= */
 
-.upload-button {
+.file-selection {
+    padding: 14px;
+    border: 1px solid #f0dce4;
+    border-radius: 16px;
+    background: #fffafd;
+}
+
+.file-selection[hidden] {
+    display: none;
+}
+
+.selection-heading {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 9px;
-    width: 100%;
-    min-height: 54px;
-    padding: 13px 20px;
-    border: none;
-    border-radius: 16px;
-    background: linear-gradient(110deg, #e99bb9, #d97fa6);
-    box-shadow: 0 9px 20px rgba(216, 127, 166, .19);
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 11px;
+}
+
+.selection-label {
+    color: #a16f88;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+}
+
+.selection-limit {
+    color: #b58a9e;
+    font-size: 10px;
     font-weight: 800;
+}
+
+.selected-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.file-chip {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid #f1dce5;
+    border-radius: 13px;
+    background: white;
+    color: #916c80;
+}
+
+.file-chip-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #fff0f5;
+    color: #c57697;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.file-chip-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: #916c80;
+    font-size: 11px;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-chip-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+.file-chip-preview {
+    padding: 6px 10px;
+    border: 1px solid #edcbd9;
+    border-radius: 20px;
+    background: #fff8fb;
+    color: #a65f7b;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.file-chip-preview:hover {
+    background: #ffeaf2;
+}
+
+.file-chip-remove {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #fff0f5;
+    color: #c57697;
+    font-size: 16px;
     cursor: pointer;
     transition: .2s ease;
 }
 
-.upload-button:hover {
-    background: linear-gradient(110deg, #e58eb2, #cf719a);
-    box-shadow: 0 12px 24px rgba(216, 127, 166, .25);
-    transform: translateY(-2px);
+.file-chip-remove:hover {
+    background: #f7dce7;
+    color: #a94f77;
 }
 
-.upload-button:active {
-    transform: translateY(0);
+.add-files-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 13px;
+    padding: 7px 12px;
+    border: 1px solid #edcbd9;
+    border-radius: 30px;
+    background: white;
+    color: var(--pink-dark);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: .2s ease;
 }
 
-.button-sparkle {
+.add-files-button:hover {
+    background: #fff0f6;
+    border-color: #d98eaa;
+}
+
+.add-files-button span {
+    font-size: 15px;
+}
+
+.add-files-button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.file-limit-message {
+    margin: -5px 0 0;
+    color: #a34e65;
+    font-size: 11px;
+    text-align: center;
+}
+
+.file-limit-message[hidden] {
+    display: none;
+}
+
+
+/* =========================================
+   PREVIEW MODAL
+========================================= */
+
+.preview-modal[hidden] {
+    display: none;
+}
+
+.preview-modal {
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.preview-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(63, 39, 54, .58);
+    backdrop-filter: blur(4px);
+}
+
+.preview-window {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    width: min(850px, 100%);
+    max-height: 90vh;
+    overflow: hidden;
+    border: 1px solid #f0dce4;
+    border-radius: 22px;
+    background: #fffdfc;
+    box-shadow: 0 20px 70px rgba(63, 39, 54, .2);
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0dce4;
+}
+
+.preview-header h3 {
+    margin: 5px 0 0;
+    color: #755267;
+    font-family: "Playfair Display", serif;
+    font-size: 21px;
+    overflow-wrap: anywhere;
+}
+
+.preview-close {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #f0dce4;
+    border-radius: 50%;
+    background: #fff5f9;
+    color: #a65f7b;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.preview-content {
+    min-height: 250px;
+    overflow: auto;
+    padding: 18px;
+    background: #fff8fb;
+}
+
+.preview-image {
+    display: block;
+    max-width: 100%;
+    max-height: 65vh;
+    margin: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.preview-pdf {
+    display: block;
+    width: 100%;
+    height: 65vh;
+    border: 0;
+    border-radius: 10px;
+    background: white;
+}
+
+.preview-text {
+    max-height: 65vh;
+    overflow: auto;
+    margin: 0;
+    padding: 20px;
+    border: 1px solid #f0dce4;
+    border-radius: 12px;
+    background: white;
+    color: #70596a;
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.preview-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 250px;
+    padding: 25px;
+    color: #916c80;
+    text-align: center;
+}
+
+.preview-notice-icon {
+    display: grid;
+    place-items: center;
+    width: 65px;
+    height: 65px;
+    border-radius: 20px;
+    background: #ffe8f1;
+    color: #c57697;
+    font-size: 29px;
+}
+
+.preview-notice strong {
+    color: #805d72;
+    font-family: "Playfair Display", serif;
     font-size: 19px;
 }
 
-.upload-footer {
+.preview-notice p {
+    max-width: 380px;
+    margin: 0;
+    color: #a88d9b;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.preview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px;
+    border-top: 1px solid #f0dce4;
+    color: #a88d9b;
+    font-size: 10px;
+}
+
+.preview-footer span {
+    color: #d98eaa;
+}
+
+
+/* =========================================
+   UPLOAD BUTTON
+========================================= */
+
+.upload-button {
+    width: 100%;
+    min-height: 53px;
+    gap: 10px;
+    border-radius: 15px;
+    background: linear-gradient(110deg, #e99bb9, #d982a6);
+    box-shadow: 0 8px 18px rgba(216, 127, 166, .16);
+}
+
+.upload-button:hover {
+    background: linear-gradient(110deg, #df8eaf, #c76d97);
+    box-shadow: 0 10px 22px rgba(216, 127, 166, .22);
+}
+
+.upload-button span {
+    font-size: 19px;
+}
+
+.upload-card-footer {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
     margin-top: 21px;
-    color: #b28fa0;
+    color: #a88d9b;
     font-size: 10px;
 }
 
-.upload-footer span {
-    font-size: 13px;
+.upload-card-footer span {
+    color: #d98eaa;
 }
 
 
-/* Messages */
+/* =========================================
+   FEEDBACK MESSAGES
+========================================= */
 
-.error-message,
-.success-message {
+.upload-page .error-message,
+.upload-page .success-message {
     margin: 15px 0;
     padding: 13px 16px;
-    border-radius: 14px;
+    border-radius: 13px;
     font-size: 12px;
     line-height: 1.6;
 }
 
-.error-message {
-    border: 1px solid #f1c2ce;
-    background: #fff1f3;
-    color: #a34e69;
+.upload-page .error-message {
+    border: 1px solid #efc2ce;
+    background: #fff0f3;
+    color: #a34e65;
 }
 
-.error-message ul {
+.upload-page .error-message ul {
     margin: 6px 0 0;
     padding-left: 19px;
 }
 
-.success-message {
+.upload-page .success-message {
     border: 1px solid #d9e9d8;
     background: #f4fbf2;
     color: #668d65;
 }
 
 
-/* Decorations */
+/* =========================================
+   DECORATIVE ELEMENTS
+========================================= */
 
-.shelly-decoration {
+.upload-decoration {
     position: absolute;
     z-index: 0;
     pointer-events: none;
     user-select: none;
 }
 
-.butterfly {
-    color: #e8a2bd;
-    font-size: 29px;
-    opacity: .72;
-}
-
 .butterfly-one {
-    top: 35px;
-    left: 5%;
+    top: 15px;
+    left: 3%;
     transform: rotate(-17deg);
 }
 
 .butterfly-two {
-    right: 4%;
-    bottom: 100px;
-    font-size: 24px;
+    right: 3%;
+    bottom: 70px;
     transform: rotate(15deg);
 }
 
-.little-bow {
-    color: #e4a0ba;
-    font-size: 38px;
-    opacity: .7;
+.upload-page .butterfly {
+    font-size: 25px;
+    opacity: .65;
 }
 
 .bow-one {
-    top: 45%;
+    top: 42%;
     left: -5px;
     transform: rotate(-15deg);
 }
 
 .bow-two {
     right: 3%;
-    top: 15%;
+    top: 13%;
     transform: rotate(12deg);
 }
 
-.bottom-message {
-    position: relative;
-    z-index: 1;
-    margin: 70px auto 0;
-    color: #b391a1;
-    text-align: center;
-    font-size: 11px;
-    letter-spacing: .2px;
-}
-
-.bottom-message span {
-    padding: 0 7px;
-    color: #df9fba;
+.upload-page .bow {
+    color: #e4a0ba;
+    font-size: 36px;
+    opacity: .65;
 }
 
 
-/* Responsive layout */
+/* =========================================
+   RESPONSIVE
+========================================= */
 
 @media (max-width: 850px) {
-    .shelly-upload-page {
-        padding: 25px 0 20px;
+
+    .upload-page {
+        padding: 25px 0;
     }
 
-    .welcome-grid {
+    .upload-layout {
         grid-template-columns: 1fr;
         gap: 25px;
-        max-width: 550px;
+        max-width: 570px;
     }
 
-    .welcome-copy {
-        padding: 12px 5px 15px;
+    .upload-intro {
+        padding: 12px 5px;
+        transform: none;
     }
 
-    .page-title {
+    .upload-intro h1 {
         font-size: clamp(39px, 7vw, 52px);
     }
 
-    .welcome-note {
-        margin-top: 25px;
-    }
-
-    .floating-bow {
-        right: 7%;
-        bottom: 0;
-    }
-
-    .upload-card {
-        padding: 30px;
-    }
-
-    .bottom-message {
-        margin-top: 45px;
-    }
 }
 
 @media (max-width: 480px) {
-    .welcome-grid {
-        padding: 0 5px;
+
+    .upload-page {
+        padding-top: 15px;
     }
 
-    .welcome-copy {
-        padding: 10px 5px;
+    .upload-layout {
+        padding: 0 3px;
     }
 
-    .page-title {
+    .upload-intro h1 {
         font-size: 38px;
-        letter-spacing: -1px;
     }
 
-    .page-description {
+    .intro-description {
         font-size: 13px;
     }
 
-    .welcome-details {
-        gap: 12px;
+    .intro-features {
+        gap: 11px;
     }
 
-    .welcome-details div {
+    .intro-features div {
         font-size: 11px;
-    }
-
-    .welcome-note {
-        padding: 11px 14px;
     }
 
     .upload-card {
         padding: 25px 19px;
-        border-radius: 24px;
+        border-radius: 23px;
     }
 
-    .upload-card h2 {
+    .upload-heading h2 {
         font-size: 22px;
     }
 
@@ -696,47 +1135,523 @@
         min-height: 190px;
     }
 
-    .floating-bow,
     .bow-one,
-    .bow-two {
+    .bow-two,
+    .butterfly-two {
         display: none;
     }
 
-    .butterfly-one {
-        top: 0;
-        left: auto;
-        right: 10px;
+    .preview-modal {
+        padding: 10px;
     }
 
-    .bottom-message {
-        font-size: 9px;
+    .preview-window {
+        max-height: 95vh;
     }
+
+    .preview-header {
+        padding: 14px;
+    }
+
+    .preview-content {
+        padding: 10px;
+    }
+
+    .preview-pdf {
+        height: 65vh;
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .shelly-upload-page *,
-    .shelly-upload-page *::before,
-    .shelly-upload-page *::after {
+
+    .upload-page *,
+    .upload-page *::before,
+    .upload-page *::after {
         transition: none !important;
     }
+
 }
+
 </style>
 
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const fileInput = document.getElementById('study-file');
-    const fileName = document.getElementById('file-name');
+    const fileCount = document.getElementById('file-count');
+    const fileSelection = document.getElementById('file-selection');
+    const fileList = document.getElementById('selected-file-list');
+    const selectionLimit = document.getElementById('selection-limit');
+    const addFilesButton = document.getElementById('add-files-button');
+    const limitMessage = document.getElementById('file-limit-message');
+    const uploadForm = document.getElementById('upload-form');
 
-    if (!fileInput || !fileName) return;
+    const previewModal = document.getElementById('preview-modal');
+    const previewContent = document.getElementById('preview-content');
+    const previewTitle = document.getElementById('preview-title');
+    const previewClose = document.getElementById('preview-close');
+    const previewBackdrop = document.getElementById('preview-backdrop');
 
-    fileInput.addEventListener('change', function () {
-        const file = this.files && this.files[0];
+    if (
+        !fileInput ||
+        !fileCount ||
+        !fileSelection ||
+        !fileList ||
+        !selectionLimit ||
+        !addFilesButton ||
+        !uploadForm
+    ) {
+        return;
+    }
 
-        fileName.textContent = file
-            ? 'Selected: ' + file.name
-            : 'No file selected yet';
+    const MAX_FILES = 10;
+
+    let selectedFiles = [];
+    let currentPreviewUrl = null;
+    let currentPreviewFile = null;
+    let previewTrigger = null;
+    let previewRequestId = 0;
+    let previousBodyOverflow = '';
+
+    // Keep the actual file input synchronized with our selection.
+    function updateInputFiles() {
+
+        const transfer = new DataTransfer();
+
+        selectedFiles.forEach(function (file) {
+            transfer.items.add(file);
+        });
+
+        fileInput.files = transfer.files;
+
+    }
+
+
+    // Release the previous preview URL.
+    function releasePreviewUrl() {
+
+        if (currentPreviewUrl) {
+            URL.revokeObjectURL(currentPreviewUrl);
+            currentPreviewUrl = null;
+        }
+
+    }
+
+
+    // Close the preview modal.
+    function closePreview() {
+
+        previewRequestId++;
+
+        previewModal.hidden = true;
+        previewContent.replaceChildren();
+
+        releasePreviewUrl();
+
+        currentPreviewFile = null;
+
+        document.body.style.overflow = previousBodyOverflow;
+
+        if (previewTrigger && document.contains(previewTrigger)) {
+            previewTrigger.focus();
+        }
+
+        previewTrigger = null;
+
+    }
+
+
+    // Show a friendly preview message.
+    function showNotice(title, message, icon) {
+
+        previewContent.replaceChildren();
+
+        const notice = document.createElement('div');
+        notice.className = 'preview-notice';
+
+        const iconBox = document.createElement('div');
+        iconBox.className = 'preview-notice-icon';
+        iconBox.textContent = icon;
+
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+
+        const description = document.createElement('p');
+        description.textContent = message;
+
+        notice.appendChild(iconBox);
+        notice.appendChild(heading);
+        notice.appendChild(description);
+
+        previewContent.appendChild(notice);
+
+    }
+
+
+    // Open a selected file in the preview modal.
+    async function previewFile(file, trigger) {
+
+        previewRequestId++;
+
+        const requestId = previewRequestId;
+
+        releasePreviewUrl();
+        previewContent.replaceChildren();
+
+        currentPreviewFile = file;
+        previewTrigger = trigger;
+
+        previewTitle.textContent = file.name + ' Preview';
+
+        if (previewModal.hidden) {
+            previousBodyOverflow = document.body.style.overflow;
+        }
+
+        previewModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+
+        previewClose.focus();
+
+        const extension = file.name.split('.').pop().toLowerCase();
+
+        const imageTypes = ['jpg', 'jpeg', 'png', 'webp'];
+
+
+        // Image preview.
+        if (imageTypes.includes(extension)) {
+
+            currentPreviewUrl = URL.createObjectURL(file);
+
+            const image = document.createElement('img');
+
+            image.className = 'preview-image';
+            image.src = currentPreviewUrl;
+            image.alt = 'Preview of ' + file.name;
+
+            previewContent.appendChild(image);
+
+            return;
+
+        }
+
+
+        // PDF preview.
+        if (extension === 'pdf') {
+
+            currentPreviewUrl = URL.createObjectURL(file);
+
+            const frame = document.createElement('iframe');
+
+            frame.className = 'preview-pdf';
+            frame.src = currentPreviewUrl;
+            frame.title = 'Preview of ' + file.name;
+
+            previewContent.appendChild(frame);
+
+            return;
+
+        }
+
+
+        // TXT preview.
+        if (extension === 'txt') {
+
+            showNotice(
+                'Loading your document...',
+                'Just a little moment while Shelly prepares your preview.',
+                '♡'
+            );
+
+            try {
+
+                const text = await file.text();
+
+                // Ignore results from an older preview request.
+                if (
+                    previewModal.hidden ||
+                    requestId !== previewRequestId
+                ) {
+                    return;
+                }
+
+                const content = document.createElement('pre');
+
+                content.className = 'preview-text';
+                content.textContent = text || 'This text file is empty.';
+
+                previewContent.replaceChildren(content);
+
+            } catch (error) {
+
+                if (requestId !== previewRequestId) {
+                    return;
+                }
+
+                showNotice(
+                    'Preview unavailable',
+                    'Shelly could not read this text file in the browser.',
+                    '♡'
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // DOCX preview.
+        if (extension === 'docx') {
+
+            showNotice(
+                'Document selected!',
+                'Your DOCX document is ready to upload. Browser preview is not available for this file type, but Shelly can still process it after uploading.',
+                '📄'
+            );
+
+            return;
+
+        }
+
+
+        showNotice(
+            'Preview unavailable',
+            'This file type cannot be previewed in the browser.',
+            '♡'
+        );
+
+    }
+
+
+    // Update the selected-file list.
+    function renderFiles() {
+
+        const count = selectedFiles.length;
+
+        fileCount.textContent = count === 0
+            ? 'No files selected yet'
+            : count === 1
+                ? '1 file selected'
+                : count + ' files selected';
+
+        selectionLimit.textContent = count + ' / ' + MAX_FILES;
+
+        fileSelection.hidden = count === 0;
+
+        addFilesButton.disabled = count >= MAX_FILES;
+
+        fileList.replaceChildren();
+
+
+        selectedFiles.forEach(function (file, index) {
+
+            const chip = document.createElement('div');
+            chip.className = 'file-chip';
+
+
+            // File icon.
+            const icon = document.createElement('div');
+            icon.className = 'file-chip-icon';
+
+            const lowerName = file.name.toLowerCase();
+
+            if (file.type.startsWith('image/')) {
+                icon.textContent = '♡';
+            } else if (lowerName.endsWith('.pdf')) {
+                icon.textContent = 'PDF';
+            } else if (lowerName.endsWith('.docx')) {
+                icon.textContent = 'DOC';
+            } else {
+                icon.textContent = 'TXT';
+            }
+
+
+            // Actual filename.
+            const label = document.createElement('span');
+
+            label.className = 'file-chip-label';
+            label.textContent = file.name;
+            label.title = file.name;
+
+
+            // File actions.
+            const actions = document.createElement('div');
+            actions.className = 'file-chip-actions';
+
+
+            // Preview button.
+            const previewButton = document.createElement('button');
+
+            previewButton.type = 'button';
+            previewButton.className = 'file-chip-preview';
+            previewButton.textContent = 'Preview';
+
+            previewButton.setAttribute(
+                'aria-label',
+                'Preview ' + file.name
+            );
+
+            previewButton.addEventListener('click', function () {
+                previewFile(file, previewButton);
+            });
+
+
+            // Remove button.
+            const removeButton = document.createElement('button');
+
+            removeButton.type = 'button';
+            removeButton.className = 'file-chip-remove';
+            removeButton.textContent = '×';
+
+            removeButton.setAttribute(
+                'aria-label',
+                'Remove ' + file.name
+            );
+
+            removeButton.addEventListener('click', function () {
+
+                // Close preview if this exact file is being previewed.
+                if (
+                    !previewModal.hidden &&
+                    currentPreviewFile === file
+                ) {
+                    closePreview();
+                }
+
+                selectedFiles.splice(index, 1);
+
+                updateInputFiles();
+                renderFiles();
+
+                limitMessage.hidden = true;
+
+            });
+
+
+            actions.appendChild(previewButton);
+            actions.appendChild(removeButton);
+
+            chip.appendChild(icon);
+            chip.appendChild(label);
+            chip.appendChild(actions);
+
+            fileList.appendChild(chip);
+
+        });
+
+    }
+
+
+    // Add files without replacing existing selections.
+    function addSelectedFiles(files) {
+
+        limitMessage.hidden = true;
+
+        const incomingFiles = Array.from(files || []);
+
+        const availableSlots = MAX_FILES - selectedFiles.length;
+
+        if (incomingFiles.length > availableSlots) {
+            limitMessage.hidden = false;
+        }
+
+        if (availableSlots <= 0) {
+            limitMessage.hidden = false;
+            return;
+        }
+
+        const filesToAdd = incomingFiles.slice(0, availableSlots);
+
+        selectedFiles = selectedFiles.concat(filesToAdd);
+
+        updateInputFiles();
+        renderFiles();
+
+    }
+
+
+    // Allow the same file to be selected again.
+    fileInput.addEventListener('click', function () {
+        this.value = '';
     });
+
+
+    // Add newly selected files.
+    fileInput.addEventListener('change', function () {
+        addSelectedFiles(this.files);
+    });
+
+
+    // Add more files.
+    addFilesButton.addEventListener('click', function () {
+
+        if (selectedFiles.length < MAX_FILES) {
+            fileInput.click();
+        }
+
+    });
+
+
+    // Close modal using its controls.
+    previewClose.addEventListener('click', closePreview);
+
+    previewBackdrop.addEventListener('click', closePreview);
+
+
+    // Close modal using Escape and keep keyboard focus inside.
+    document.addEventListener('keydown', function (event) {
+
+        if (previewModal.hidden) {
+            return;
+        }
+
+        if (event.key === 'Escape') {
+
+            event.preventDefault();
+
+            closePreview();
+
+            return;
+
+        }
+
+        if (event.key === 'Tab') {
+
+            event.preventDefault();
+
+            previewClose.focus();
+
+        }
+
+    });
+
+
+    // Validate selection before uploading.
+    uploadForm.addEventListener('submit', function (event) {
+
+        if (selectedFiles.length === 0) {
+
+            event.preventDefault();
+
+            fileCount.textContent = 'Please select at least one file.';
+
+            fileInput.focus();
+
+            return;
+
+        }
+
+        updateInputFiles();
+
+    });
+
+
+    // Initial state.
+    renderFiles();
+
 });
 </script>
+
 @endsection

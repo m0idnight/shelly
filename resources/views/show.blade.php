@@ -1,13 +1,11 @@
+
 @extends('layouts.app')
 
 @section('title', $set->title)
 
 @section('content')
-<div class="study-page">
 
-    <a href="{{ route('dashboard') }}" class="back-link">
-        ← Back to dashboard
-    </a>
+<div class="study-page">
 
     @if (session('success'))
         <div class="success-message">
@@ -21,18 +19,23 @@
         </div>
     @endif
 
+    <!-- Study heading -->
     <section class="panel study-heading">
-        <div>
+
+        <div class="study-heading-copy">
             <span class="page-kicker">♡ Your study collection</span>
+
             <h1 class="page-title">{{ $set->title }}</h1>
+
             <p class="page-description">
-                Your notes, summaries, and study activities all in one place.
+                Choose how you would like to study your material today.
             </p>
         </div>
 
         <div class="heading-actions">
+
             <a href="{{ route('sets.edit', $set) }}" class="button">
-                ✎ Edit
+                ✎ Edit material
             </a>
 
             <button
@@ -40,82 +43,140 @@
                 class="delete-button"
                 onclick="openDeleteModal()"
             >
+                <i class="fa-regular fa-trash-can"></i>
                 Delete
             </button>
+
         </div>
+
     </section>
 
-    <section class="tool-grid">
-        <article class="panel tool-card">
-            <span class="tool-icon">✧</span>
-            <h2>Study summary</h2>
-            <p>Turn your material into clear, organized notes.</p>
+    <!-- Study tools -->
+    <section class="study-tools-section">
 
-            <form method="POST" action="{{ route('sets.summarize', $set) }}">
-                @csrf
-                <button class="button" type="submit">
-                    {{ $set->summary ? 'Regenerate summary' : 'Make summary' }} ✨
-                </button>
-            </form>
-        </article>
-
-        <article class="panel tool-card">
-            <span class="tool-icon">🃏</span>
-            <h2>Flashcards</h2>
-            <p>Review important ideas using interactive cards.</p>
-
-            <a href="{{ route('sets.flashcards', $set) }}" class="button">
-                Open flashcards →
-            </a>
-        </article>
-
-        <article class="panel tool-card">
-            <span class="tool-icon">🎀</span>
-            <h2>Quiz time</h2>
-            <p>Test what you've learned with a fun quiz.</p>
-
-            <a href="{{ route('sets.quiz', $set) }}" class="button">
-                Open quiz →
-            </a>
-        </article>
-    </section>
-
-    @if ($set->summary)
-        <section class="panel content-card">
-            <span class="page-kicker">✧ Your generated notes</span>
-            <h2>Study summary</h2>
-
-            <div class="markdown-content">
-                {!! Str::markdown($set->summary, ['html_input' => 'escape']) !!}
+        <div class="section-heading">
+            <div>
+                <span class="page-kicker">✧ Your study tools</span>
+                <h2>What shall we study?</h2>
+                <p>Pick a little activity to help you learn.</p>
             </div>
-        </section>
-    @endif
 
-    <section class="panel content-card">
-        <span class="page-kicker">📖 Original material</span>
-        <h2>Your uploaded file</h2>
+            <span class="section-decoration">୨୧</span>
+        </div>
 
-        @if ($set->image_path)
-            <img
-                src="{{ asset('storage/' . $set->image_path) }}"
-                alt="Uploaded study material"
-                class="original-image"
-            >
-        @elseif ($set->source_text)
-            <pre class="original-text">{{ $set->source_text }}</pre>
-        @else
-            <p class="empty-note">No original material is available.</p>
-        @endif
+        <div class="tool-grid">
+
+            <!-- Summary -->
+            <article class="panel tool-card summary-tool">
+
+                <div class="tool-top">
+                    <div class="tool-icon notes-icon">
+                        <i class="fa-regular fa-file-lines"></i>
+                    </div>
+
+                    <span class="tool-number">01</span>
+                </div>
+
+                <span class="tool-label">READ & REVIEW</span>
+
+                <h3>Study Summary</h3>
+
+                <p>
+                    Read organized notes and important points
+                    generated from your uploaded material.
+                </p>
+
+                <a href="{{ route('sets.summary.setup', $set) }}"
+                   class="tool-link">
+                    Open summary <span>→</span>
+                </a>
+
+            </article>
+
+            <!-- Flashcards -->
+            <article class="panel tool-card flashcard-tool">
+
+                <div class="tool-top">
+                    <div class="tool-icon flashcard-icon">
+                        <i class="fa-regular fa-clone"></i>
+                    </div>
+
+                    <span class="tool-number">02</span>
+                </div>
+
+                <span class="tool-label">PRACTICE & REMEMBER</span>
+
+                <h3>Flashcards</h3>
+
+                <p>
+                    Review key concepts with interactive
+                    flashcards and test your memory.
+                </p>
+
+                <a href="{{ route('sets.flashcards', $set) }}"
+                   class="tool-link">
+                    Open flashcards <span>→</span>
+                </a>
+
+            </article>
+
+            <!-- Quiz -->
+            <article class="panel tool-card quiz-tool">
+
+                <div class="tool-top">
+                    <div class="tool-icon quiz-icon">
+                        <i class="fa-regular fa-circle-question"></i>
+                    </div>
+
+                    <span class="tool-number">03</span>
+                </div>
+
+                <span class="tool-label">TEST YOUR KNOWLEDGE</span>
+
+                <h3>Quiz Time</h3>
+
+                <p>
+                    Answer questions about your material
+                    and see how much you have learned.
+                </p>
+
+                <a href="{{ route('sets.quiz', $set) }}"
+                   class="tool-link">
+                    Start quiz <span>→</span>
+                </a>
+
+            </article>
+
+        </div>
+
     </section>
+
+    <div class="study-bottom-note">
+        <span>♡</span>
+        One page at a time, one step closer to learning.
+        <span>♡</span>
+    </div>
+
 </div>
 
+
 <!-- Delete confirmation modal -->
-<div class="modal-overlay" id="deleteModal" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true"
+<div class="modal-overlay"
+     id="deleteModal"
+     aria-hidden="true">
+
+    <div class="modal-card"
+         role="dialog"
+         aria-modal="true"
          aria-labelledby="modal-title">
 
         <div class="modal-bow">୨୧</div>
-        <span class="modal-icon">🧸</span>
+
+        <span class="modal-icon">
+            <i class="fa-regular fa-trash-can"></i>
+        </span>
+
+        <span class="modal-kicker">A LITTLE CONFIRMATION</span>
 
         <h2 id="modal-title">Delete this study set?</h2>
 
@@ -125,270 +186,454 @@
         </p>
 
         <p class="modal-note">
-            Its flashcards and quiz questions will also be deleted.
-            Your study history will be preserved.
+            Its uploaded materials, flashcards, and quiz questions
+            will also be deleted.
         </p>
 
         <div class="modal-actions">
-            <button type="button" class="cancel-button"
-                    onclick="closeDeleteModal()">
+
+            <button
+                type="button"
+                class="cancel-button"
+                onclick="closeDeleteModal()">
                 Keep it
             </button>
 
-            <form method="POST" action="{{ route('sets.destroy', $set) }}">
+            <form method="POST"
+                  action="{{ route('sets.destroy', $set) }}">
+
                 @csrf
                 @method('DELETE')
 
                 <button type="submit" class="confirm-delete">
                     Yes, delete
                 </button>
+
             </form>
+
         </div>
+
     </div>
+
 </div>
 
+
 <style>
-    .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: var(--pink-dark);
-        font-size: 13px;
-        font-weight: 800;
-        text-decoration: none;
-    }
 
-    .success-message {
-        margin-bottom: 18px;
-        padding: 13px 16px;
-        border: 1px solid #cce5d5;
-        border-radius: 13px;
-        background: #f1faf4;
-        color: #527e61;
-    }
+/* Study heading */
 
+.study-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    padding: 30px;
+}
+
+.study-heading-copy {
+    min-width: 0;
+}
+
+.study-heading .page-title {
+    overflow-wrap: anywhere;
+}
+
+.heading-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid #f0cbd7;
+    border-radius: 15px;
+    background: #fff5f7;
+    color: #a75c73;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.delete-button:hover {
+    background: #fce8ef;
+    transform: translateY(-2px);
+}
+
+
+/* Study tools section */
+
+.study-tools-section {
+    margin-top: 35px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 17px;
+}
+
+.section-heading h2 {
+    margin: 7px 0 5px;
+    color: #795568;
+    font-family: Georgia, serif;
+    font-size: 24px;
+}
+
+.section-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.section-decoration {
+    color: #d99bb0;
+    font-size: 30px;
+}
+
+
+/* Tool cards */
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.tool-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 245px;
+    padding: 23px;
+    overflow: hidden;
+    transition: .2s ease;
+}
+
+.tool-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(133, 85, 105, .09);
+}
+
+.tool-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.tool-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    font-size: 20px;
+}
+
+.notes-icon {
+    background: #fff0f5;
+    color: #c47e9b;
+}
+
+.flashcard-icon {
+    background: #fdf0e9;
+    color: #c28d78;
+}
+
+.quiz-icon {
+    background: #f0effb;
+    color: #9185c4;
+}
+
+.tool-number {
+    color: #d9c4cd;
+    font-family: Georgia, serif;
+    font-size: 15px;
+}
+
+.tool-label {
+    color: #b98a9d;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .13em;
+}
+
+.tool-card h3 {
+    margin: 8px 0;
+    color: #795568;
+    font-family: Georgia, serif;
+    font-size: 19px;
+}
+
+.tool-card p {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.tool-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 13px;
+    border-top: 1px solid #f0e2e7;
+    margin-top: auto;
+    color: #b16f8a;
+    font-size: 11px;
+    font-weight: 900;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.tool-link span {
+    font-size: 17px;
+    transition: transform .2s ease;
+}
+
+.tool-link:hover {
+    color: #92516c;
+}
+
+.tool-link:hover span {
+    transform: translateX(4px);
+}
+
+
+/* Bottom note */
+
+.study-bottom-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 25px 0 10px;
+    color: #a17e8e;
+    font-family: Georgia, serif;
+    font-size: 12px;
+    font-style: italic;
+    text-align: center;
+}
+
+.study-bottom-note span {
+    color: #d99bb0;
+}
+
+
+/* Messages */
+
+.success-message {
+    padding: 13px 16px;
+    border: 1px solid #cce5d5;
+    border-radius: 13px;
+    margin-bottom: 18px;
+    background: #f1faf4;
+    color: #527e61;
+}
+
+.error-message {
+    padding: 13px 16px;
+    border: 1px solid #efc2ce;
+    border-radius: 13px;
+    margin-bottom: 18px;
+    background: #fff0f3;
+    color: #a34e65;
+}
+
+
+/* Delete modal */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #49313d75;
+    backdrop-filter: blur(5px);
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal-card {
+    position: relative;
+    width: min(100%, 410px);
+    padding: 34px 27px;
+    border: 1px solid #f2dce5;
+    border-radius: 25px;
+    background: #fffdfb;
+    box-shadow: 0 20px 70px #49313d30;
+    text-align: center;
+}
+
+.modal-bow {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #e4a5bf;
+    font-size: 30px;
+}
+
+.modal-icon {
+    display: grid;
+    place-items: center;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    margin: 0 auto 13px;
+    background: #fff0f5;
+    color: #c47e9b;
+    font-size: 25px;
+}
+
+.modal-kicker {
+    color: #bd8ba0;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .15em;
+}
+
+.modal-card h2 {
+    margin: 10px 0;
+    color: #795568;
+    font-family: Georgia, serif;
+    font-size: 23px;
+}
+
+.modal-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.modal-note {
+    font-size: 12px !important;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.cancel-button,
+.confirm-delete {
+    min-height: 44px;
+    padding: 0 17px;
+    border-radius: 13px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.cancel-button {
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--pink-dark);
+}
+
+.confirm-delete {
+    border: 0;
+    background: #c97591;
+    color: white;
+}
+
+.confirm-delete:hover {
+    background: #ad5d7a;
+}
+
+
+/* Responsive */
+
+@media (max-width: 850px) {
+    .tool-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
     .study-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 25px;
-        padding: 30px;
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 23px;
     }
-
-    .study-heading .page-title { overflow-wrap: anywhere; }
 
     .heading-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
+        width: 100%;
     }
 
-    .delete-button {
-        min-height: 48px;
-        padding: 0 20px;
-        border: 1px solid #f0cbd7;
-        border-radius: 15px;
-        background: #fff5f7;
-        color: #a75c73;
-        font: inherit;
-        font-weight: 900;
-        cursor: pointer;
+    .heading-actions .button,
+    .heading-actions .delete-button {
+        flex: 1;
     }
 
     .tool-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 17px;
-        margin: 22px 0;
+        grid-template-columns: 1fr;
     }
 
-    .tool-card { padding: 24px; }
-
-    .tool-icon {
-        display: grid;
-        place-items: center;
-        width: 43px;
-        height: 43px;
-        border-radius: 15px;
-        background: #ffedf4;
-        font-size: 22px;
+    .tool-card {
+        min-height: 220px;
     }
 
-    .tool-card h2, .content-card h2 {
-        margin: 15px 0 8px;
-        color: #795568;
-        font-size: 19px;
+    .section-heading h2 {
+        font-size: 21px;
     }
+}
 
-    .tool-card p {
-        min-height: 43px;
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .tool-card .button {
-        width: 100%;
-        margin-top: 10px;
-        padding: 0 12px;
-        font-size: 12px;
-    }
-
-    .content-card {
-        margin-top: 20px;
-        padding: 28px;
-    }
-
-    .markdown-content {
-        color: var(--ink);
-        line-height: 1.8;
-        overflow-wrap: anywhere;
-    }
-
-    .markdown-content h1,
-    .markdown-content h2,
-    .markdown-content h3 {
-        color: #795568;
-    }
-
-    .original-image {
-        display: block;
-        width: 100%;
-        max-height: 650px;
-        object-fit: contain;
-        border-radius: 15px;
-        background: #fff7fa;
-    }
-
-    .original-text {
-        max-height: 500px;
-        overflow: auto;
-        padding: 20px;
-        border: 1px solid var(--line);
-        border-radius: 15px;
-        background: #fff8fb;
-        color: var(--ink);
-        font: inherit;
-        font-size: 13px;
-        line-height: 1.8;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-    }
-
-    .empty-note { color: var(--muted); }
-
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: #49313d75;
-        backdrop-filter: blur(5px);
-    }
-
-    .modal-overlay.open { display: flex; }
-
-    .modal-card {
-        position: relative;
-        width: min(100%, 410px);
-        padding: 34px 27px;
-        border: 1px solid #f2dce5;
-        border-radius: 25px;
-        background: #fffdfb;
-        box-shadow: 0 20px 70px #49313d30;
-        text-align: center;
-    }
-
-    .modal-bow {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        color: #e4a5bf;
-        font-size: 30px;
-    }
-
-    .modal-icon { font-size: 40px; }
-
-    .modal-card h2 {
-        margin: 14px 0 8px;
-        color: #795568;
-    }
-
-    .modal-card p {
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.7;
-    }
-
-    .modal-note { font-size: 12px !important; }
-
-    .modal-actions {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 25px;
-    }
-
-    .cancel-button, .confirm-delete {
-        min-height: 44px;
-        padding: 0 17px;
-        border-radius: 13px;
-        font: inherit;
-        font-size: 12px;
-        font-weight: 900;
-        cursor: pointer;
-    }
-
-    .cancel-button {
-        border: 1px solid var(--line);
-        background: white;
-        color: var(--pink-dark);
-    }
-
-    .confirm-delete {
-        border: 0;
-        background: #c97591;
-        color: white;
-    }
-
-    @media (max-width: 760px) {
-        .study-heading {
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 23px;
-        }
-
-        .tool-grid { grid-template-columns: 1fr; }
-        .tool-card p { min-height: 0; }
-        .content-card { padding: 22px; }
-    }
 </style>
 
+
 <script>
-    const deleteModal = document.getElementById('deleteModal');
+const deleteModal = document.getElementById('deleteModal');
 
-    function openDeleteModal() {
-        deleteModal.classList.add('open');
-        deleteModal.setAttribute('aria-hidden', 'false');
+function openDeleteModal() {
+    if (!deleteModal) return;
+
+    deleteModal.classList.add('open');
+    deleteModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    if (!deleteModal) return;
+
+    deleteModal.classList.remove('open');
+    deleteModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+deleteModal?.addEventListener('click', function (event) {
+    if (event.target === deleteModal) {
+        closeDeleteModal();
     }
+});
 
-    function closeDeleteModal() {
-        deleteModal.classList.remove('open');
-        deleteModal.setAttribute('aria-hidden', 'true');
+document.addEventListener('keydown', function (event) {
+    if (
+        event.key === 'Escape' &&
+        deleteModal?.classList.contains('open')
+    ) {
+        closeDeleteModal();
     }
-
-    deleteModal?.addEventListener('click', function (event) {
-        if (event.target === deleteModal) {
-            closeDeleteModal();
-        }
-    });
-
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-            closeDeleteModal();
-        }
-    });
+});
 </script>
+
 @endsection

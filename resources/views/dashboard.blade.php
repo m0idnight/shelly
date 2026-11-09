@@ -26,7 +26,7 @@
     <div class="planner-heading">
         <div>
             <span class="heading-kicker">WELCOME TO SHELLY</span>
-            <h1>study planner <span>୨୧</span></h1>
+            <h1>study corner<span>୨୧</span></h1>
             <p>A calm little place to organize your learning.</p>
         </div>
 
@@ -35,19 +35,19 @@
         </a>
     </div>
 
-    {{-- Main two-column layout --}}
+    {{-- Main layout --}}
     <div class="planner-layout">
 
-        {{-- LEFT SIDEBAR --}}
+        {{-- Sidebar --}}
         <aside class="planner-sidebar">
 
-            {{-- Character illustration area --}}
             <section class="sidebar-illustration">
                 <div class="illustration-gingham"></div>
 
                 <div class="illustration-bunny">
                     <div class="bunny-ear left"></div>
                     <div class="bunny-ear right"></div>
+
                     <div class="bunny-head">
                         <span class="bunny-eye left"></span>
                         <span class="bunny-eye right"></span>
@@ -55,6 +55,7 @@
                         <span class="bunny-cheek left"></span>
                         <span class="bunny-cheek right"></span>
                     </div>
+
                     <div class="bunny-ribbon">
                         <span></span>
                     </div>
@@ -115,6 +116,7 @@
                                     ✓
                                 @endif
                             </span>
+
                             <span class="{{ $d['today'] ? 'current-day' : '' }}">
                                 {{ $d['label'] }}
                             </span>
@@ -138,6 +140,7 @@
                     <a href="{{ route('sets.flashcards', $sets->first()) }}">
                         Flashcards
                     </a>
+
                     <a href="{{ route('sets.quiz', $sets->first()) }}">
                         Practice quiz
                     </a>
@@ -146,29 +149,32 @@
 
         </aside>
 
-        {{-- MAIN CONTENT --}}
+        {{-- Main content --}}
         <main class="planner-main">
 
-            {{-- Navigation-style labels --}}
             <div class="planner-tabs">
                 <a href="#my-study-sets" class="planner-tab active">
                     <span class="tab-icon">▤</span>
                     My studies
                 </a>
+
                 <a href="#study-tools" class="planner-tab">
                     <span class="tab-icon">▧</span>
                     Study tools
                 </a>
+
                 <span class="planner-tab-note">your learning collection</span>
             </div>
 
-            {{-- Study sets table --}}
+            {{-- Study sets --}}
             <section class="planner-table-section" id="my-study-sets">
+
                 <div class="table-heading">
                     <div>
                         <span class="table-heading-icon">☷</span>
                         <h2>my study sets <span>୨୧</span></h2>
                     </div>
+
                     <a href="{{ route('sets.create') }}" class="table-add-link">
                         + Add new
                     </a>
@@ -183,6 +189,7 @@
                                     <th>Quiz activity</th>
                                     <th>Accuracy</th>
                                     <th>Open</th>
+                                    <th>Manage</th>
                                 </tr>
                             </thead>
 
@@ -220,6 +227,24 @@
                                                 View →
                                             </a>
                                         </td>
+
+                                        <td>
+                                            <div class="table-actions">
+                                                <a href="{{ route('sets.edit', $s) }}"
+                                                   class="manage-edit">
+                                                    Edit
+                                                </a>
+
+                                                <button
+                                                    type="button"
+                                                    class="manage-delete"
+                                                    data-action="{{ route('sets.destroy', $s) }}"
+                                                    data-title="{{ $s->title }}"
+                                                    onclick="openDeleteModal(this.dataset.action, this.dataset.title)">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -230,15 +255,18 @@
                         <div class="empty-bow"></div>
                         <h3>Your study collection is waiting.</h3>
                         <p>Upload your first learning material to get started.</p>
+
                         <a href="{{ route('sets.create') }}" class="add-set-button">
                             + Create a study set
                         </a>
                     </div>
                 @endif
+
             </section>
 
             {{-- Study tools --}}
             <section class="tools-section" id="study-tools">
+
                 <div class="main-section-heading">
                     <div>
                         <span class="heading-kicker">YOUR LEARNING SPACE</span>
@@ -248,11 +276,13 @@
 
                 <div class="tools-grid">
                     @if ($sets->count())
+
                         <a href="{{ route('sets.flashcards', $sets->first()) }}"
                            class="tool-card">
                             <span class="tool-art flashcard-art">
                                 <span></span>
                             </span>
+
                             <h3>Flashcards</h3>
                             <p>Review and remember key ideas.</p>
                             <span class="tool-link">Start reviewing →</span>
@@ -263,35 +293,42 @@
                             <span class="tool-art quiz-art">
                                 <span>?</span>
                             </span>
+
                             <h3>Practice quiz</h3>
                             <p>Check what you have learned.</p>
                             <span class="tool-link">Take a quiz →</span>
                         </a>
 
-                        <a href="{{ route('sets.show', $sets->first()) }}"
+                        <a href="{{ route('sets.summary.setup', $sets->first()) }}"
                            class="tool-card">
                             <span class="tool-art notes-art">
                                 <span></span>
                             </span>
+
                             <h3>Study summaries</h3>
                             <p>Read through your generated notes.</p>
                             <span class="tool-link">View summaries →</span>
                         </a>
+
                     @else
+
                         <a href="{{ route('sets.create') }}" class="tool-card">
                             <span class="tool-art upload-art">
                                 <span>+</span>
                             </span>
+
                             <h3>Upload materials</h3>
                             <p>Create your first study set.</p>
                             <span class="tool-link">Get started →</span>
                         </a>
+
                     @endif
                 </div>
             </section>
 
-            {{-- Study collection gallery --}}
+            {{-- Learning collection --}}
             <section class="gallery-section">
+
                 <div class="main-section-heading">
                     <div>
                         <span class="heading-kicker">KEEP EVERYTHING TOGETHER</span>
@@ -304,43 +341,77 @@
                 </div>
 
                 @if ($sets->count())
+
                     <div class="collection-grid">
                         @foreach ($sets as $s)
-                            <a href="{{ route('sets.show', $s) }}"
-                               class="collection-card">
 
-                                <div class="collection-cover">
-                                    <span class="cover-decoration">✿</span>
-                                    <span class="cover-label">SHELLY STUDY NOTES</span>
-                                    <span class="cover-title">{{ $s->title }}</span>
-                                    <span class="cover-bottom">a little progress every day</span>
+                            <article class="collection-card">
+
+                                <a href="{{ route('sets.show', $s) }}"
+                                   class="collection-card-link">
+
+                                    <div class="collection-cover">
+                                        <span class="cover-decoration">✿</span>
+                                        <span class="cover-label">SHELLY STUDY NOTES</span>
+                                        <span class="cover-title">{{ $s->title }}</span>
+                                        <span class="cover-bottom">
+                                            a little progress every day
+                                        </span>
+                                    </div>
+
+                                    <div class="collection-info">
+                                        <h3>{{ $s->title }}</h3>
+                                        <p>
+                                            {{ $s->answered }} quiz answers
+                                            <span>·</span>
+                                            {{ $s->accuracy }}% accuracy
+                                        </p>
+                                    </div>
+
+                                </a>
+
+                                <div class="collection-actions">
+                                    <a href="{{ route('sets.edit', $s) }}"
+                                       class="collection-edit">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                        Edit
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="collection-delete"
+                                        data-action="{{ route('sets.destroy', $s) }}"
+                                        data-title="{{ $s->title }}"
+                                        onclick="openDeleteModal(this.dataset.action, this.dataset.title)">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                        Delete
+                                    </button>
                                 </div>
 
-                                <div class="collection-info">
-                                    <h3>{{ $s->title }}</h3>
-                                    <p>
-                                        {{ $s->answered }} quiz answers
-                                        <span>·</span>
-                                        {{ $s->accuracy }}% accuracy
-                                    </p>
-                                </div>
-                            </a>
+                            </article>
+
                         @endforeach
                     </div>
+
                 @else
+
                     <p class="gallery-empty">
                         Your learning collection will appear here after you upload materials.
                     </p>
+
                 @endif
+
             </section>
 
             {{-- Encouragement --}}
             <section class="planner-note">
                 <span class="note-bow"></span>
+
                 <div>
                     <span class="heading-kicker">A LITTLE REMINDER</span>
                     <p>{{ $cheer }}</p>
                 </div>
+
                 <span class="note-flower">✿</span>
             </section>
 
@@ -348,10 +419,103 @@
     </div>
 </div>
 
+{{-- Delete confirmation modal --}}
+<div class="dashboard-modal-overlay"
+     id="dashboardDeleteModal"
+     aria-hidden="true">
+
+    <div class="dashboard-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="dashboard-delete-title">
+
+        <span class="dashboard-modal-bow">୨୧</span>
+
+        <div class="dashboard-modal-icon">
+            <i class="fa-regular fa-trash-can"></i>
+        </div>
+
+        <span class="dashboard-modal-kicker">
+            A LITTLE CONFIRMATION
+        </span>
+
+        <h2 id="dashboard-delete-title">
+            Delete this study set?
+        </h2>
+
+        <p>
+            Are you sure you want to delete
+            <strong id="deleteSetName"></strong>?
+        </p>
+
+        <p class="dashboard-modal-note">
+            Its flashcards and quiz questions will also be deleted.
+            Your study history will be preserved.
+        </p>
+
+        <div class="dashboard-modal-actions">
+
+            <button type="button"
+                    class="dashboard-cancel"
+                    onclick="closeDeleteModal()">
+                Keep it
+            </button>
+
+            <form id="dashboardDeleteForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+
+                <button type="submit" class="dashboard-confirm-delete">
+                    Yes, delete
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const dashboardDeleteModal =
+        document.getElementById('dashboardDeleteModal');
+
+    function openDeleteModal(action, title) {
+        document.getElementById('dashboardDeleteForm').action = action;
+        document.getElementById('deleteSetName').textContent = title;
+
+        dashboardDeleteModal.classList.add('open');
+        dashboardDeleteModal.setAttribute('aria-hidden', 'false');
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        dashboardDeleteModal.classList.remove('open');
+        dashboardDeleteModal.setAttribute('aria-hidden', 'true');
+
+        document.body.style.overflow = '';
+    }
+
+    dashboardDeleteModal.addEventListener('click', function(event) {
+        if (event.target === dashboardDeleteModal) {
+            closeDeleteModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (
+            event.key === 'Escape' &&
+            dashboardDeleteModal.classList.contains('open')
+        ) {
+            closeDeleteModal();
+        }
+    });
+</script>
+
 @endsection
 
 @push('styles')
 <style>
+
     .shelly-planner {
         color: #55454b;
         padding-bottom: 35px;
@@ -484,7 +648,7 @@
         align-items: end;
         justify-content: space-between;
         gap: 20px;
-        margin: 34px 0 24px;
+        margin: 30px 0 27px;
     }
 
     .heading-kicker {
@@ -500,7 +664,7 @@
         font-family: Georgia, "Times New Roman", serif;
         font-size: 35px;
         font-weight: bold;
-        letter-spacing: .1em;
+        letter-spacing: .07em;
     }
 
     .planner-heading h1 span {
@@ -544,9 +708,9 @@
 
     .planner-layout {
         display: grid;
-        grid-template-columns: 245px minmax(0, 1fr);
+        grid-template-columns: 255px minmax(0, 1fr);
         align-items: start;
-        gap: 34px;
+        gap: 30px;
     }
 
     .planner-sidebar {
@@ -698,7 +862,7 @@
     /* Sidebar widgets */
 
     .sidebar-widget {
-        padding: 16px 15px;
+        padding: 17px;
         border: 1px solid #f0dfe5;
         border-radius: 4px;
         background: #fff7fa;
@@ -770,7 +934,7 @@
         color: #85586e;
     }
 
-    /* Weekly sidebar */
+    /* Weekly activity */
 
     .sidebar-week {
         display: grid;
@@ -809,7 +973,10 @@
         outline-offset: 2px;
     }
 
-    .current-day { color: #a65e7b; font-weight: bold; }
+    .current-day {
+        color: #a65e7b;
+        font-weight: bold;
+    }
 
     .sidebar-links {
         display: flex;
@@ -823,12 +990,12 @@
         font-family: Georgia, serif;
         font-size: 12px;
         text-decoration: none;
-        transition: color .2s ease;
+        transition: .2s ease;
     }
 
     .sidebar-links a:hover {
-        color: #c47795;
         padding-left: 6px;
+        color: #c47795;
     }
 
     /* Main column */
@@ -876,7 +1043,7 @@
         font-style: italic;
     }
 
-    /* Table */
+    /* Study sets table */
 
     .planner-table-section {
         margin-top: 20px;
@@ -923,7 +1090,9 @@
         white-space: nowrap;
     }
 
-    .table-add-link:hover { text-decoration: underline; }
+    .table-add-link:hover {
+        text-decoration: underline;
+    }
 
     .study-table-wrap {
         width: 100%;
@@ -932,6 +1101,7 @@
 
     .study-table {
         width: 100%;
+        min-width: 650px;
         border-collapse: collapse;
         color: #66575e;
         font-family: Georgia, serif;
@@ -939,7 +1109,7 @@
     }
 
     .study-table th {
-        padding: 11px 9px;
+        padding: 14px 12px;
         border-bottom: 1px solid #e8e0e3;
         color: #998a91;
         font-size: 11px;
@@ -949,9 +1119,13 @@
     }
 
     .study-table td {
-        padding: 12px 9px;
+        padding: 14px 12px;
         border-bottom: 1px solid #eee8eb;
         vertical-align: middle;
+    }
+
+    .study-table tbody tr {
+        transition: background .2s ease;
     }
 
     .study-table tbody tr:hover {
@@ -960,6 +1134,8 @@
 
     .table-set-name {
         color: #55434c;
+        font-size: 13px;
+        font-weight: 700;
         text-decoration: underline;
         text-decoration-color: #e2c8d2;
         text-underline-offset: 3px;
@@ -967,7 +1143,7 @@
 
     .table-pill {
         display: inline-block;
-        padding: 5px 9px;
+        padding: 6px 11px;
         border-radius: 20px;
         font-family: "Nunito", sans-serif;
         font-size: 10px;
@@ -998,7 +1174,51 @@
         white-space: nowrap;
     }
 
-    .table-open:hover { text-decoration: underline; }
+    .table-open:hover {
+        text-decoration: underline;
+    }
+
+    .table-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .manage-edit,
+    .manage-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 29px;
+        padding: 0 10px;
+        border-radius: 5px;
+        font-family: "Nunito", sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .manage-edit {
+        border: 1px solid #e8cbd7;
+        background: #fff5f8;
+        color: #a66d85;
+    }
+
+    .manage-edit:hover {
+        background: #f5e2e9;
+    }
+
+    .manage-delete {
+        border: 1px solid #f0d1d9;
+        background: #fffafa;
+        color: #b56d80;
+    }
+
+    .manage-delete:hover {
+        background: #fce9ee;
+    }
 
     .planner-empty {
         padding: 35px 20px;
@@ -1053,14 +1273,14 @@
     .tools-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
+        gap: 15px;
     }
 
     .tool-card {
         display: flex;
         flex-direction: column;
-        min-height: 175px;
-        padding: 15px;
+        min-height: 185px;
+        padding: 17px;
         border: 1px solid #eee0e5;
         border-radius: 4px;
         background: #fffafb;
@@ -1112,7 +1332,11 @@
         width: 17px;
         height: 21px;
         border: 1px solid #c887a0;
-        background: repeating-linear-gradient(to bottom, #fffafb 0 5px, #edcbd8 6px 7px);
+        background: repeating-linear-gradient(
+            to bottom,
+            #fffafb 0 5px,
+            #edcbd8 6px 7px
+        );
     }
 
     .tool-card h3 {
@@ -1142,21 +1366,32 @@
     .collection-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 13px;
+        gap: 15px;
     }
 
     .collection-card {
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
         border: 1px solid #eee0e5;
         border-radius: 4px;
         background: #fff;
-        text-decoration: none;
-        transition: .2s ease;
+        transition: box-shadow .2s ease;
     }
 
     .collection-card:hover {
-        transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(133, 85, 105, .08);
+    }
+
+    .collection-card-link {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+        transition: background .2s ease;
+    }
+
+    .collection-card-link:hover {
+        background: #fff8fa;
     }
 
     .collection-cover {
@@ -1238,6 +1473,39 @@
         color: #d49bb0;
     }
 
+    .collection-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+        border-top: 1px solid #f0e5e9;
+        background: #fffafb;
+    }
+
+    .collection-edit,
+    .collection-delete {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border: 1px solid #eddae2;
+        border-radius: 5px;
+        background: #fff7fa;
+        color: #a66d85;
+        font-family: "Nunito", sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .collection-edit:hover,
+    .collection-delete:hover {
+        background: #f5e2e9;
+    }
+
     .gallery-empty {
         padding: 22px;
         border: 1px solid #eee0e5;
@@ -1247,7 +1515,7 @@
         text-align: center;
     }
 
-    /* Note */
+    /* Encouragement note */
 
     .planner-note {
         position: relative;
@@ -1255,8 +1523,9 @@
         align-items: center;
         gap: 15px;
         margin-top: 35px;
-        padding: 19px;
+        padding: 21px;
         border: 1px solid #efdce4;
+        border-radius: 5px;
         background: #fff5f8;
     }
 
@@ -1278,8 +1547,15 @@
         content: "";
     }
 
-    .note-bow::before { left: 0; transform: rotate(20deg); }
-    .note-bow::after { right: 0; transform: rotate(70deg); }
+    .note-bow::before {
+        left: 0;
+        transform: rotate(20deg);
+    }
+
+    .note-bow::after {
+        right: 0;
+        transform: rotate(70deg);
+    }
 
     .planner-note p {
         margin: 6px 0 0;
@@ -1295,12 +1571,120 @@
         font-size: 27px;
     }
 
-    /* Responsive */
+    /* Delete confirmation modal */
+
+    .dashboard-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(73, 49, 61, .46);
+        backdrop-filter: blur(5px);
+    }
+
+    .dashboard-modal-overlay.open {
+        display: flex;
+    }
+
+    .dashboard-modal {
+        position: relative;
+        width: min(100%, 410px);
+        padding: 35px 27px;
+        border: 1px solid #f2dce5;
+        border-radius: 23px;
+        background: #fffdfb;
+        box-shadow: 0 20px 70px rgba(73, 49, 61, .18);
+        text-align: center;
+    }
+
+    .dashboard-modal-bow {
+        position: absolute;
+        top: 14px;
+        right: 19px;
+        color: #e4a5bf;
+        font-size: 29px;
+    }
+
+    .dashboard-modal-icon {
+        display: grid;
+        place-items: center;
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 14px;
+        border-radius: 50%;
+        background: #fff0f5;
+        color: #c47e9b;
+        font-size: 24px;
+    }
+
+    .dashboard-modal-kicker {
+        color: #bd8ba0;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .15em;
+    }
+
+    .dashboard-modal h2 {
+        margin: 11px 0;
+        color: #795568;
+        font-family: Georgia, serif;
+        font-size: 23px;
+    }
+
+    .dashboard-modal p {
+        color: #9c8991;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .dashboard-modal-note {
+        font-size: 12px !important;
+    }
+
+    .dashboard-modal-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .dashboard-cancel,
+    .dashboard-confirm-delete {
+        min-height: 43px;
+        padding: 0 17px;
+        border-radius: 11px;
+        font-family: "Nunito", sans-serif;
+        font-size: 11px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .dashboard-cancel {
+        border: 1px solid #eddae2;
+        background: white;
+        color: #a66d85;
+    }
+
+    .dashboard-confirm-delete {
+        border: 0;
+        background: #c97591;
+        color: white;
+    }
+
+    .dashboard-confirm-delete:hover {
+        background: #ad5d7a;
+    }
+
+    /* Tablet */
 
     @media (max-width: 850px) {
         .planner-layout {
-            grid-template-columns: 205px minmax(0, 1fr);
-            gap: 22px;
+            grid-template-columns: 215px minmax(0, 1fr);
+            gap: 20px;
         }
 
         .tools-grid,
@@ -1308,15 +1692,22 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .study-table { min-width: 550px; }
+        .study-table {
+            min-width: 650px;
+        }
     }
 
+    /* Mobile */
+
     @media (max-width: 640px) {
-        .planner-banner { height: 160px; }
+        .planner-banner {
+            height: 160px;
+        }
 
         .planner-heading {
-            align-items: start;
+            align-items: flex-start;
             flex-direction: column;
+            gap: 15px;
             margin: 25px 0 20px;
         }
 
@@ -1349,19 +1740,39 @@
             grid-column: 1 / -1;
         }
 
-        .planner-tabs { gap: 12px; }
+        .planner-tabs {
+            gap: 12px;
+            overflow-x: auto;
+        }
 
-        .planner-tab { font-size: 11px; }
+        .planner-tab {
+            font-size: 11px;
+        }
 
-        .planner-tab-note { display: none; }
+        .planner-tab-note {
+            display: none;
+        }
 
-        .table-heading h2 { font-size: 17px; }
+        .table-heading h2 {
+            font-size: 17px;
+        }
 
         .tools-grid,
         .collection-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+        }
+
+        .table-actions {
+            flex-wrap: wrap;
+        }
+
+        .collection-actions {
+            padding: 9px;
         }
     }
+
+    /* Small mobile */
 
     @media (max-width: 390px) {
         .planner-sidebar {
@@ -1373,16 +1784,23 @@
             height: 200px;
         }
 
-        .sidebar-links { grid-column: auto; }
+        .sidebar-links {
+            grid-column: auto;
+        }
 
         .tools-grid,
         .collection-grid {
             grid-template-columns: 1fr;
         }
 
-        .banner-center { padding: 15px 20px; }
+        .banner-center {
+            padding: 15px 20px;
+        }
 
-        .banner-title { font-size: 23px; }
+        .banner-title {
+            font-size: 23px;
+        }
     }
+
 </style>
 @endpush

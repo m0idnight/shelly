@@ -90,7 +90,7 @@
             background: #f9dce7;
         }
 
-        /* Simple original bunny-inspired mark */
+        /* Original bunny-inspired logo */
 
         .bunny-face {
             position: relative;
@@ -163,29 +163,47 @@
         }
 
         .nav-link {
+            position: relative;
             padding: 10px 15px;
-            border-radius: 12px;
             color: #8d7480;
             font-size: 14px;
             font-weight: 700;
             text-decoration: none;
-            transition: background .2s ease, color .2s ease;
+            transition: color .2s ease;
         }
 
-        .nav-link:hover {
-            color: var(--pink-dark);
-            background: #fceaf0;
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 15px;
+            right: 15px;
+            bottom: 5px;
+            height: 2px;
+            border-radius: 5px;
+            background: var(--pink-dark);
+            transform: scaleX(0);
+            transition: transform .2s ease;
         }
 
+        .nav-link:hover,
         .nav-link.active {
             color: var(--pink-dark);
-            background: #fceaf0;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
         }
 
         .nav-link.nav-primary {
             padding: 11px 18px;
+            border-radius: 12px;
             color: white;
             background: var(--pink);
+        }
+
+        .nav-link.nav-primary::after {
+            display: none;
         }
 
         .nav-link.nav-primary:hover {
@@ -300,7 +318,7 @@
             font-size: 14px;
         }
 
-        /* Small decorative butterfly */
+        /* Butterfly decoration */
 
         .butterfly {
             position: relative;
@@ -332,7 +350,7 @@
             transform: rotate(-25deg);
         }
 
-        /* Ribbon detail */
+        /* Ribbon decoration */
 
         .ribbon {
             position: relative;
@@ -403,6 +421,12 @@
                 font-size: 13px;
             }
 
+            .nav-link::after {
+                left: 11px;
+                right: 11px;
+                bottom: 4px;
+            }
+
             .page-wrap {
                 padding: 30px 0 48px;
             }
@@ -447,7 +471,7 @@
                     href="{{ route('dashboard', [], false) }}"
                     class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                 >
-                    Home
+                    Dashboard
                 </a>
 
                 <a
@@ -458,7 +482,7 @@
                 </a>
 
                 <a
-                    href="{{ route('dashboard', [], false) }}"
+                    href="{{ route('dashboard', [], false) }}#my-study-sets"
                     class="nav-link"
                 >
                     My Studies

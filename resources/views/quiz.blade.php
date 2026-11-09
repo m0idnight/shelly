@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Shelly | Quiz</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <title>Shelly | Quiz Settings</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,13 +21,9 @@
             --ink: #604b56;
             --muted: #a58c98;
             --line: #f3dce6;
-            --green: #8bbd9b;
-            --purple: #c4a6df;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -43,13 +37,9 @@
                 var(--cream);
         }
 
-        button {
-            font: inherit;
-        }
-
         .page {
             width: 100%;
-            max-width: 680px;
+            max-width: 620px;
             margin: 0 auto;
         }
 
@@ -58,7 +48,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            margin-bottom: 28px;
+            margin-bottom: 30px;
         }
 
         .brand {
@@ -88,18 +78,18 @@
 
         .heading {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
-        .heading .bow {
-            font-size: 34px;
-            margin-bottom: 5px;
+        .bow {
+            font-size: 36px;
+            margin-bottom: 6px;
         }
 
         h1 {
             margin: 0;
             font-family: 'Fredoka', sans-serif;
-            font-size: clamp(25px, 6vw, 34px);
+            font-size: clamp(26px, 6vw, 35px);
             color: var(--pink-dark);
         }
 
@@ -110,311 +100,133 @@
         }
 
         .quiz-card {
-            position: relative;
-            background: rgba(255,255,255,.94);
+            background: rgba(255,255,255,.95);
             border: 1px solid var(--line);
             border-radius: 27px;
-            padding: 26px;
+            padding: 28px;
             box-shadow: 0 12px 35px rgba(173, 105, 137, .09);
         }
 
-        .quiz-card::before {
-            content: "♡";
-            position: absolute;
-            top: 13px;
-            right: 19px;
-            color: #f2c3d6;
-            font-size: 22px;
+        .intro {
+            margin-bottom: 24px;
+            padding: 15px;
+            background: var(--pink-soft);
+            border: 1px dashed #eec5d6;
+            border-radius: 15px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+            text-align: center;
         }
 
-        .generate-form {
-            text-align: center;
-            margin-bottom: 22px;
+        .form-group { margin-bottom: 19px; }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--pink-dark);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: var(--pink-soft);
+            color: var(--ink);
+            font-size: 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(233, 155, 185, .12);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 115px;
+            line-height: 1.6;
+        }
+
+        .form-hint {
+            display: block;
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
         }
 
         .generate-button {
-            border: 0;
-            border-radius: 30px;
-            padding: 12px 20px;
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 14px 20px;
             color: white;
             background: var(--pink);
+            border: 0;
+            border-radius: 30px;
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 5px 12px rgba(233, 155, 185, .25);
             transition: .2s;
         }
 
-        .generate-button:hover {
+        .generate-button:hover:not(:disabled) {
             background: var(--pink-dark);
             transform: translateY(-2px);
         }
 
+        .generate-button:disabled {
+            opacity: .7;
+            cursor: not-allowed;
+        }
+
         .error-message {
             padding: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 17px;
             border-radius: 12px;
             background: #fff0f0;
             color: #a94c5b;
             font-size: 13px;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 9px;
-            margin-bottom: 24px;
-        }
-
-        .stat {
-            padding: 13px 7px;
-            text-align: center;
-            background: var(--pink-soft);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-        }
-
-        .stat-label {
-            display: block;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .7px;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-family: 'Fredoka', sans-serif;
-            color: var(--pink-dark);
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-        .progress-track {
-            height: 8px;
-            background: #f9e7ef;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 25px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, #f3b5ce, #d88aaa);
-            border-radius: inherit;
-            transition: width .3s ease;
-        }
-
-        .question-label {
-            color: var(--muted);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        #question {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 22px;
-            line-height: 1.4;
-            margin: 0 0 22px;
-            color: var(--ink);
-        }
-
-        #options {
-            display: grid;
-            gap: 11px;
-        }
-
-        .opt {
-            display: block;
-            width: 100%;
-            padding: 15px 17px;
-            text-align: left;
-            color: var(--ink);
-            background: var(--pink-soft);
-            border: 1.5px solid var(--line);
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: .2s;
-        }
-
-        .opt:hover:not(:disabled) {
-            background: var(--pink-light);
-            border-color: var(--pink);
-            transform: translateY(-1px);
-        }
-
-        .opt:disabled {
-            cursor: default;
-            opacity: 1;
-        }
-
-        .opt.right {
+        .success-message {
+            padding: 12px;
+            margin-bottom: 17px;
+            border-radius: 12px;
             background: #edf8f0;
-            border-color: var(--green);
             color: #527b5d;
-        }
-
-        .opt.wrong {
-            background: #fff0f2;
-            border-color: #e6a0ae;
-            color: #a85e6d;
-        }
-
-        #feedback {
-            margin-top: 19px;
-            padding: 15px 17px;
-            border-radius: 15px;
-            background: #fff5f9;
-            border: 1px dashed #eec5d6;
             font-size: 13px;
-            line-height: 1.7;
-        }
-
-        #feedback p {
-            margin: 5px 0;
-        }
-
-        .feedback-title {
-            color: var(--pink-dark);
-            font-weight: 800;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .next-button {
-            display: block;
-            width: 100%;
-            margin-top: 20px;
-            padding: 14px;
-            color: white;
-            background: var(--pink-dark);
-            border: 0;
-            border-radius: 30px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: .2s;
-        }
-
-        .next-button:hover {
-            background: #82435f;
-            transform: translateY(-1px);
-        }
-
-        .save-status {
-            min-height: 18px;
-            margin-top: 12px;
-            text-align: center;
-            font-size: 11px;
-            color: var(--muted);
-        }
-
-        #popup {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            z-index: 999;
-            max-width: 90%;
-            padding: 13px 22px;
-            border-radius: 999px;
-            background: #f4b0cc;
-            color: #7a2e52;
-            font-size: 15px;
-            font-weight: 800;
-            box-shadow: 0 6px 20px rgba(244,114,182,.3);
-            pointer-events: none;
-            text-align: center;
-            opacity: 0;
-            transform: translateX(-50%) scale(.5);
-        }
-
-        #popup.show {
-            animation: pop 2s ease forwards;
-        }
-
-        #popup.sad {
-            background: #e7d6f5;
-            color: #70518b;
-            box-shadow: 0 6px 20px rgba(192,132,252,.25);
-        }
-
-        @keyframes pop {
-            0% { transform: translateX(-50%) scale(.5); opacity: 0; }
-            15% { transform: translateX(-50%) scale(1.1); opacity: 1; }
-            25% { transform: translateX(-50%) scale(1); opacity: 1; }
-            85% { transform: translateX(-50%) scale(1); opacity: 1; }
-            100% { transform: translateX(-50%) scale(.9); opacity: 0; }
-        }
-
-        .result {
-            text-align: center;
-            padding: 18px 5px;
-        }
-
-        .result-icon {
-            font-size: 54px;
-            margin-bottom: 12px;
-        }
-
-        .result h2 {
-            font-family: 'Fredoka', sans-serif;
-            color: var(--pink-dark);
-            font-size: 29px;
-            margin: 0 0 10px;
-        }
-
-        .result p {
-            color: var(--muted);
-            line-height: 1.7;
-            font-size: 14px;
-        }
-
-        .result-score {
-            display: inline-block;
-            margin: 15px 0;
-            padding: 12px 22px;
-            border-radius: 20px;
-            background: var(--pink-light);
-            color: var(--pink-dark);
-            font-family: 'Fredoka', sans-serif;
-            font-size: 24px;
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 18px 12px 40px;
-            }
-
-            .quiz-card {
-                padding: 20px 16px;
-                border-radius: 22px;
-            }
-
-            #question {
-                font-size: 20px;
-            }
-
-            .opt {
-                padding: 14px;
-            }
+            body { padding: 18px 12px 40px; }
+            .quiz-card { padding: 21px 17px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
         }
     </style>
 </head>
 
 <body>
-    <div id="popup"></div>
-
     <main class="page">
+
         <nav class="topbar">
             <a href="{{ route('dashboard') }}" class="brand">🎀 shelly</a>
-            <a href="{{ route('sets.show', $set) }}" class="back-link">← Back to study set</a>
+
+            <a href="{{ route('sets.show', $set) }}" class="back-link">
+                ← Back to study set
+            </a>
         </nav>
 
         <header class="heading">
@@ -424,352 +236,165 @@
         </header>
 
         <section class="quiz-card">
+
             @if ($errors->any())
                 <div class="error-message">
                     {{ $errors->first() }}
                 </div>
             @endif
 
-            <form class="generate-form" method="POST" action="{{ route('sets.quiz.make', $set) }}">
+            @if (session('error'))
+                <div class="error-message">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="success-message">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="intro">
+                ♡ Customize your quiz before you begin.
+                Choose the question format, how many questions you want,
+                and what topics Shelly should focus on.
+            </div>
+
+            <form
+                id="generateQuizForm"
+                method="POST"
+                action="{{ route('sets.quiz.prepare', $set) }}"
+            >
                 @csrf
-                <button type="submit" class="generate-button">
-                    ✨ {{ $set->questions->count() ? 'Re-make quiz' : 'Make my quiz' }}
+
+                <div class="form-group">
+                    <label class="form-label" for="quiz_type">
+                        ♡ Choose your quiz type
+                    </label>
+
+                    <select name="quiz_type" id="quiz_type" class="form-control" required>
+                        <option value="multiple_choice" {{ old('quiz_type', 'multiple_choice') === 'multiple_choice' ? 'selected' : '' }}>
+                            Multiple Choice (4 options)
+                        </option>
+
+                        <option value="true_false" {{ old('quiz_type') === 'true_false' ? 'selected' : '' }}>
+                            True or False
+                        </option>
+
+                        <option value="mixed" {{ old('quiz_type') === 'mixed' ? 'selected' : '' }}>
+                            Mixed (Multiple Choice + True or False)
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="question_count">
+                            ♡ Number of questions
+                        </label>
+
+                        <select name="question_count" id="question_count" class="form-control" required>
+                            @foreach ([10, 20, 50, 100] as $count)
+                                <option value="{{ $count }}" {{ (string) old('question_count', '10') === (string) $count ? 'selected' : '' }}>
+                                    {{ $count }} questions
+                                </option>
+                            @endforeach
+
+                            <option value="custom" {{ old('question_count') === 'custom' ? 'selected' : '' }}>
+                                Custom amount
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="customCountGroup" style="display:none;">
+                        <label class="form-label" for="custom_count">
+                            Custom question count
+                        </label>
+
+                        <input
+                            type="number"
+                            id="custom_count"
+                            class="form-control"
+                            min="1"
+                            max="100"
+                            value="{{ old('custom_count', 15) }}"
+                            placeholder="Enter 1–100"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="custom_instructions">
+                        ♡ What should your quiz focus on?
+                    </label>
+
+                    <textarea
+    name="custom_instructions"
+    id="custom_instructions"
+    class="form-control"
+    maxlength="2000"
+    style="font-family: 'DM Sans', sans-serif;"
+    placeholder="Example: Focus on important definitions, concepts, and real-life examples. Make the questions moderately difficult."
+>{{ old('custom_instructions') }}</textarea>
+                    <span class="form-hint">
+                        Optional. Type or paste specific topics, lessons, concepts, or instructions.
+                    </span>
+                </div>
+
+                <button
+                    type="submit"
+                    class="generate-button"
+                    id="generateButton"
+                >
+                    ✨ {{ $set->questions()->count() ? 'Generate a new quiz' : 'Make my quiz' }}
                 </button>
             </form>
 
-            @if (count($questions))
-                <div id="game">
-                    <div class="stats">
-                        <div class="stat">
-                            <span class="stat-label">Question</span>
-                            <span class="stat-value" id="progress">1/{{ count($questions) }}</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Score</span>
-                            <span class="stat-value" id="score">0</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Streak</span>
-                            <span class="stat-value" id="streak">0</span>
-                        </div>
-                    </div>
-
-                    <div class="progress-track">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-
-                    <p class="question-label">♡ Your question</p>
-                    <h2 id="question"></h2>
-
-                    <div id="options"></div>
-
-                    <div id="feedback" class="hidden"></div>
-
-                    <p id="saveStatus" class="save-status" aria-live="polite"></p>
-
-                    <button id="next" class="next-button hidden" type="button" onclick="next()">
-                        Next →
-                    </button>
-                </div>
-            @else
-                <div class="result">
-                    <div class="result-icon">🌷</div>
-                    <h2>Your quiz is waiting!</h2>
-                    <p>Make a little quiz using the button above to start practicing.</p>
-                </div>
-            @endif
         </section>
     </main>
 
-    @if (count($questions))
-        <script>
-            const qs = @json($questions);
-            const lines = @json(config('shelly'));
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('generateQuizForm');
+            const questionCount = document.getElementById('question_count');
+            const customGroup = document.getElementById('customCountGroup');
+            const customCount = document.getElementById('custom_count');
+            const generateButton = document.getElementById('generateButton');
 
-            const logUrl = @json(route('study-log.store'));
-            const studySetId = @json($set->id);
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            function updateCustomCount() {
+                const isCustom = questionCount.value === 'custom';
 
-            let i = 0;
-            let score = 0;
-            let streak = 0;
-            let answered = false;
-            let audioCtx = null;
-
-            function pick(list, fallback) {
-                return Array.isArray(list) && list.length
-                    ? list[Math.floor(Math.random() * list.length)]
-                    : fallback;
+                customGroup.style.display = isCustom ? 'block' : 'none';
+                customCount.required = isCustom;
             }
 
-            function tone(freq, start, duration, type) {
-                try {
-                    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+            questionCount.addEventListener('change', updateCustomCount);
+            updateCustomCount();
 
-                    const oscillator = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
+            form.addEventListener('submit', function (event) {
+                if (questionCount.value === 'custom') {
+                    const amount = Number(customCount.value);
 
-                    oscillator.type = type;
-                    oscillator.frequency.value = freq;
+                    if (!Number.isInteger(amount) || amount < 1 || amount > 100) {
+                        event.preventDefault();
 
-                    gain.gain.setValueAtTime(0.18, audioCtx.currentTime + start);
-                    gain.gain.exponentialRampToValueAtTime(
-                        0.001,
-                        audioCtx.currentTime + start + duration
-                    );
+                        customCount.setCustomValidity(
+                            'Enter a number between 1 and 100.'
+                        );
 
-                    oscillator.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    oscillator.start(audioCtx.currentTime + start);
-                    oscillator.stop(audioCtx.currentTime + start + duration);
-                } catch (error) {
-                    console.warn('Audio is unavailable:', error);
-                }
-            }
-
-            function playDing() {
-                tone(880, 0, 0.25, 'sine');
-                tone(1320, 0.12, 0.4, 'sine');
-            }
-
-            function playBuzz() {
-                tone(160, 0, 0.35, 'sawtooth');
-            }
-
-            function showPopup(message, sad = false) {
-                const popup = document.getElementById('popup');
-
-                popup.textContent = message;
-                popup.className = '';
-
-                void popup.offsetWidth;
-
-                popup.className = 'show' + (sad ? ' sad' : '');
-            }
-
-            // Save each answer to the Laravel study_logs table.
-            async function saveAnswer(question, correct) {
-                const status = document.getElementById('saveStatus');
-
-                if (!question.id) {
-                    status.textContent = '⚠️ This question has no database ID, so its progress was not saved.';
-                    console.error('Missing question ID:', question);
-                    return;
-                }
-
-                status.textContent = '♡ Saving your progress...';
-
-                try {
-                    const response = await fetch(logUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({
-                            study_set_id: studySetId,
-                            question_id: question.id,
-                            type: 'quiz',
-                            correct: correct
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const details = await response.text();
-                        console.error('Study log request failed:', response.status, details);
-                        status.textContent = '⚠️ Progress could not be saved. Please check your connection.';
+                        customCount.reportValidity();
                         return;
                     }
 
-                    const result = await response.json();
-
-                    if (result.ok) {
-                        status.textContent = '♡ Progress saved! +' + (correct ? 10 : 2) + ' points';
-                    } else {
-                        status.textContent = '⚠️ Progress could not be saved.';
-                    }
-                } catch (error) {
-                    console.error('Could not save quiz progress:', error);
-                    status.textContent = '⚠️ Connection problem. Your answer was not saved.';
-                }
-            }
-
-            function render() {
-                answered = false;
-
-                const question = qs[i];
-
-                document.getElementById('progress').textContent =
-                    (i + 1) + '/' + qs.length;
-
-                document.getElementById('progressFill').style.width =
-                    ((i / qs.length) * 100) + '%';
-
-                document.getElementById('question').textContent = question.question;
-
-                document.getElementById('feedback').classList.add('hidden');
-                document.getElementById('next').classList.add('hidden');
-                document.getElementById('saveStatus').textContent = '';
-
-                const box = document.getElementById('options');
-                box.innerHTML = '';
-
-                question.options.forEach((text, idx) => {
-                    const button = document.createElement('button');
-
-                    button.type = 'button';
-                    button.className = 'opt';
-                    button.textContent = text;
-                    button.onclick = () => choose(idx);
-
-                    box.appendChild(button);
-                });
-            }
-
-            function choose(idx) {
-                if (answered) return;
-
-                answered = true;
-
-                const question = qs[i];
-                const buttons = document.querySelectorAll('.opt');
-                const correct = idx === Number(question.correct_index);
-
-                // Prevent selecting another answer.
-                buttons.forEach(button => button.disabled = true);
-
-                // Highlight the correct answer.
-                if (buttons[question.correct_index]) {
-                    buttons[question.correct_index].classList.add('right');
+                    customCount.setCustomValidity('');
+                    questionCount.value = customCount.value;
                 }
 
-                if (correct) {
-                    score++;
-                    streak++;
-
-                    playDing();
-
-                    if (typeof confetti === 'function') {
-                        confetti({
-                            particleCount: 90,
-                            spread: 70,
-                            origin: { y: 0.7 },
-                            colors: ['#fbcfe0', '#f4b0cc', '#fbcfe8', '#ffffff']
-                        });
-                    }
-
-                    const message = (streak === 3 || streak === 5)
-                        ? pick(lines.streak, 'Amazing streak! 🎀')
-                        : pick(lines.correct, 'You got it! ♡');
-
-                    showPopup(message);
-                } else {
-                    streak = 0;
-
-                    if (buttons[idx]) {
-                        buttons[idx].classList.add('wrong');
-                    }
-
-                    playBuzz();
-                    showPopup(pick(lines.wrong, 'Keep learning! 🌷'), true);
-                }
-
-                document.getElementById('score').textContent = score;
-                document.getElementById('streak').textContent = streak;
-
-                // Save this answer independently.
-                saveAnswer(question, correct);
-
-                const feedback = document.getElementById('feedback');
-                feedback.innerHTML = '';
-
-                const title = document.createElement('p');
-                title.className = 'feedback-title';
-                title.textContent = correct
-                    ? '♡ Correct! You earned 10 points!'
-                    : '♡ Not quite! You earned 2 points for trying.';
-
-                const answer = document.createElement('p');
-                answer.textContent = 'Correct answer: ' + question.options[question.correct_index];
-
-                const explanation = document.createElement('p');
-                explanation.textContent = '💡 Why: ' + question.explanation;
-
-                feedback.append(title, answer, explanation);
-                feedback.classList.remove('hidden');
-
-                const nextButton = document.getElementById('next');
-
-                nextButton.textContent = (i === qs.length - 1)
-                    ? 'See my results 🎉'
-                    : 'Next question →';
-
-                nextButton.classList.remove('hidden');
-            }
-
-            function next() {
-                i++;
-
-                if (i >= qs.length) {
-                    finish();
-                } else {
-                    render();
-                }
-            }
-
-            function finish() {
-                document.getElementById('progressFill').style.width = '100%';
-
-                const game = document.getElementById('game');
-                game.innerHTML = '';
-
-                const result = document.createElement('div');
-                result.className = 'result';
-
-                const icon = document.createElement('div');
-                icon.className = 'result-icon';
-                icon.textContent = '🎀';
-
-                const heading = document.createElement('h2');
-                heading.textContent = 'You did it!';
-
-                const scoreBox = document.createElement('div');
-                scoreBox.className = 'result-score';
-                scoreBox.textContent = score + ' / ' + qs.length + ' correct';
-
-                const message = document.createElement('p');
-                message.textContent = pick(
-                    lines.done,
-                    'Every little step counts. Keep learning! ♡'
-                );
-
-                const points = document.createElement('p');
-                points.textContent = 'You earned ' + ((score * 10) + ((qs.length - score) * 2)) + ' points!';
-
-                const again = document.createElement('button');
-                again.type = 'button';
-                again.className = 'next-button';
-                again.textContent = '🔁 Try again';
-                again.onclick = () => location.reload();
-
-                result.append(icon, heading, scoreBox, message, points, again);
-                game.appendChild(result);
-
-                if (typeof confetti === 'function') {
-                    confetti({
-                        particleCount: 200,
-                        spread: 100,
-                        origin: { y: 0.6 },
-                        colors: ['#fbcfe0', '#f4b0cc', '#fbcfe8']
-                    });
-                }
-            }
-
-            render();
-        </script>
-    @endif
+                generateButton.disabled = true;
+                generateButton.textContent = 'Opening quiz generator...';
+            });
+        });
+    </script>
 </body>
 </html>
