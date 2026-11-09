@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Upload Materials')
@@ -133,7 +134,7 @@
                         type="file"
                         id="study-file"
                         name="files[]"
-                        accept=".pdf,.txt,.docx,.jpg,.jpeg,.png,.webp"
+                        accept=".pdf,.txt,.docx,.pptx,.jpg,.jpeg,.png,.webp"
                         multiple
                         hidden
                     >
@@ -147,7 +148,7 @@
                         </span>
 
                         <span class="file-description">
-                            PDF, TXT, DOCX, JPG, PNG, WEBP
+                            PDF, TXT, DOCX, PPTX, JPG, PNG, WEBP
                         </span>
 
                         <span class="browse-button">
@@ -195,9 +196,7 @@
                         id="file-limit-message"
                         role="alert"
                         hidden
-                    >
-                        You can select up to 10 files at a time.
-                    </p>
+                    ></p>
 
                 </div>
 
@@ -296,8 +295,10 @@
     grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr);
     align-items: center;
     gap: clamp(35px, 6vw, 80px);
-    max-width: 1080px;
+    width: min(1080px, 100%);
     margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 
@@ -406,12 +407,151 @@
 }
 
 
+
+/* =========================================
+   UPLOAD PAGE
+========================================= */
+
+.upload-page {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    min-width: 0;
+    padding: 38px 0 25px;
+    color: var(--ink);
+    font-family: "Nunito", sans-serif;
+    box-sizing: border-box;
+}
+
+.upload-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    align-items: center;
+    gap: clamp(35px, 6vw, 80px);
+    width: min(1080px, 100%);
+    min-width: 0;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   WELCOME SECTION
+========================================= */
+
+.upload-intro {
+    position: relative;
+    min-width: 0;
+    padding: 25px 0;
+    transform: translateY(-20px);
+}
+
+.intro-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 20px;
+    color: var(--pink-dark);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.intro-label span {
+    font-size: 19px;
+}
+
+.upload-intro h1 {
+    margin: 0;
+    color: #755267;
+    font-family: "Playfair Display", serif;
+    font-size: clamp(38px, 4.5vw, 57px);
+    font-weight: 600;
+    line-height: 1.17;
+    letter-spacing: -1.5px;
+}
+
+.upload-intro h1 span {
+    color: #d982a6;
+}
+
+.intro-description {
+    max-width: 480px;
+    margin: 22px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.intro-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px 19px;
+    margin-top: 27px;
+}
+
+.intro-features div {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #927486;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.intro-features span {
+    color: #d982a6;
+    font-size: 17px;
+}
+
+.reminder-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 38px;
+    padding: 14px 19px;
+    border: 1px solid #f0dce4;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .75);
+}
+
+.reminder-bunny {
+    font-size: 28px;
+}
+
+.reminder-card strong {
+    color: #a65f7b;
+    font-family: "Playfair Display", serif;
+    font-size: 14px;
+}
+
+.reminder-card p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.reminder-bow {
+    margin-left: 12px;
+    color: #d98eaa;
+    font-size: 25px;
+}
+
 /* =========================================
    UPLOAD CARD
 ========================================= */
 
 .upload-card {
     position: relative;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 35px;
     overflow: hidden;
     border: 1px solid var(--line);
@@ -479,20 +619,24 @@
     background: var(--line);
 }
 
-
 /* =========================================
    UPLOAD FORM AND TITLE
 ========================================= */
 
 .upload-form {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 17px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .study-title-field {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .study-title-field label {
@@ -510,6 +654,8 @@
 
 .study-title-field input {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     min-height: 47px;
     padding: 12px 14px;
     border: 1px solid #edcbd9;
@@ -536,7 +682,6 @@
     font-size: 11px;
 }
 
-
 /* =========================================
    FILE PICKER
 ========================================= */
@@ -545,6 +690,9 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .file-drop {
@@ -554,8 +702,12 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 205px;
     padding: 23px 16px;
+    box-sizing: border-box;
     border: 2px dashed #e8b8cc;
     border-radius: 21px;
     background:
@@ -626,13 +778,16 @@
     font-weight: 800;
 }
 
-
 /* =========================================
    SELECTED FILES
 ========================================= */
 
 .file-selection {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     padding: 14px;
+    box-sizing: border-box;
     border: 1px solid #f0dce4;
     border-radius: 16px;
     background: #fffafd;
@@ -667,14 +822,19 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
+    min-width: 0;
 }
 
 .file-chip {
     display: flex;
     align-items: center;
     gap: 9px;
+    width: 100%;
     min-width: 0;
+    max-width: 100%;
     padding: 9px 10px;
+    box-sizing: border-box;
     border: 1px solid #f1dce5;
     border-radius: 13px;
     background: white;
@@ -694,15 +854,27 @@
     font-weight: 900;
 }
 
-.file-chip-label {
+.file-chip-details {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
     min-width: 0;
+    overflow: hidden;
+}
+
+.file-chip-label {
     overflow: hidden;
     color: #916c80;
     font-size: 11px;
     font-weight: 900;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.file-chip-size {
+    color: #b58a9e;
+    font-size: 10px;
 }
 
 .file-chip-actions {
@@ -781,15 +953,19 @@
 
 .file-limit-message {
     margin: -5px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #efc2ce;
+    border-radius: 10px;
+    background: #fff0f3;
     color: #a34e65;
     font-size: 11px;
+    line-height: 1.6;
     text-align: center;
 }
 
 .file-limit-message[hidden] {
     display: none;
 }
-
 
 /* =========================================
    PREVIEW MODAL
@@ -953,13 +1129,13 @@
     color: #d98eaa;
 }
 
-
 /* =========================================
    UPLOAD BUTTON
 ========================================= */
 
 .upload-button {
     width: 100%;
+    min-width: 0;
     min-height: 53px;
     gap: 10px;
     border-radius: 15px;
@@ -990,7 +1166,6 @@
     color: #d98eaa;
 }
 
-
 /* =========================================
    FEEDBACK MESSAGES
 ========================================= */
@@ -1020,7 +1195,6 @@
     background: #f4fbf2;
     color: #668d65;
 }
-
 
 /* =========================================
    DECORATIVE ELEMENTS
@@ -1068,21 +1242,75 @@
     opacity: .65;
 }
 
-
 /* =========================================
    RESPONSIVE
 ========================================= */
 
+/* =========================================
+   IPAD LANDSCAPE OPTIMIZATION
+========================================= */
+
+@media (min-width: 851px) and (max-width: 1100px) {
+
+    .upload-layout {
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+        gap: 28px;
+        width: 100%;
+        max-width: 1000px;
+        padding: 0 25px;
+    }
+
+    .upload-intro {
+        min-width: 0;
+    }
+
+    .upload-intro h1 {
+        font-size: clamp(36px, 4vw, 48px);
+    }
+
+    .intro-description {
+        font-size: 13px;
+    }
+
+    .upload-card {
+        min-width: 0;
+        padding: 30px;
+    }
+
+    .file-drop {
+        min-height: 195px;
+    }
+
+    .file-chip-preview,
+    .file-chip-remove,
+    .preview-close {
+        min-height: 36px;
+    }
+
+    .file-chip-remove {
+        min-width: 36px;
+    }
+}
+
 @media (max-width: 850px) {
 
     .upload-page {
+        width: 100%;
+        max-width: 100%;
         padding: 25px 0;
+        box-sizing: border-box;
     }
 
     .upload-layout {
-        grid-template-columns: 1fr;
-        gap: 25px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
         max-width: 570px;
+        min-width: 0;
+        gap: 25px;
+        padding: 0 15px;
+        margin: 0 auto;
+        box-sizing: border-box;
     }
 
     .upload-intro {
@@ -1094,16 +1322,38 @@
         font-size: clamp(39px, 7vw, 52px);
     }
 
+    .upload-intro,
+    .upload-card {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .upload-form,
+    .study-title-field,
+    .file-picker-wrapper,
+    .file-drop,
+    .file-selection,
+    .selected-file-list {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
 }
 
 @media (max-width: 480px) {
 
     .upload-page {
         padding-top: 15px;
+        overflow-x: clip;
     }
 
     .upload-layout {
-        padding: 0 3px;
+        width: 100%;
+        min-width: 0;
+        padding: 0 12px;
     }
 
     .upload-intro h1 {
@@ -1123,8 +1373,23 @@
     }
 
     .upload-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
         padding: 25px 19px;
         border-radius: 23px;
+    }
+
+    .upload-form,
+    .study-title-field,
+    .file-picker-wrapper,
+    .file-selection,
+    .selected-file-list,
+    .file-chip {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .upload-heading h2 {
@@ -1133,6 +1398,10 @@
 
     .file-drop {
         min-height: 190px;
+    }
+
+    .file-chip-details {
+        min-width: 0;
     }
 
     .bow-one,
@@ -1160,8 +1429,17 @@
     .preview-pdf {
         height: 65vh;
     }
-
 }
+
+@media (prefers-reduced-motion: reduce) {
+
+    .upload-page *,
+    .upload-page *::before,
+    .upload-page *::after {
+        transition: none !important;
+    }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -1201,12 +1479,35 @@ document.addEventListener('DOMContentLoaded', function () {
         !fileList ||
         !selectionLimit ||
         !addFilesButton ||
+        !limitMessage ||
         !uploadForm
     ) {
         return;
     }
 
+
+    // =====================================
+    // UPLOAD LIMITS
+    // =====================================
+
     const MAX_FILES = 10;
+
+    // 25 MB per file.
+    const MAX_FILE_SIZE = 25 * 1024 * 1024;
+
+    // 128 MB combined for all selected files.
+    const MAX_TOTAL_SIZE = 128 * 1024 * 1024;
+
+    const ALLOWED_EXTENSIONS = [
+        'pdf',
+        'txt',
+        'docx',
+        'pptx',
+        'jpg',
+        'jpeg',
+        'png',
+        'webp'
+    ];
 
     let selectedFiles = [];
     let currentPreviewUrl = null;
@@ -1215,7 +1516,54 @@ document.addEventListener('DOMContentLoaded', function () {
     let previewRequestId = 0;
     let previousBodyOverflow = '';
 
-    // Keep the actual file input synchronized with our selection.
+
+    // =====================================
+    // FILE SIZE HELPERS
+    // =====================================
+
+    function formatFileSize(bytes) {
+
+        if (bytes < 1024) {
+            return bytes + ' B';
+        }
+
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(1) + ' KB';
+        }
+
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+
+    }
+
+
+    function getTotalSize() {
+
+        return selectedFiles.reduce(function (total, file) {
+            return total + file.size;
+        }, 0);
+
+    }
+
+
+    function getExtension(file) {
+
+        return file.name.split('.').pop().toLowerCase();
+
+    }
+
+
+    function showLimitMessage(message) {
+
+        limitMessage.textContent = message;
+        limitMessage.hidden = false;
+
+    }
+
+
+    // =====================================
+    // INPUT SYNCHRONIZATION
+    // =====================================
+
     function updateInputFiles() {
 
         const transfer = new DataTransfer();
@@ -1229,7 +1577,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Release the previous preview URL.
+    // =====================================
+    // PREVIEW MANAGEMENT
+    // =====================================
+
     function releasePreviewUrl() {
 
         if (currentPreviewUrl) {
@@ -1240,7 +1591,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Close the preview modal.
     function closePreview() {
 
         previewRequestId++;
@@ -1263,7 +1613,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Show a friendly preview message.
     function showNotice(title, message, icon) {
 
         previewContent.replaceChildren();
@@ -1290,7 +1639,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Open a selected file in the preview modal.
     async function previewFile(file, trigger) {
 
         previewRequestId++;
@@ -1314,7 +1662,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         previewClose.focus();
 
-        const extension = file.name.split('.').pop().toLowerCase();
+        const extension = getExtension(file);
 
         const imageTypes = ['jpg', 'jpeg', 'png', 'webp'];
 
@@ -1368,7 +1716,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const text = await file.text();
 
-                // Ignore results from an older preview request.
                 if (
                     previewModal.hidden ||
                     requestId !== previewRequestId
@@ -1407,8 +1754,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
             showNotice(
                 'Document selected!',
-                'Your DOCX document is ready to upload. Browser preview is not available for this file type, but Shelly can still process it after uploading.',
+                'Your DOCX document is ready to upload. Browser preview is not available for this file type, but Shelly can process it after uploading.',
                 '📄'
+            );
+
+            return;
+
+        }
+
+
+        // PPTX preview.
+        if (extension === 'pptx') {
+
+            showNotice(
+                'Presentation selected!',
+                'Your PowerPoint presentation is ready to upload. Shelly will extract its slide text after uploading. Browser preview is not available for this file type.',
+                '📊'
             );
 
             return;
@@ -1425,16 +1786,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Update the selected-file list.
+    // =====================================
+    // RENDER SELECTED FILES
+    // =====================================
+
     function renderFiles() {
 
         const count = selectedFiles.length;
+        const totalSize = getTotalSize();
 
         fileCount.textContent = count === 0
             ? 'No files selected yet'
             : count === 1
-                ? '1 file selected'
-                : count + ' files selected';
+                ? '1 file selected · ' + formatFileSize(totalSize)
+                : count + ' files selected · ' + formatFileSize(totalSize);
 
         selectionLimit.textContent = count + ' / ' + MAX_FILES;
 
@@ -1455,25 +1820,38 @@ document.addEventListener('DOMContentLoaded', function () {
             const icon = document.createElement('div');
             icon.className = 'file-chip-icon';
 
-            const lowerName = file.name.toLowerCase();
+            const extension = getExtension(file);
 
-            if (file.type.startsWith('image/')) {
+            if (['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
                 icon.textContent = '♡';
-            } else if (lowerName.endsWith('.pdf')) {
+            } else if (extension === 'pdf') {
                 icon.textContent = 'PDF';
-            } else if (lowerName.endsWith('.docx')) {
+            } else if (extension === 'docx') {
                 icon.textContent = 'DOC';
+            } else if (extension === 'pptx') {
+                icon.textContent = 'PPT';
             } else {
                 icon.textContent = 'TXT';
             }
 
 
-            // Actual filename.
+            // File details.
+            const details = document.createElement('div');
+            details.className = 'file-chip-details';
+
             const label = document.createElement('span');
 
             label.className = 'file-chip-label';
             label.textContent = file.name;
             label.title = file.name;
+
+            const size = document.createElement('span');
+
+            size.className = 'file-chip-size';
+            size.textContent = formatFileSize(file.size);
+
+            details.appendChild(label);
+            details.appendChild(size);
 
 
             // File actions.
@@ -1512,7 +1890,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             removeButton.addEventListener('click', function () {
 
-                // Close preview if this exact file is being previewed.
                 if (
                     !previewModal.hidden &&
                     currentPreviewFile === file
@@ -1534,7 +1911,7 @@ document.addEventListener('DOMContentLoaded', function () {
             actions.appendChild(removeButton);
 
             chip.appendChild(icon);
-            chip.appendChild(label);
+            chip.appendChild(details);
             chip.appendChild(actions);
 
             fileList.appendChild(chip);
@@ -1544,47 +1921,119 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Add files without replacing existing selections.
+    // =====================================
+    // ADD AND VALIDATE FILES
+    // =====================================
+
     function addSelectedFiles(files) {
 
         limitMessage.hidden = true;
 
         const incomingFiles = Array.from(files || []);
 
-        const availableSlots = MAX_FILES - selectedFiles.length;
+        let addedCount = 0;
 
-        if (incomingFiles.length > availableSlots) {
-            limitMessage.hidden = false;
-        }
+        incomingFiles.forEach(function (file) {
 
-        if (availableSlots <= 0) {
-            limitMessage.hidden = false;
-            return;
-        }
+            const extension = getExtension(file);
 
-        const filesToAdd = incomingFiles.slice(0, availableSlots);
 
-        selectedFiles = selectedFiles.concat(filesToAdd);
+            // Check supported file types.
+            if (!ALLOWED_EXTENSIONS.includes(extension)) {
+
+                showLimitMessage(
+                    file.name + ' is not a supported file type. Please choose PDF, TXT, DOCX, PPTX, JPG, PNG, or WEBP files.'
+                );
+
+                return;
+
+            }
+
+            // Check for duplicate files.
+const isDuplicate = selectedFiles.some(function (selectedFile) {
+    return (
+        selectedFile.name === file.name &&
+        selectedFile.size === file.size &&
+        selectedFile.lastModified === file.lastModified
+    );
+});
+
+if (isDuplicate) {
+    showLimitMessage(
+        file.name + ' has already been selected. Please choose a different file.'
+    );
+
+    return;
+}
+            // Check individual file size.
+            if (file.size > MAX_FILE_SIZE) {
+
+                showLimitMessage(
+                    file.name + ' is larger than 25 MB. Please choose a smaller file.'
+                );
+
+                return;
+
+            }
+
+
+            // Check maximum number of files.
+            if (selectedFiles.length >= MAX_FILES) {
+
+                showLimitMessage(
+                    'You can select up to 10 files at a time. Remove a file before adding another.'
+                );
+
+                return;
+
+            }
+
+
+            // Check combined upload size.
+            const newTotalSize = getTotalSize() + file.size;
+
+            if (newTotalSize > MAX_TOTAL_SIZE) {
+
+                showLimitMessage(
+                    'Your selected files would exceed the combined 128 MB upload limit. Remove a file or choose smaller files.'
+                );
+
+                return;
+
+            }
+
+
+            selectedFiles.push(file);
+
+            addedCount++;
+
+        });
+
 
         updateInputFiles();
         renderFiles();
 
+        if (addedCount > 0 && limitMessage.hidden === false) {
+            // Keep any warning visible if another selected file was rejected.
+        }
+
     }
 
 
-    // Allow the same file to be selected again.
+    // =====================================
+    // FILE INPUT EVENTS
+    // =====================================
+
     fileInput.addEventListener('click', function () {
         this.value = '';
     });
 
 
-    // Add newly selected files.
     fileInput.addEventListener('change', function () {
         addSelectedFiles(this.files);
     });
 
 
-    // Add more files.
     addFilesButton.addEventListener('click', function () {
 
         if (selectedFiles.length < MAX_FILES) {
@@ -1594,13 +2043,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    // Close modal using its controls.
+    // =====================================
+    // MODAL EVENTS
+    // =====================================
+
     previewClose.addEventListener('click', closePreview);
 
     previewBackdrop.addEventListener('click', closePreview);
 
 
-    // Close modal using Escape and keep keyboard focus inside.
     document.addEventListener('keydown', function (event) {
 
         if (previewModal.hidden) {
@@ -1628,14 +2079,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    // Validate selection before uploading.
+    // =====================================
+    // FORM SUBMISSION
+    // =====================================
+
     uploadForm.addEventListener('submit', function (event) {
 
+        limitMessage.hidden = true;
+
+
+        // At least one file is required.
         if (selectedFiles.length === 0) {
 
             event.preventDefault();
 
-            fileCount.textContent = 'Please select at least one file.';
+            showLimitMessage(
+                'Please select at least one study material before uploading.'
+            );
 
             fileInput.focus();
 
@@ -1643,12 +2103,63 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
+
+        // Final file-count check.
+        if (selectedFiles.length > MAX_FILES) {
+
+            event.preventDefault();
+
+            showLimitMessage(
+                'You can upload a maximum of 10 files at a time.'
+            );
+
+            return;
+
+        }
+
+
+        // Final per-file size check.
+        const oversizedFile = selectedFiles.find(function (file) {
+            return file.size > MAX_FILE_SIZE;
+        });
+
+        if (oversizedFile) {
+
+            event.preventDefault();
+
+            showLimitMessage(
+                oversizedFile.name + ' exceeds the 25 MB per-file limit.'
+            );
+
+            return;
+
+        }
+
+
+        // Final combined size check.
+        if (getTotalSize() > MAX_TOTAL_SIZE) {
+
+            event.preventDefault();
+
+            showLimitMessage(
+                'Your selected files exceed the combined 128 MB upload limit.'
+            );
+
+            return;
+
+        }
+
+
+        // Synchronize the files before sending the form.
         updateInputFiles();
 
     });
 
 
-    // Initial state.
+    // =====================================
+    // INITIAL STATE
+    // =====================================
+
     renderFiles();
 
 });

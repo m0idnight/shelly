@@ -10,6 +10,16 @@ use Illuminate\Http\Client\ConnectionException;
 class ClaudeService
 {
     /**
+     * Maximum text sent to the AI in one request.
+     */
+    private const CHUNK_SIZE = 16000;
+
+    /**
+     * Maximum number of generated flashcards or quiz questions.
+     */
+    private const MAX_GENERATED_ITEMS = 100;
+
+    /**
      * Send a request to Gemini first, then use Cloudflare as fallback.
      */
     public function ask(string $system, array $parts, bool $json = false): string
@@ -17,7 +27,6 @@ class ClaudeService
         $model = env('GEMINI_MODEL', 'gemini-3.8-flash');
         $apiKey = env('GEMINI_API_KEY');
 
-        // Use Cloudflare directly if Gemini is not configured.
         if (!$apiKey) {
             return $this->askCloudflare($system, $parts, $json);
         }
@@ -47,12 +56,7 @@ class ClaudeService
         $maximumAttempts = 3;
 
         $retryableStatuses = [
-            408,
-            500,
-            502,
-            503,
-            504,
-            529,
+            408, 500, 502, 503, 504, 529,
         ];
 
         $lastError = null;
@@ -63,7 +67,6 @@ class ClaudeService
                     'x-goog-api-key' => $apiKey,
                 ])->timeout(180)->post($url, $body);
 
-                // Gemini succeeded.
                 if (!$response->failed()) {
                     $answer = $response->json(
                         'candidates.0.content.parts.0.text'
@@ -74,8 +77,6 @@ class ClaudeService
                     }
 
                     $lastError = 'Gemini returned an empty response.';
-
-                    // Try the fallback provider.
                     break;
                 }
 
@@ -84,12 +85,10 @@ class ClaudeService
                 $lastError = $response->json('error.message')
                     ?? 'Gemini request failed.';
 
-                // A quota error should immediately trigger fallback.
                 if ($status === 429) {
                     break;
                 }
 
-                // Do not retry permanent errors such as invalid API keys.
                 if (!in_array($status, $retryableStatuses, true)) {
                     throw new \Exception(
                         'Gemini API error: ' . $lastError
@@ -100,13 +99,11 @@ class ClaudeService
                 $lastError = 'Could not connect to Gemini.';
             }
 
-            // Retry temporary errors, then use Cloudflare.
             if ($attempt < $maximumAttempts) {
                 sleep(2 ** $attempt);
             }
         }
 
-        // Gemini is unavailable. Try Cloudflare.
         try {
             return $this->askCloudflare($system, $parts, $json);
 
@@ -141,8 +138,6 @@ class ClaudeService
             );
         }
 
-        // The configured fallback model is text-only.
-        // Do not silently ignore uploaded images.
         foreach ($parts as $part) {
             if (isset($part['inline_data'])) {
                 throw new \Exception(
@@ -153,7 +148,6 @@ class ClaudeService
             }
         }
 
-        // Convert Gemini text parts into a single prompt.
         $userText = [];
 
         foreach ($parts as $part) {
@@ -204,7 +198,6 @@ class ClaudeService
                 ?? $data['result']['response']
                 ?? null;
 
-            // Cloudflare may return decoded JSON instead of a string.
             if (is_array($answer) && $json) {
                 $answer = json_encode(
                     $answer,
@@ -229,63 +222,79 @@ class ClaudeService
     }
 
     /**
-     * Collect all available study materials.
+     * Collect all text and image materials from a study set.
      *
-     * New study sets use the study_materials table.
-     * Older study sets continue using source_text and image_path.
+     * Each text material is divided into smaller sections.
+     * Older study sets using source_text and image_path remain supported.
      */
-    private function sourceParts(StudySet $set, string $instruction): array
+    private function sourceChunks(StudySet $set): array
     {
-        $parts = [];
-        $textMaterials = [];
+        $chunks = [];
 
         $materials = $set->materials()->get();
 
         if ($materials->isNotEmpty()) {
             foreach ($materials as $material) {
+                $filename = $material->original_name ?: 'Study material';
+
                 if (!empty($material->source_text)) {
-                    $textMaterials[] =
-                        "FILE: {$material->original_name}\n" .
-                        $material->source_text;
+                    $textChunks = $this->splitText(
+                        "FILE: {$filename}\n\n" . $material->source_text
+                    );
+
+                    foreach ($textChunks as $text) {
+                        $chunks[] = [
+                            'parts' => [
+                                ['text' => $text],
+                            ],
+                        ];
+                    }
                 }
 
                 if (
                     !empty($material->file_path) &&
-                    Storage::disk('public')->exists($material->file_path)
+                    Storage::disk('public')->exists($material->file_path) &&
+                    !empty($material->mime_type) &&
+                    str_starts_with($material->mime_type, 'image/')
                 ) {
                     $path = Storage::disk('public')->path(
                         $material->file_path
                     );
 
-                    $mime = $material->mime_type;
+                    $imageData = file_get_contents($path);
 
-                    if ($mime && str_starts_with($mime, 'image/')) {
-                        $parts[] = [
-                            'inline_data' => [
-                                'mime_type' => $mime,
-                                'data' => base64_encode(
-                                    file_get_contents($path)
-                                ),
+                    if ($imageData !== false) {
+                        $chunks[] = [
+                            'parts' => [
+                                [
+                                    'text' => 'Image file: ' . $filename,
+                                ],
+                                [
+                                    'inline_data' => [
+                                        'mime_type' => $material->mime_type,
+                                        'data' => base64_encode($imageData),
+                                    ],
+                                ],
                             ],
-                        ];
-
-                        $parts[] = [
-                            'text' => 'Image file: ' .
-                                $material->original_name,
                         ];
                     }
                 }
             }
+
         } else {
             // Backward compatibility for older study sets.
             if (!empty($set->source_text)) {
-                $textMaterials[] = $set->source_text;
+                foreach ($this->splitText($set->source_text) as $text) {
+                    $chunks[] = [
+                        'parts' => [
+                            ['text' => $text],
+                        ],
+                    ];
+                }
             }
 
             if (!empty($set->image_path)) {
-                $path = Storage::disk('public')->path(
-                    $set->image_path
-                );
+                $path = Storage::disk('public')->path($set->image_path);
 
                 if (file_exists($path)) {
                     $ext = strtolower(
@@ -300,36 +309,100 @@ class ClaudeService
                     ];
 
                     if (isset($types[$ext])) {
-                        $parts[] = [
-                            'inline_data' => [
-                                'mime_type' => $types[$ext],
-                                'data' => base64_encode(
-                                    file_get_contents($path)
-                                ),
-                            ],
-                        ];
+                        $imageData = file_get_contents($path);
+
+                        if ($imageData !== false) {
+                            $chunks[] = [
+                                'parts' => [
+                                    [
+                                        'inline_data' => [
+                                            'mime_type' => $types[$ext],
+                                            'data' => base64_encode($imageData),
+                                        ],
+                                    ],
+                                ],
+                            ];
+                        }
                     }
                 }
             }
         }
 
-        $combinedText = implode("\n\n", $textMaterials);
-
-        // Limit the text included in one AI request.
-        $combinedText = mb_substr($combinedText, 0, 120000);
-
-        if ($combinedText !== '') {
-            array_unshift($parts, [
-                'text' => "Study materials:\n\n" . $combinedText,
-            ]);
-        }
-
-        if (empty($parts)) {
+        if (empty($chunks)) {
             throw new \Exception(
                 'This study set does not contain readable materials. '
                 . 'Please upload your files again.'
             );
         }
+
+        return $chunks;
+    }
+
+    /**
+     * Split text into manageable sections without intentionally
+     * discarding the remainder of the source.
+     */
+    private function splitText(string $text): array
+    {
+        $text = trim($text);
+
+        if ($text === '') {
+            return [];
+        }
+
+        $chunks = [];
+
+        $length = mb_strlen($text);
+
+        for ($offset = 0; $offset < $length; $offset += self::CHUNK_SIZE) {
+            $chunk = mb_substr(
+                $text,
+                $offset,
+                self::CHUNK_SIZE
+            );
+
+            // Try to end at a paragraph or sentence boundary.
+            if ($offset + self::CHUNK_SIZE < $length) {
+                $lastBreak = mb_strrpos($chunk, "\n\n");
+
+                if ($lastBreak === false || $lastBreak < self::CHUNK_SIZE * 0.6) {
+                    $lastBreak = mb_strrpos($chunk, '. ');
+
+                    if ($lastBreak !== false) {
+                        $lastBreak++;
+                    }
+                }
+
+                if ($lastBreak !== false && $lastBreak > 0) {
+                    $chunk = mb_substr($chunk, 0, $lastBreak);
+                }
+            }
+
+            $chunk = trim($chunk);
+
+            if ($chunk !== '') {
+                $chunks[] = $chunk;
+            }
+
+            $consumed = mb_strlen($chunk);
+
+            if ($consumed === 0) {
+                break;
+            }
+
+            // Advance by the actual consumed length.
+            $offset += $consumed - self::CHUNK_SIZE;
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * Attach an instruction to one source chunk.
+     */
+    private function chunkParts(array $chunk, string $instruction): array
+    {
+        $parts = $chunk['parts'];
 
         $parts[] = [
             'text' => $instruction,
@@ -339,9 +412,47 @@ class ClaudeService
     }
 
     /**
-     * Generate study notes.
+ * Distribute generated items across the full range of source sections.
+ * When there are fewer items than sections, spread them across the document.
+ */
+private function distributeCount(int $total, int $numberOfChunks): array
+{
+    $numberOfChunks = max(1, $numberOfChunks);
+
+    $distribution = array_fill(0, $numberOfChunks, 0);
+
+    $total = min($total, $numberOfChunks * $total);
+
+    if ($total >= $numberOfChunks) {
+        $base = intdiv($total, $numberOfChunks);
+        $remainder = $total % $numberOfChunks;
+
+        for ($i = 0; $i < $numberOfChunks; $i++) {
+            $distribution[$i] = $base + ($i < $remainder ? 1 : 0);
+        }
+
+        return $distribution;
+    }
+
+    // Spread a smaller number of questions across the document.
+    for ($i = 0; $i < $total; $i++) {
+        $index = (int) floor(
+            ($i + 0.5) * $numberOfChunks / $total
+        );
+
+        $distribution[$index]++;
+    }
+
+    return $distribution;
+}
+
+    /**
+     * Generate study notes from every source section, then combine them.
+     */
+    
 /**
- * Generate study notes based on the student's preferences.
+ * Generate study notes from all source materials.
+ * Preserve original extracted text whenever possible.
  */
 public function summarize(StudySet $set, array $options = []): string
 {
@@ -350,15 +461,15 @@ public function summarize(StudySet $set, array $options = []): string
     $focus = trim((string) ($options['focus'] ?? ''));
 
     $lengthInstructions = [
-        'quick' => 'Keep the notes concise. Include only the most important concepts, definitions, and facts.',
+        'quick' => 'Keep the notes concise. Include the most important concepts, definitions, and facts.',
         'balanced' => 'Create moderately detailed notes. Explain important concepts clearly without unnecessary repetition.',
-        'detailed' => 'Create comprehensive notes. Explain important concepts thoroughly and include relevant details from the source materials.',
+        'detailed' => 'Create comprehensive notes. Explain important concepts thoroughly and include relevant details.',
     ];
 
     $formatInstructions = [
-        'organized' => 'Use clear headings and subheadings, short explanations, and bullet points. Group related topics together.',
-        'key_points' => 'Prioritize essential information. Use concise bullet points, important terms, and short explanations.',
-        'exam_revision' => 'Create exam-focused revision notes. Highlight important definitions, concepts, comparisons, and facts that students should remember.',
+        'organized' => 'Use clear headings, subheadings, short explanations, and bullet points.',
+        'key_points' => 'Prioritize essential information using concise bullet points and short explanations.',
+        'exam_revision' => 'Create exam-focused revision notes highlighting definitions, concepts, comparisons, and facts.',
     ];
 
     $lengthInstruction = $lengthInstructions[$length]
@@ -368,31 +479,162 @@ public function summarize(StudySet $set, array $options = []): string
         ?? $formatInstructions['organized'];
 
     $system = "You are Shelly, a friendly study helper. "
-        . "Write accurate study notes using ONLY the provided study materials. "
-        . "Never invent facts or introduce information that is not supported by the materials. "
-        . "Follow the requested length and format.";
+        . "Create accurate study notes using ONLY the supplied study materials. "
+        . "Never invent facts or introduce outside knowledge.";
 
-    $instruction = "Turn all the provided study materials into one useful set of study notes.\n\n"
-        . "LENGTH:\n{$lengthInstruction}\n\n"
-        . "FORMAT:\n{$formatInstruction}\n\n"
-        . "Additional student instructions:\n"
-        . ($focus !== ''
-            ? $focus
-            : 'No additional instructions. Use your judgment to organize the material clearly.')
-        . "\n\nCombine related information and avoid unnecessary repetition.";
+    $chunks = $this->sourceChunks($set);
 
-    $parts = $this->sourceParts($set, $instruction);
+    // Calculate the total amount of extracted text.
+    $totalCharacters = 0;
 
-    return $this->ask($system, $parts);
+    foreach ($chunks as $chunk) {
+        foreach ($chunk['parts'] as $part) {
+            if (isset($part['text'])) {
+                $totalCharacters += mb_strlen($part['text']);
+            }
+        }
+    }
+
+    // Small study sets are processed together to avoid losing
+    // information when separate AI summaries are combined.
+    if ($totalCharacters <= 30000) {
+        $parts = [];
+
+        foreach ($chunks as $index => $chunk) {
+            $parts[] = [
+                'text' => "SOURCE MATERIAL " . ($index + 1) . ":\n"
+                    . implode(
+                        "\n\n",
+                        array_filter(
+                            array_map(
+                                fn ($part) => $part['text'] ?? '',
+                                $chunk['parts']
+                            )
+                        )
+                    ),
+            ];
+
+            // Preserve image parts for Gemini.
+            foreach ($chunk['parts'] as $part) {
+                if (isset($part['inline_data'])) {
+                    $parts[] = $part;
+                }
+            }
+        }
+
+        $parts[] = [
+            'text' =>
+                "Create one complete set of study notes from ALL source materials above.\n\n"
+                . "IMPORTANT:\n"
+                . "- Read every source material before writing.\n"
+                . "- Preserve meaningful information from every file.\n"
+                . "- Do not treat short titles, slide text, or brief statements as empty content.\n"
+                . "- Keep each file's unique information.\n"
+                . "- Do not invent missing explanations or facts.\n\n"
+                . "LENGTH:\n{$lengthInstruction}\n\n"
+                . "FORMAT:\n{$formatInstruction}\n\n"
+                . "Additional student instructions:\n"
+                . ($focus !== '' ? $focus : 'Use your judgment to organize the material clearly.'),
+        ];
+
+        return $this->ask($system, $parts);
+    }
+
+    // Larger study sets retain the chunk-processing approach.
+    $chunkNotes = [];
+
+    foreach ($chunks as $index => $chunk) {
+        $instruction =
+            "Create accurate study notes from this section.\n"
+            . "This is section " . ($index + 1) . " of " . count($chunks) . ".\n"
+            . "Preserve all meaningful titles, definitions, facts, examples, and details.\n"
+            . "Do not invent information.";
+
+        $chunkNotes[] = $this->ask(
+            $system,
+            $this->chunkParts($chunk, $instruction)
+        );
+    }
+
+    $combinedNotes = $this->combineNotes($chunkNotes, $system);
+
+    return $this->ask(
+        $system,
+        [
+            [
+                'text' => "Processed study notes:\n\n" . $combinedNotes,
+            ],
+            [
+                'text' =>
+                    "Create the final study notes using all the processed notes.\n\n"
+                    . "Preserve unique information from every source section.\n\n"
+                    . "LENGTH:\n{$lengthInstruction}\n\n"
+                    . "FORMAT:\n{$formatInstruction}\n\n"
+                    . "Additional instructions:\n"
+                    . ($focus !== '' ? $focus : 'Organize the material clearly.'),
+            ],
+        ]
+    );
 }
 
+    /**
+ * Combine section notes while preserving information from every file.
+ */
+private function combineNotes(array $notes, string $system): string
+{
+    if (empty($notes)) {
+        return '';
+    }
+
+    if (count($notes) === 1) {
+        return $notes[0];
+    }
+
+    while (count($notes) > 1) {
+        $groups = array_chunk($notes, 4);
+        $newNotes = [];
+
+        foreach ($groups as $group) {
+            if (count($group) === 1) {
+                $newNotes[] = $group[0];
+                continue;
+            }
+
+            $sections = [];
+
+            foreach ($group as $index => $note) {
+                $sections[] =
+                    "SOURCE SECTION " . ($index + 1) . ":\n"
+                    . $note;
+            }
+
+            $text = implode("\n\n---\n\n", $sections);
+
+            $instruction =
+                "Combine the following study-note sections into one organized document.\n\n"
+                . "IMPORTANT REQUIREMENTS:\n"
+                . "1. Preserve information from EVERY source section.\n"
+                . "2. Do not completely omit a section just because it contains little information.\n"
+                . "3. Preserve titles, definitions, facts, examples, and important details.\n"
+                . "4. Do not invent information or introduce outside knowledge.\n"
+                . "5. Remove repetition only when the information is genuinely duplicated.\n"
+                . "6. Keep the information traceable to its original source section.\n\n"
+                . $text;
+
+            $newNotes[] = $this->ask(
+                $system,
+                [['text' => $instruction]]
+            );
+        }
+
+        $notes = $newNotes;
+    }
+
+    return $notes[0] ?? '';
+}
 
     /**
-     * Generate flashcards in small batches to avoid response truncation.
-     *
-     * The target is estimated from the amount of material, with a hard
-     * maximum of 100 cards. The AI may return fewer if the source does not
-     * contain enough distinct information.
+     * Generate flashcards across all source sections.
      */
     public function flashcards(StudySet $set): array
     {
@@ -402,93 +644,86 @@ public function summarize(StudySet $set, array $options = []): string
             . "Use ONLY the provided study materials. "
             . "Never invent facts. Reply with valid JSON only.";
 
+        $chunks = $this->sourceChunks($set);
+
+        $allocations = $this->distributeCount(
+            $targetCount,
+            count($chunks)
+        );
+
         $allCards = [];
         $seenQuestions = [];
 
-        // Each request asks for at most 10 cards. This keeps JSON responses
-        // small enough for both Gemini and the Cloudflare fallback.
-        $maximumAttempts = max(4, (int) ceil($targetCount / 10) * 2);
-        $attempts = 0;
-        $consecutiveNoProgress = 0;
+        foreach ($chunks as $chunkIndex => $chunk) {
+            $remainingForChunk = $allocations[$chunkIndex];
 
-        while (
-            count($allCards) < $targetCount &&
-            count($allCards) < 100 &&
-            $attempts < $maximumAttempts
-        ) {
-            $attempts++;
+            while ($remainingForChunk > 0 && count($allCards) < 100) {
+                $batchSize = min(10, $remainingForChunk);
 
-            $batchSize = min(10, $targetCount - count($allCards));
-
-            $previousQuestions = array_column($allCards, 'front');
-
-            $instruction = $this->flashcardInstruction(
-                $batchSize,
-                $previousQuestions
-            );
-
-            $raw = $this->ask(
-                $system,
-                $this->sourceParts($set, $instruction),
-                true
-            );
-
-            $items = $this->decodeJson($raw);
-
-            if (!is_array($items)) {
-                $consecutiveNoProgress++;
-
-                if ($consecutiveNoProgress >= 2) {
-                    break;
-                }
-
-                continue;
-            }
-
-            $beforeBatch = count($allCards);
-
-            foreach ($items as $item) {
-                if (!is_array($item)) {
-                    continue;
-                }
-
-                $front = trim((string) ($item['front'] ?? ''));
-                $back = trim((string) ($item['back'] ?? ''));
-
-                if ($front === '' || $back === '') {
-                    continue;
-                }
-
-                // Normalize question text so small spacing/case differences
-                // do not create duplicate cards.
-                $normalizedQuestion = mb_strtolower(
-                    preg_replace('/\s+/', ' ', $front)
+                $instruction = $this->flashcardInstruction(
+                    $batchSize,
+                    array_column($allCards, 'front')
                 );
 
-                if (isset($seenQuestions[$normalizedQuestion])) {
-                    continue;
-                }
+                $instruction .= "\nFocus on this particular section. "
+                    . "Do not rely on information from other sections.";
 
-                $seenQuestions[$normalizedQuestion] = true;
+                $raw = $this->ask(
+                    $system,
+                    $this->chunkParts($chunk, $instruction),
+                    true
+                );
 
-                $allCards[] = [
-                    'front' => $front,
-                    'back' => $back,
-                ];
+                $items = $this->decodeJson($raw);
 
-                if (count($allCards) >= $targetCount || count($allCards) >= 100) {
+                if (!is_array($items)) {
                     break;
                 }
+
+                $beforeBatch = count($allCards);
+
+                foreach ($items as $item) {
+                    if (!is_array($item)) {
+                        continue;
+                    }
+
+                    $front = trim((string) ($item['front'] ?? ''));
+                    $back = trim((string) ($item['back'] ?? ''));
+
+                    if ($front === '' || $back === '') {
+                        continue;
+                    }
+
+                    $normalizedQuestion = mb_strtolower(
+                        preg_replace('/\s+/', ' ', $front)
+                    );
+
+                    if (isset($seenQuestions[$normalizedQuestion])) {
+                        continue;
+                    }
+
+                    $seenQuestions[$normalizedQuestion] = true;
+
+                    $allCards[] = [
+                        'front' => $front,
+                        'back' => $back,
+                    ];
+
+                    if (count($allCards) >= 100) {
+                        break;
+                    }
+                }
+
+                $generated = count($allCards) - $beforeBatch;
+
+                if ($generated === 0) {
+                    break;
+                }
+
+                $remainingForChunk -= $generated;
             }
 
-            if (count($allCards) === $beforeBatch) {
-                $consecutiveNoProgress++;
-            } else {
-                $consecutiveNoProgress = 0;
-            }
-
-            // Stop if repeated attempts cannot produce any new useful cards.
-            if ($consecutiveNoProgress >= 2) {
+            if (count($allCards) >= 100) {
                 break;
             }
         }
@@ -504,11 +739,10 @@ public function summarize(StudySet $set, array $options = []): string
         array $previousQuestions = []
     ): string {
         $instruction =
-            "Generate exactly {$count} NEW and useful flashcards from the "
+            "Generate up to {$count} NEW and useful flashcards from the "
             . "provided study materials.\n\n"
             . "Cover important concepts, definitions, processes, facts, and "
-            . "relationships found in the materials. Use a variety of question "
-            . "styles where appropriate.\n\n"
+            . "relationships found in the materials.\n\n"
             . "Do not repeat a question or test the same fact in a slightly "
             . "different way. Every answer must be supported by the materials. "
             . "Do not invent facts or add outside information.\n\n"
@@ -518,7 +752,7 @@ public function summarize(StudySet $set, array $options = []): string
             . "Return valid JSON only. Do not include Markdown or commentary.";
 
         if (!empty($previousQuestions)) {
-            $previousQuestions = array_slice($previousQuestions, 0, 100);
+            $previousQuestions = array_slice($previousQuestions, -30);
 
             $instruction .= "\n\nDo NOT create questions similar to these "
                 . "questions already generated:\n- "
@@ -530,10 +764,6 @@ public function summarize(StudySet $set, array $options = []): string
 
     /**
      * Estimate how many flashcards the study materials can support.
-     *
-     * The estimate is one card per 250 characters of extracted text.
-     * Each image contributes an estimated 5,000 characters of content.
-     * Minimum target: 10. Maximum target: 100.
      */
     private function flashcardTargetCount(StudySet $set): int
     {
@@ -555,8 +785,8 @@ public function summarize(StudySet $set, array $options = []): string
                     $imageCount++;
                 }
             }
+
         } else {
-            // Support older study sets.
             $totalCharacters = mb_strlen(
                 (string) $set->source_text
             );
@@ -566,22 +796,15 @@ public function summarize(StudySet $set, array $options = []): string
             }
         }
 
-        // Give each image an estimated content contribution.
         $estimatedCharacters = $totalCharacters + ($imageCount * 5000);
 
-        // Use a denser estimate than the previous 1 card per 500 characters.
         $target = (int) ceil($estimatedCharacters / 250);
 
-        return max(10, min(100, $target));
+        return max(10, min(self::MAX_GENERATED_ITEMS, $target));
     }
 
     /**
-     * Generate a quiz in batches.
-     *
-     * Supported types:
-     * - true_false
-     * - multiple_choice
-     * - mixed
+     * Generate a quiz across all source sections.
      */
     public function quiz(
         StudySet $set,
@@ -601,7 +824,7 @@ public function summarize(StudySet $set, array $options = []): string
             );
         }
 
-        $count = max(1, min($count, 100));
+        $count = max(1, min($count, self::MAX_GENERATED_ITEMS));
 
         $system = "You are Shelly, a careful and friendly study helper. "
             . "Use ONLY the supplied study materials. "
@@ -609,137 +832,158 @@ public function summarize(StudySet $set, array $options = []): string
             . "Never invent facts or use outside knowledge. "
             . "Return valid JSON only.";
 
+        $chunks = $this->sourceChunks($set);
+
+        $allocations = $this->distributeCount(
+            $count,
+            count($chunks)
+        );
+
         $allQuestions = [];
         $seenQuestions = [];
 
-        $remaining = $count;
+        foreach ($chunks as $chunkIndex => $chunk) {
+            $remainingForChunk = $allocations[$chunkIndex];
 
-        // Prevent unlimited requests if the AI repeatedly returns invalid questions.
-        $maximumAttempts = (int) ceil($count / 10) * 3;
-        $attempts = 0;
+            while ($remainingForChunk > 0) {
+                $batchSize = min(10, $remainingForChunk);
 
-        while ($remaining > 0) {
-            if ($attempts >= $maximumAttempts) {
-                throw new \Exception(
-                    'Shelly could not generate enough unique questions. '
-                    . 'Try a smaller question count or different instructions.'
+                $instruction = $this->quizInstruction(
+                    $batchSize,
+                    $type,
+                    $customInstructions,
+                    count($allQuestions)
                 );
-            }
 
-            $attempts++;
+                $instruction .= "\nFocus on this particular section of the materials. "
+                    . "Do not rely on information from other sections.";
 
-            $batchSize = min(10, $remaining);
+                $raw = $this->ask(
+                    $system,
+                    $this->chunkParts($chunk, $instruction),
+                    true
+                );
 
-            $instruction = $this->quizInstruction(
-                $batchSize,
-                $type,
-                $customInstructions,
-                count($allQuestions)
-            );
+                $items = $this->decodeJson($raw);
 
-            $raw = $this->ask(
-                $system,
-                $this->sourceParts($set, $instruction),
-                true
-            );
-
-            $items = $this->decodeJson($raw);
-
-            if (!is_array($items)) {
-                continue;
-            }
-
-            foreach ($items as $item) {
-                if (!is_array($item)) {
-                    continue;
+                if (!is_array($items)) {
+                    break;
                 }
 
-                $question = trim($item['question'] ?? '');
-                $options = $item['options'] ?? [];
-                $correctIndex = $item['correct_index'] ?? null;
-                $explanation = trim($item['explanation'] ?? '');
+                $beforeBatch = count($allQuestions);
 
-                $questionType = $item['type'] ?? $type;
-
-                if ($type === 'mixed') {
-                    if (!in_array(
-                        $questionType,
-                        ['true_false', 'multiple_choice'],
-                        true
-                    )) {
+                foreach ($items as $item) {
+                    if (!is_array($item)) {
                         continue;
                     }
-                } else {
-                    $questionType = $type;
-                }
 
-                $expectedOptions = $questionType === 'true_false' ? 2 : 4;
+                    $question = trim((string) ($item['question'] ?? ''));
+                    $options = $item['options'] ?? [];
+                    $correctIndex = $item['correct_index'] ?? null;
+                    $explanation = trim((string) ($item['explanation'] ?? ''));
 
-                if (
-                    $question === '' ||
-                    !is_array($options) ||
-                    count($options) !== $expectedOptions ||
-                    !is_numeric($correctIndex) ||
-                    (float) $correctIndex !== (float) (int) $correctIndex ||
-                    (int) $correctIndex < 0 ||
-                    (int) $correctIndex >= $expectedOptions ||
-                    $explanation === ''
-                ) {
-                    continue;
-                }
+                    $questionType = $item['type'] ?? $type;
 
-                $options = array_values(array_map(
-                    fn ($option) => trim((string) $option),
-                    $options
-                ));
+                    if ($type === 'mixed') {
+                        if (!in_array(
+                            $questionType,
+                            ['true_false', 'multiple_choice'],
+                            true
+                        )) {
+                            continue;
+                        }
+                    } else {
+                        $questionType = $type;
+                    }
 
-                if (in_array('', $options, true)) {
-                    continue;
-                }
+                    $expectedOptions = $questionType === 'true_false' ? 2 : 4;
 
-                // Normalize True/False options without changing the answer.
-                if ($questionType === 'true_false') {
-                    $normalizedOptions = array_map(
-                        fn ($option) => strtolower($option),
+                    if (
+                        $question === '' ||
+                        !is_array($options) ||
+                        count($options) !== $expectedOptions ||
+                        !is_numeric($correctIndex) ||
+                        (float) $correctIndex !== (float) (int) $correctIndex ||
+                        (int) $correctIndex < 0 ||
+                        (int) $correctIndex >= $expectedOptions ||
+                        $explanation === ''
+                    ) {
+                        continue;
+                    }
+
+                    $options = array_values(array_map(
+                        fn ($option) => trim((string) $option),
                         $options
+                    ));
+
+                    if (in_array('', $options, true)) {
+                        continue;
+                    }
+
+                    if ($questionType === 'true_false') {
+                        $normalizedOptions = array_map(
+                            fn ($option) => strtolower($option),
+                            $options
+                        );
+
+                        if ($normalizedOptions === ['true', 'false']) {
+                            // Already in the correct order.
+                        } elseif ($normalizedOptions === ['false', 'true']) {
+                            $correctIndex = 1 - (int) $correctIndex;
+                        } else {
+                            continue;
+                        }
+
+                        $options = ['True', 'False'];
+                    }
+
+                    $normalizedQuestion = mb_strtolower(
+                        preg_replace('/\s+/', ' ', $question)
                     );
 
-                    if ($normalizedOptions === ['true', 'false']) {
-                        // Already in the correct order.
-                    } elseif ($normalizedOptions === ['false', 'true']) {
-                        $correctIndex = 1 - (int) $correctIndex;
-                    } else {
+                    if (isset($seenQuestions[$normalizedQuestion])) {
                         continue;
                     }
 
-                    $options = ['True', 'False'];
+                    $seenQuestions[$normalizedQuestion] = true;
+
+                    $allQuestions[] = [
+                        'question' => $question,
+                        'type' => $questionType,
+                        'options' => $options,
+                        'correct_index' => (int) $correctIndex,
+                        'explanation' => $explanation,
+                    ];
+
+                    if (count($allQuestions) >= $count) {
+                        break;
+                    }
                 }
 
-                // Normalize question text to detect duplicates.
-                $normalizedQuestion = mb_strtolower(
-                    preg_replace('/\s+/', ' ', $question)
-                );
+                $generated = count($allQuestions) - $beforeBatch;
 
-                if (isset($seenQuestions[$normalizedQuestion])) {
-                    continue;
+                if ($generated === 0) {
+                    break;
                 }
 
-                $seenQuestions[$normalizedQuestion] = true;
-
-                $allQuestions[] = [
-                    'question' => $question,
-                    'type' => $questionType,
-                    'options' => $options,
-                    'correct_index' => (int) $correctIndex,
-                    'explanation' => $explanation,
-                ];
+                $remainingForChunk -= $generated;
 
                 if (count($allQuestions) >= $count) {
                     break;
                 }
             }
 
-            $remaining = $count - count($allQuestions);
+            if (count($allQuestions) >= $count) {
+                break;
+            }
+        }
+
+        if (count($allQuestions) < $count) {
+            throw new \Exception(
+                'Shelly could generate only ' . count($allQuestions)
+                . ' of the requested ' . $count . ' questions. '
+                . 'Try a smaller question count or different instructions.'
+            );
         }
 
         return array_slice($allQuestions, 0, $count);
@@ -762,26 +1006,26 @@ public function summarize(StudySet $set, array $options = []): string
                 'Every question must be multiple choice with exactly four answer options. The correct_index must be between 0 and 3.',
 
             'mixed' =>
-                'Create a balanced mixture of True or False questions and four-option multiple-choice questions. Include the "type" property for every question, using either "true_false" or "multiple_choice". True or False questions must have exactly ["True", "False"] as their options and a correct_index of 0 or 1. Multiple-choice questions must have exactly four options and a correct_index between 0 and 3.',
+                'Create a mixture of True or False questions and four-option multiple-choice questions. Include the "type" property for every question, using either "true_false" or "multiple_choice". True or False questions must have exactly ["True", "False"] as their options and a correct_index of 0 or 1. Multiple-choice questions must have exactly four options and a correct_index between 0 and 3.',
         };
 
         $custom = trim($customInstructions);
 
         return
-            "Generate exactly {$count} NEW quiz questions.\n\n" .
-            "These questions are part of a larger quiz. Question batch offset: {$offset}. Do not repeat questions from earlier batches.\n\n" .
-            "{$format}\n\n" .
-            "Each question must be different and cover useful information from the materials.\n\n" .
-            "For every question, return:\n" .
-            '- "question": a clear question string' . "\n" .
-            '- "type": "true_false" or "multiple_choice"' . "\n" .
-            '- "options": an array of answer choices' . "\n" .
-            '- "correct_index": the zero-based index of the correct answer' . "\n" .
-            '- "explanation": one or two sentences explaining the correct answer using the materials' . "\n\n" .
-            ($custom !== ''
+            "Generate up to {$count} NEW quiz questions.\n\n"
+            . "These questions are part of a larger quiz. Question batch offset: {$offset}. Do not repeat questions from earlier batches.\n\n"
+            . "{$format}\n\n"
+            . "Each question must be different and cover useful information from the materials.\n\n"
+            . "For every question, return:\n"
+            . '- "question": a clear question string' . "\n"
+            . '- "type": "true_false" or "multiple_choice"' . "\n"
+            . '- "options": an array of answer choices' . "\n"
+            . '- "correct_index": the zero-based index of the correct answer' . "\n"
+            . '- "explanation": one or two sentences explaining the correct answer using the materials' . "\n\n"
+            . ($custom !== ''
                 ? "Additional instructions from the student:\n{$custom}\n\n"
-                : '') .
-            'Return only a valid JSON array. Do not include Markdown or extra commentary.';
+                : '')
+            . 'Return only a valid JSON array. Do not include Markdown or extra commentary.';
     }
 
     /**
@@ -791,10 +1035,7 @@ public function summarize(StudySet $set, array $options = []): string
     {
         $raw = trim($raw);
 
-        // Remove opening Markdown code fences.
         $raw = preg_replace('/^```(?:json)?\s*/i', '', $raw);
-
-        // Remove closing Markdown code fences.
         $raw = preg_replace('/\s*```$/', '', $raw);
 
         $decoded = json_decode(trim($raw), true);

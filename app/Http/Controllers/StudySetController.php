@@ -22,6 +22,42 @@ class StudySetController extends Controller
     // Maximum number of generated flashcards.
     private const MAX_FLASHCARDS = 100;
 
+    // Maximum number of uploaded files per study set.
+    private const MAX_UPLOAD_FILES = 10;
+
+    // Maximum size of one uploaded file: 25 MB.
+    private const MAX_FILE_SIZE_KB = 25600;
+
+    // Maximum combined upload size: 128 MB.
+    private const MAX_TOTAL_UPLOAD_BYTES = 128 * 1024 * 1024;
+
+    // CHECK FOR DUPLICATE FILE CONTENTS
+    private function hasDuplicateFiles(array $files): bool
+    {
+        $hashes = [];
+
+        foreach ($files as $file) {
+            $hash = hash_file(
+                'sha256',
+                $file->getRealPath()
+            );
+
+            if ($hash === false) {
+                throw new \RuntimeException(
+                    'Could not verify an uploaded file.'
+                );
+            }
+
+            if (isset($hashes[$hash])) {
+                return true;
+            }
+
+            $hashes[$hash] = true;
+        }
+
+        return false;
+    }
+
     // UPLOAD PAGE
     public function create()
     {
@@ -33,11 +69,37 @@ class StudySetController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'files' => 'required|array|min:1|max:10',
-            'files.*' => 'required|file|mimes:pdf,txt,docx,jpg,jpeg,png,webp|max:20480',
+            'files' => 'required|array|min:1|max:' . self::MAX_UPLOAD_FILES,
+            'files.*' => 'required|file|mimes:pdf,txt,docx,pptx,jpg,jpeg,png,webp|max:' . self::MAX_FILE_SIZE_KB,
         ]);
 
         $files = $request->file('files');
+
+        // Check the combined size of all uploaded files.
+        $totalBytes = array_sum(
+            array_map(
+                fn ($file) => $file->getSize(),
+                $files
+            )
+        );
+
+        if ($totalBytes > self::MAX_TOTAL_UPLOAD_BYTES) {
+            return back()
+                ->withErrors([
+                    'files' => 'Your selected files exceed the combined 128 MB upload limit. Please remove some files.',
+                ])
+                ->withInput();
+        }
+
+        // Prevent identical files from being uploaded twice.
+        if ($this->hasDuplicateFiles($files)) {
+            return back()
+                ->withErrors([
+                    'files' => 'Duplicate files detected. Please upload each study material only once.',
+                ])
+                ->withInput();
+        }
+
         $storedPaths = [];
 
         $set = StudySet::create([
@@ -101,9 +163,9 @@ class StudySetController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'files' => 'nullable|array|max:10',
-            'files.*' => 'required|file|mimes:pdf,txt,docx,jpg,jpeg,png,webp|max:20480',
-            'file' => 'nullable|file|mimes:pdf,txt,docx,jpg,jpeg,png,webp|max:20480',
+            'files' => 'nullable|array|max:' . self::MAX_UPLOAD_FILES,
+            'files.*' => 'required|file|mimes:pdf,txt,docx,pptx,jpg,jpeg,png,webp|max:' . self::MAX_FILE_SIZE_KB,
+            'file' => 'nullable|file|mimes:pdf,txt,docx,pptx,jpg,jpeg,png,webp|max:' . self::MAX_FILE_SIZE_KB,
         ]);
 
         $uploads = $request->file('files', []);
@@ -112,10 +174,36 @@ class StudySetController extends Controller
             $uploads[] = $request->file('file');
         }
 
-        if (count($uploads) > 10) {
+        // Check the maximum number of uploaded files.
+        if (count($uploads) > self::MAX_UPLOAD_FILES) {
             return back()
                 ->withErrors([
                     'files' => 'You can upload a maximum of 10 files.',
+                ])
+                ->withInput();
+        }
+
+        // Check the combined size of all uploaded files.
+        $totalBytes = array_sum(
+            array_map(
+                fn ($file) => $file->getSize(),
+                $uploads
+            )
+        );
+
+        if ($totalBytes > self::MAX_TOTAL_UPLOAD_BYTES) {
+            return back()
+                ->withErrors([
+                    'files' => 'Your selected files exceed the combined 128 MB upload limit. Please remove some files.',
+                ])
+                ->withInput();
+        }
+
+        // Prevent identical files from being uploaded twice.
+        if ($this->hasDuplicateFiles($uploads)) {
+            return back()
+                ->withErrors([
+                    'files' => 'Duplicate files detected. Please upload each study material only once.',
                 ])
                 ->withInput();
         }
@@ -374,7 +462,6 @@ class StudySetController extends Controller
     public function makeFlashcards(StudySet $set, ClaudeService $claude)
     {
         try {
-            // v2 prevents old cached flashcard results from being reused.
             $cacheKey = $this->aiCacheKey(
                 $set,
                 'flashcards_v3'
@@ -466,9 +553,6 @@ class StudySetController extends Controller
                     );
 
                     if ($existing) {
-
-                        // Keep the existing ID, known status,
-                        // and reviewed status.
                         $existing->update([
                             'front' => $card['front'],
                             'back' => $card['back'],
@@ -477,8 +561,6 @@ class StudySetController extends Controller
                         $usedIds[] = $existing->id;
 
                     } else {
-
-                        // New cards start as not yet reviewed.
                         $newCard = Flashcard::create([
                             ...$card,
                             'known' => false,
@@ -739,8 +821,6 @@ class StudySetController extends Controller
                     );
 
                     if ($existing) {
-
-                        // Keep the existing ID and missed status.
                         $existing->update([
                             'question' => $question['question'],
                             'type' => $question['type'],
@@ -752,8 +832,6 @@ class StudySetController extends Controller
                         $usedIds[] = $existing->id;
 
                     } else {
-
-                        // Insert newly generated quiz questions.
                         $newQuestion = QuizQuestion::create($question);
 
                         $usedIds[] = $newQuestion->id;
@@ -841,7 +919,11 @@ class StudySetController extends Controller
     {
         $ext = strtolower($file->getClientOriginalExtension());
 
-        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+        $isImage = in_array(
+            $ext,
+            ['jpg', 'jpeg', 'png', 'webp'],
+            true
+        );
 
         $filePath = $file->store('uploads', 'public');
 
@@ -875,6 +957,7 @@ class StudySetController extends Controller
                 'file_path' => $isImage ? $filePath : null,
                 'stored_path' => $filePath,
             ];
+
         } catch (\Throwable $e) {
             Storage::disk('public')->delete($filePath);
 
@@ -885,34 +968,190 @@ class StudySetController extends Controller
     // EXTRACT TEXT FROM FILE
     private function extractText(string $path, string $ext): string
     {
+        // PDF TEXT EXTRACTION
         if ($ext === 'pdf') {
             return (new Parser())
                 ->parseFile($path)
                 ->getText();
         }
 
+        // DOCX TEXT EXTRACTION
         if ($ext === 'docx') {
             $zip = new ZipArchive();
 
-            if ($zip->open($path) === true) {
-                $xml = $zip->getFromName('word/document.xml');
-
-                $zip->close();
-
-                if ($xml === false) {
-                    return '';
-                }
-
-                $xml = str_replace('</w:p>', "\n", $xml);
-
-                return trim(strip_tags($xml));
+            if ($zip->open($path) !== true) {
+                throw new \Exception(
+                    'Could not open the DOCX file.'
+                );
             }
 
-            throw new \Exception(
-                'Could not read the DOCX file.'
-            );
+            try {
+                $xml = $zip->getFromName('word/document.xml');
+
+                if ($xml === false) {
+                    throw new \Exception(
+                        'Could not find readable document content in the DOCX file.'
+                    );
+                }
+
+                $document = new \DOMDocument();
+
+                $loaded = $document->loadXML(
+                    $xml,
+                    LIBXML_NONET | LIBXML_NOBLANKS
+                );
+
+                if (!$loaded) {
+                    throw new \Exception(
+                        'Could not read the DOCX document content.'
+                    );
+                }
+
+                $xpath = new \DOMXPath($document);
+
+                $paragraphs = $xpath->query(
+                    '//*[local-name()="p"]'
+                );
+
+                $lines = [];
+
+                foreach ($paragraphs as $paragraph) {
+                    $textNodes = $xpath->query(
+                        './/*[local-name()="t"]',
+                        $paragraph
+                    );
+
+                    $parts = [];
+
+                    foreach ($textNodes as $textNode) {
+                        $parts[] = $textNode->textContent;
+                    }
+
+                    $line = trim(implode('', $parts));
+
+                    if ($line !== '') {
+                        $lines[] = $line;
+                    }
+                }
+
+                return implode("\n", $lines);
+
+            } finally {
+                $zip->close();
+            }
         }
 
-        return file_get_contents($path) ?: '';
+        // POWERPOINT PPTX TEXT EXTRACTION
+        if ($ext === 'pptx') {
+            $zip = new ZipArchive();
+
+            if ($zip->open($path) !== true) {
+                throw new \Exception(
+                    'Could not open the PowerPoint file.'
+                );
+            }
+
+            try {
+                $slides = [];
+
+                // Find all PowerPoint slide XML files.
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $name = $zip->getNameIndex($i);
+
+                    if (
+                        preg_match(
+                            '/^ppt\/slides\/slide\d+\.xml$/',
+                            $name
+                        )
+                    ) {
+                        $slides[] = $name;
+                    }
+                }
+
+                // Keep slides in their numerical order.
+                natsort($slides);
+
+                $slideTexts = [];
+
+                foreach ($slides as $slideFile) {
+                    $xml = $zip->getFromName($slideFile);
+
+                    if ($xml === false) {
+                        continue;
+                    }
+
+                    $document = new \DOMDocument();
+
+                    $loaded = $document->loadXML(
+                        $xml,
+                        LIBXML_NONET | LIBXML_NOBLANKS
+                    );
+
+                    if (!$loaded) {
+                        continue;
+                    }
+
+                    $xpath = new \DOMXPath($document);
+
+                    // Extract text from PowerPoint paragraphs.
+                    $paragraphs = $xpath->query(
+                        '//*[local-name()="p"]'
+                    );
+
+                    $slideParagraphs = [];
+
+                    foreach ($paragraphs as $paragraph) {
+                        $textNodes = $xpath->query(
+                            './/*[local-name()="t"]',
+                            $paragraph
+                        );
+
+                        $parts = [];
+
+                        foreach ($textNodes as $textNode) {
+                            $parts[] = $textNode->textContent;
+                        }
+
+                        $paragraphText = trim(
+                            implode('', $parts)
+                        );
+
+                        if ($paragraphText !== '') {
+                            $slideParagraphs[] = $paragraphText;
+                        }
+                    }
+
+                    if (!empty($slideParagraphs)) {
+                        $slideTexts[] = implode(
+                            "\n",
+                            $slideParagraphs
+                        );
+                    }
+                }
+
+                if (empty($slideTexts)) {
+                    throw new \Exception(
+                        'No readable text was found in the PowerPoint file.'
+                    );
+                }
+
+                return implode(
+                    "\n\n",
+                    $slideTexts
+                );
+
+            } finally {
+                $zip->close();
+            }
+        }
+
+        // TXT TEXT EXTRACTION
+        if ($ext === 'txt') {
+            return file_get_contents($path) ?: '';
+        }
+
+        throw new \Exception(
+            'This file format is not supported for text extraction.'
+        );
     }
 }

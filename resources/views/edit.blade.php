@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Edit Study Set')
@@ -13,7 +12,7 @@
         <span class="page-kicker">🎀 A little update</span>
         <h1 class="page-title">Edit your study set</h1>
         <p class="page-description">
-            Change the title or replace your study material.
+            Change the title or replace your study materials.
             Your learning space stays yours. ♡
         </p>
     </div>
@@ -28,6 +27,7 @@
         @endif
 
         <form
+            id="edit-form"
             method="POST"
             action="{{ route('sets.update', $set) }}"
             enctype="multipart/form-data"
@@ -45,24 +45,33 @@
                 maxlength="255"
             >
 
-            <label for="file">Replace study material <span>(optional)</span></label>
+            <label for="files">
+                Replace study materials <span>(optional)</span>
+            </label>
 
             <div class="file-area">
                 <input
                     type="file"
-                    id="file"
-                    name="file"
-                    accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp"
+                    id="files"
+                    name="files[]"
+                    accept=".pdf,.docx,.txt,.pptx,.jpg,.jpeg,.png,.webp"
+                    multiple
                 >
 
                 <p id="file-name">
-                    Choose a new PDF, DOCX, TXT, or image file.
+                    Choose up to 10 PDF, DOCX, PPTX, TXT, or image files.
                 </p>
+
+                <p class="upload-limits">
+                    Maximum 25 MB per file · 128 MB combined
+                </p>
+
+                <p id="file-error" class="file-error" role="alert" hidden></p>
             </div>
 
             <p class="note">
                 Leave this empty if you only want to change the title.
-                Replacing the material will reset its generated study content.
+                Replacing the materials will reset the generated study content.
             </p>
 
             <div class="actions">
@@ -79,7 +88,10 @@
 </div>
 
 <style>
-    .edit-page { max-width: 680px; margin: auto; }
+    .edit-page {
+        max-width: 680px;
+        margin: auto;
+    }
 
     .back-link {
         display: inline-block;
@@ -90,7 +102,9 @@
         text-decoration: none;
     }
 
-    .edit-heading { margin-bottom: 25px; }
+    .edit-heading {
+        margin-bottom: 25px;
+    }
 
     .edit-card {
         position: relative;
@@ -143,12 +157,24 @@
         background: #fff7fa;
     }
 
-    .file-area input { max-width: 100%; }
+    .file-area input {
+        max-width: 100%;
+    }
 
     .file-area p {
         margin: 10px 0 0;
         color: var(--muted);
         font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .file-area .upload-limits {
+        color: #a47d91;
+    }
+
+    .file-area .file-error {
+        color: #b4234d;
+        font-weight: 700;
     }
 
     .note {
@@ -181,17 +207,136 @@
     }
 
     @media (max-width: 600px) {
-        .edit-card { padding: 25px 20px; }
-        .actions { flex-direction: column-reverse; }
-        .actions > * { width: 100%; }
+        .edit-card {
+            padding: 25px 20px;
+        }
+
+        .actions {
+            flex-direction: column-reverse;
+        }
+
+        .actions > * {
+            width: 100%;
+        }
     }
 </style>
 
 <script>
-    document.getElementById('file')?.addEventListener('change', function () {
-        const name = this.files?.[0]?.name;
-        document.getElementById('file-name').textContent =
-            name || 'Choose a new PDF, DOCX, TXT, or image file.';
+(function () {
+    const fileInput = document.getElementById('files');
+    const fileName = document.getElementById('file-name');
+    const fileError = document.getElementById('file-error');
+    const form = document.getElementById('edit-form');
+
+    if (!fileInput || !fileName || !fileError || !form) {
+        return;
+    }
+
+    const MAX_FILES = 10;
+    const MAX_FILE_SIZE = 25 * 1024 * 1024;
+    const MAX_TOTAL_SIZE = 128 * 1024 * 1024;
+
+    const allowedExtensions = [
+        'pdf', 'docx', 'pptx', 'txt',
+        'jpg', 'jpeg', 'png', 'webp'
+    ];
+
+    function formatSize(bytes) {
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function showError(message) {
+        fileError.textContent = message;
+        fileError.hidden = false;
+    }
+
+    function clearError() {
+        fileError.textContent = '';
+        fileError.hidden = true;
+    }
+
+    function validateFiles(files) {
+        clearError();
+
+        if (files.length > MAX_FILES) {
+            return 'You can select a maximum of 10 files.';
+        }
+
+        let totalSize = 0;
+        const seenFiles = new Set();
+
+        for (const file of files) {
+            const extension = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedExtensions.includes(extension)) {
+                return file.name + ' is not a supported file type.';
+            }
+
+            if (file.size > MAX_FILE_SIZE) {
+                return file.name + ' exceeds the 25 MB per-file limit.';
+            }
+
+            totalSize += file.size;
+
+            const duplicateKey = [
+                file.name,
+                file.size,
+                file.lastModified
+            ].join('|');
+
+            if (seenFiles.has(duplicateKey)) {
+                return file.name + ' has already been selected.';
+            }
+
+            seenFiles.add(duplicateKey);
+        }
+
+        if (totalSize > MAX_TOTAL_SIZE) {
+            return 'Your selected files exceed the combined 128 MB limit.';
+        }
+
+        return null;
+    }
+
+    fileInput.addEventListener('change', function () {
+        const files = Array.from(this.files || []);
+
+        if (files.length === 0) {
+            fileName.textContent =
+                'Choose up to 10 PDF, DOCX, PPTX, TXT, or image files.';
+            clearError();
+            return;
+        }
+
+        const error = validateFiles(files);
+
+        if (error) {
+            showError(error);
+            fileName.textContent = 'Please correct your file selection.';
+            return;
+        }
+
+        clearError();
+
+        fileName.textContent = files.map(function (file) {
+            return file.name + ' (' + formatSize(file.size) + ')';
+        }).join(', ');
     });
+
+    form.addEventListener('submit', function (event) {
+        const files = Array.from(fileInput.files || []);
+
+        if (files.length === 0) {
+            return;
+        }
+
+        const error = validateFiles(files);
+
+        if (error) {
+            event.preventDefault();
+            showError(error);
+        }
+    });
+})();
 </script>
 @endsection

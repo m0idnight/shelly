@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    <!-- Study heading -->
+    <!-- STUDY HEADING -->
     <section class="panel study-heading">
 
         <div class="study-heading-copy">
@@ -43,7 +43,7 @@
                 class="delete-button"
                 onclick="openDeleteModal()"
             >
-                <i class="fa-regular fa-trash-can"></i>
+                <span aria-hidden="true">⌫</span>
                 Delete
             </button>
 
@@ -51,30 +51,98 @@
 
     </section>
 
-    <!-- Study tools -->
-    <section class="study-tools-section">
+
+    <!-- UPLOADED MATERIALS -->
+    <section class="panel uploaded-materials-section">
 
         <div class="section-heading">
+
             <div>
-                <span class="page-kicker">✧ Your study tools</span>
-                <h2>What shall we study?</h2>
-                <p>Pick a little activity to help you learn.</p>
+                <span class="page-kicker">♡ Your study files</span>
+
+                <h2>Uploaded Materials</h2>
+
+                <p>
+                    {{ $set->materials->count() }}
+                    {{ Str::plural('file', $set->materials->count()) }}
+                    in this study collection.
+                </p>
             </div>
 
             <span class="section-decoration">୨୧</span>
+
         </div>
+
+        <div class="uploaded-materials-list">
+
+            @forelse ($set->materials as $material)
+
+                <div class="uploaded-material-item">
+
+                    <div class="uploaded-material-icon">
+                        <span aria-hidden="true">▤</span>
+                    </div>
+
+                    <div class="uploaded-material-info">
+
+                        <strong>{{ $material->original_name }}</strong>
+
+                        <span>
+                            {{ number_format($material->file_size / 1024, 1) }} KB
+                        </span>
+
+                    </div>
+
+                    <span class="material-status">♡ Uploaded</span>
+
+                </div>
+
+            @empty
+
+                <p class="empty-materials">
+                    No uploaded materials yet.
+                </p>
+
+            @endforelse
+
+        </div>
+
+    </section>
+
+
+    <!-- STUDY TOOLS -->
+    <section class="study-tools-section">
+
+        <div class="study-tools-heading">
+
+            <div>
+                <span class="page-kicker">♡ Your learning corner</span>
+
+                <h2>Choose Your Study Tool</h2>
+
+                <p>
+                    Pick a way to review and practice your materials.
+                </p>
+            </div>
+
+            <span class="section-decoration">୨୧</span>
+
+        </div>
+
 
         <div class="tool-grid">
 
-            <!-- Summary -->
+            <!-- SUMMARY -->
             <article class="panel tool-card summary-tool">
 
                 <div class="tool-top">
+
                     <div class="tool-icon notes-icon">
-                        <i class="fa-regular fa-file-lines"></i>
+                        <span aria-hidden="true">▤</span>
                     </div>
 
                     <span class="tool-number">01</span>
+
                 </div>
 
                 <span class="tool-label">READ & REVIEW</span>
@@ -86,22 +154,27 @@
                     generated from your uploaded material.
                 </p>
 
-                <a href="{{ route('sets.summary.setup', $set) }}"
-                   class="tool-link">
+                <a
+                    href="{{ route('sets.summary.setup', $set) }}"
+                    class="tool-link"
+                >
                     Open summary <span>→</span>
                 </a>
 
             </article>
 
-            <!-- Flashcards -->
+
+            <!-- FLASHCARDS -->
             <article class="panel tool-card flashcard-tool">
 
                 <div class="tool-top">
+
                     <div class="tool-icon flashcard-icon">
-                        <i class="fa-regular fa-clone"></i>
+                        <span aria-hidden="true">▱</span>
                     </div>
 
                     <span class="tool-number">02</span>
+
                 </div>
 
                 <span class="tool-label">PRACTICE & REMEMBER</span>
@@ -113,22 +186,27 @@
                     flashcards and test your memory.
                 </p>
 
-                <a href="{{ route('sets.flashcards', $set) }}"
-                   class="tool-link">
+                <a
+                    href="{{ route('sets.flashcards', $set) }}"
+                    class="tool-link"
+                >
                     Open flashcards <span>→</span>
                 </a>
 
             </article>
 
-            <!-- Quiz -->
+
+            <!-- QUIZ -->
             <article class="panel tool-card quiz-tool">
 
                 <div class="tool-top">
+
                     <div class="tool-icon quiz-icon">
-                        <i class="fa-regular fa-circle-question"></i>
+                        <span aria-hidden="true">?</span>
                     </div>
 
                     <span class="tool-number">03</span>
+
                 </div>
 
                 <span class="tool-label">TEST YOUR KNOWLEDGE</span>
@@ -140,8 +218,10 @@
                     and see how much you have learned.
                 </p>
 
-                <a href="{{ route('sets.quiz', $set) }}"
-                   class="tool-link">
+                <a
+                    href="{{ route('sets.quiz', $set) }}"
+                    class="tool-link"
+                >
                     Start quiz <span>→</span>
                 </a>
 
@@ -151,6 +231,8 @@
 
     </section>
 
+
+    <!-- BOTTOM NOTE -->
     <div class="study-bottom-note">
         <span>♡</span>
         One page at a time, one step closer to learning.
@@ -160,21 +242,23 @@
 </div>
 
 
-<!-- Delete confirmation modal -->
-<div class="modal-overlay"
-     id="deleteModal"
-     aria-hidden="true">
+<!-- DELETE CONFIRMATION MODAL -->
+<div
+    class="modal-overlay"
+    id="deleteModal"
+    aria-hidden="true"
+>
 
-    <div class="modal-card"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="modal-title">
+    <div
+        class="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+    >
 
         <div class="modal-bow">୨୧</div>
 
-        <span class="modal-icon">
-            <i class="fa-regular fa-trash-can"></i>
-        </span>
+        <span class="modal-icon">⌫</span>
 
         <span class="modal-kicker">A LITTLE CONFIRMATION</span>
 
@@ -195,12 +279,15 @@
             <button
                 type="button"
                 class="cancel-button"
-                onclick="closeDeleteModal()">
+                onclick="closeDeleteModal()"
+            >
                 Keep it
             </button>
 
-            <form method="POST"
-                  action="{{ route('sets.destroy', $set) }}">
+            <form
+                method="POST"
+                action="{{ route('sets.destroy', $set) }}"
+            >
 
                 @csrf
                 @method('DELETE')
@@ -220,14 +307,34 @@
 
 <style>
 
-/* Study heading */
+/* =====================================
+   PAGE BASE
+===================================== */
+
+.study-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.study-page *,
+.study-page *::before,
+.study-page *::after {
+    box-sizing: border-box;
+}
+
+
+/* =====================================
+   STUDY HEADING
+===================================== */
 
 .study-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 25px;
-    padding: 30px;
+    gap: 20px;
+    padding: 26px;
 }
 
 .study-heading-copy {
@@ -242,7 +349,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 9px;
     flex-shrink: 0;
 }
 
@@ -251,10 +358,10 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 48px;
-    padding: 0 20px;
+    min-height: 44px;
+    padding: 0 17px;
     border: 1px solid #f0cbd7;
-    border-radius: 15px;
+    border-radius: 13px;
     background: #fff5f7;
     color: #a75c73;
     font: inherit;
@@ -270,27 +377,36 @@
 }
 
 
-/* Study tools section */
+/* =====================================
+   UPLOADED MATERIALS
+===================================== */
 
-.study-tools-section {
-    margin-top: 35px;
+.uploaded-materials-section {
+    width: 100%;
+    min-width: 0;
+    margin-top: 18px;
+    padding: 22px;
+    border: 1px solid #f0dfe5;
+    border-radius: 18px;
+    background: #fffafb;
 }
 
-.section-heading {
+.uploaded-materials-section .section-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 17px;
+    gap: 15px;
+    margin-bottom: 16px;
 }
 
-.section-heading h2 {
+.uploaded-materials-section .section-heading h2 {
     margin: 7px 0 5px;
     color: #795568;
     font-family: Georgia, serif;
-    font-size: 24px;
+    font-size: 21px;
 }
 
-.section-heading p {
+.uploaded-materials-section .section-heading p {
     margin: 0;
     color: var(--muted);
     font-size: 12px;
@@ -298,52 +414,190 @@
 
 .section-decoration {
     color: #d99bb0;
-    font-size: 30px;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.uploaded-materials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.uploaded-material-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    padding: 11px 14px;
+    border: 1px solid #f0e1e7;
+    border-radius: 12px;
+    background: #fff7fa;
+    transition: .2s ease;
+}
+
+.uploaded-material-item:hover {
+    border-color: #e5bdcc;
+    background: #fff1f6;
+}
+
+.uploaded-material-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border: 1px solid #efd5df;
+    border-radius: 11px;
+    background: #f9e8ef;
+    color: #b87591;
+}
+
+.uploaded-material-icon span {
+    font-family: Georgia, serif;
+    font-size: 20px;
+}
+
+.uploaded-material-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.uploaded-material-info strong {
+    overflow: hidden;
+    color: #755465;
+    font-size: 12px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.uploaded-material-info span {
+    color: #a18c96;
+    font-size: 10px;
+}
+
+.material-status {
+    flex-shrink: 0;
+    padding: 6px 9px;
+    border: 1px solid #e8d5e7;
+    border-radius: 20px;
+    background: #f7eff8;
+    color: #927394;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.empty-materials {
+    color: var(--muted);
+    font-size: 12px;
 }
 
 
-/* Tool cards */
+/* =====================================
+   STUDY TOOLS HEADING
+===================================== */
+
+.study-tools-section {
+    width: 100%;
+    min-width: 0;
+    margin-top: 29px;
+}
+
+.study-tools-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.study-tools-heading h2 {
+    margin: 7px 0 5px;
+    color: #795568;
+    font-family: Georgia, serif;
+    font-size: 23px;
+}
+
+.study-tools-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+
+/* =====================================
+   COMPACT STUDY TOOL GRID
+===================================== */
 
 .tool-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 17px;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .tool-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 245px;
-    padding: 23px;
+    width: 100%;
+    min-width: 0;
+    min-height: 225px;
+    padding: 16px;
     overflow: hidden;
-    transition: .2s ease;
+    border: 1px solid #f0dce5;
+    border-radius: 16px;
+    background: #fffafb;
+    box-shadow: 0 4px 14px rgba(133, 85, 105, .045);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .tool-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(133, 85, 105, .09);
+    transform: translateY(-3px);
+    box-shadow: 0 9px 20px rgba(133, 85, 105, .09);
 }
+
+
+/* CARD ICONS */
 
 .tool-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 17px;
 }
 
 .tool-icon {
     display: grid;
     place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 15px;
-    font-size: 20px;
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    border: 1px solid #f1dce5;
+    border-radius: 12px;
+}
+
+.tool-icon span {
+    display: inline-block;
+    font-family: Georgia, serif;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1;
 }
 
 .notes-icon {
     background: #fff0f5;
-    color: #c47e9b;
+    color: #bd7895;
 }
 
 .flashcard-icon {
@@ -357,54 +611,63 @@
 }
 
 .tool-number {
-    color: #d9c4cd;
+    color: #d7aebe;
     font-family: Georgia, serif;
-    font-size: 15px;
+    font-size: 13px;
 }
 
+
+/* CARD TEXT */
+
 .tool-label {
-    color: #b98a9d;
-    font-size: 9px;
+    margin-bottom: 7px;
+    color: #bd829a;
+    font-size: 8px;
     font-weight: 900;
-    letter-spacing: .13em;
+    letter-spacing: .8px;
+    line-height: 1.5;
 }
 
 .tool-card h3 {
-    margin: 8px 0;
+    margin: 0 0 8px;
     color: #795568;
     font-family: Georgia, serif;
-    font-size: 19px;
+    font-size: 17px;
+    line-height: 1.4;
 }
 
 .tool-card p {
-    margin: 0 0 20px;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.8;
+    margin: 0 0 15px;
+    color: #998591;
+    font-size: 10px;
+    line-height: 1.7;
 }
+
+
+/* CARD LINKS */
 
 .tool-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding-top: 13px;
-    border-top: 1px solid #f0e2e7;
+    gap: 7px;
     margin-top: auto;
-    color: #b16f8a;
-    font-size: 11px;
+    padding-top: 12px;
+    border-top: 1px solid #f0dfe6;
+    color: #bd7895;
+    font-size: 10px;
     font-weight: 900;
     text-decoration: none;
-    transition: .2s ease;
+    transition: color .2s ease;
 }
 
 .tool-link span {
-    font-size: 17px;
+    font-size: 16px;
     transition: transform .2s ease;
 }
 
 .tool-link:hover {
-    color: #92516c;
+    color: #92566f;
 }
 
 .tool-link:hover span {
@@ -412,14 +675,16 @@
 }
 
 
-/* Bottom note */
+/* =====================================
+   BOTTOM NOTE
+===================================== */
 
 .study-bottom-note {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin: 25px 0 10px;
+    margin: 23px 0 10px;
     color: #a17e8e;
     font-family: Georgia, serif;
     font-size: 12px;
@@ -432,7 +697,9 @@
 }
 
 
-/* Messages */
+/* =====================================
+   SUCCESS AND ERROR MESSAGES
+===================================== */
 
 .success-message {
     padding: 13px 16px;
@@ -453,7 +720,9 @@
 }
 
 
-/* Delete modal */
+/* =====================================
+   DELETE MODAL
+===================================== */
 
 .modal-overlay {
     position: fixed;
@@ -499,7 +768,8 @@
     margin: 0 auto 13px;
     background: #fff0f5;
     color: #c47e9b;
-    font-size: 25px;
+    font-family: Georgia, serif;
+    font-size: 28px;
 }
 
 .modal-kicker {
@@ -561,19 +831,29 @@
 }
 
 
-/* Responsive */
+/* =====================================
+   TABLET
+===================================== */
 
-@media (max-width: 850px) {
+@media (max-width: 760px) {
+
     .tool-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
 }
 
-@media (max-width: 640px) {
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media (max-width: 520px) {
+
     .study-heading {
         align-items: flex-start;
         flex-direction: column;
-        padding: 23px;
+        padding: 22px;
     }
 
     .heading-actions {
@@ -586,22 +866,66 @@
     }
 
     .tool-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
     }
 
     .tool-card {
-        min-height: 220px;
+        min-height: 215px;
+        padding: 19px;
     }
 
-    .section-heading h2 {
+    .uploaded-materials-section {
+        padding: 17px;
+    }
+
+    .uploaded-material-item {
+        gap: 10px;
+        padding: 11px;
+    }
+
+    .uploaded-material-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .material-status {
+        padding: 5px 7px;
+        font-size: 9px;
+    }
+
+    .study-tools-heading h2 {
         font-size: 21px;
     }
+
+}
+
+
+/* =====================================
+   VERY SMALL SCREENS
+===================================== */
+
+@media (max-width: 380px) {
+
+    .uploaded-material-item {
+        flex-wrap: wrap;
+    }
+
+    .material-status {
+        margin-left: 46px;
+    }
+
+    .study-bottom-note {
+        font-size: 10px;
+    }
+
 }
 
 </style>
 
 
 <script>
+
 const deleteModal = document.getElementById('deleteModal');
 
 function openDeleteModal() {
@@ -634,6 +958,7 @@ document.addEventListener('keydown', function (event) {
         closeDeleteModal();
     }
 });
+
 </script>
 
 @endsection

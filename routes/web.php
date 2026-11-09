@@ -78,3 +78,5 @@ Route::get('/sets/{set}/quiz/generating', [StudySetController::class, 'quizGener
 // Generate quiz
 Route::post('/sets/{set}/quiz/generate', [StudySetController::class, 'makeQuiz'])
     ->name('sets.quiz.make');
+
+    

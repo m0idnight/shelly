@@ -244,14 +244,110 @@
             line-height: 1.8;
         }
 
-        /* Cards and panels */
+        /* Uploaded materials */
 
-        .panel {
-            border: 1px solid var(--line);
-            border-radius: 22px;
-            background: rgba(255, 253, 251, .95);
-            box-shadow: var(--shadow);
-        }
+.uploaded-materials-section {
+    margin-top: 25px;
+    padding: 28px;
+}
+
+.uploaded-materials-section .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.uploaded-materials-section h2 {
+    margin: 5px 0;
+    color: #694c5b;
+    font-family: "Playfair Display", serif;
+    font-size: 25px;
+}
+
+.uploaded-materials-section .section-heading p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.uploaded-materials-list {
+    display: grid;
+    gap: 12px;
+}
+
+.uploaded-material-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 17px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: #fff8fa;
+    transition: border-color .2s ease, transform .2s ease;
+}
+
+.uploaded-material-item:hover {
+    border-color: #e7b4c7;
+    transform: translateY(-2px);
+}
+
+.uploaded-material-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 13px;
+    background: #fceaf0;
+    color: var(--pink-dark);
+    font-size: 18px;
+}
+
+.uploaded-material-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.uploaded-material-info strong {
+    overflow-wrap: anywhere;
+    color: #694c5b;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.uploaded-material-info span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.material-status {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #fceaf0;
+    color: var(--pink-dark);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+@media (max-width: 500px) {
+    .uploaded-materials-section {
+        padding: 20px;
+    }
+
+    .uploaded-material-item {
+        flex-wrap: wrap;
+    }
+
+    .material-status {
+        margin-left: 58px;
+    }
+}
 
         /* Buttons */
 
