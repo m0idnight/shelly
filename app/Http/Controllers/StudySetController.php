@@ -121,7 +121,7 @@ class StudySetController extends Controller
             }
         } catch (\Throwable $e) {
             foreach ($storedPaths as $path) {
-                Storage::disk('public')->delete($path);
+                Storage::disk(config('filesystems.materials_disk'))->delete($path);
             }
 
             $set->materials()->delete();
@@ -255,14 +255,14 @@ class StudySetController extends Controller
                 });
             } catch (\Throwable $e) {
                 foreach ($newPaths as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::disk(config('filesystems.materials_disk'))->delete($path);
                 }
 
                 throw $e;
             }
 
             foreach (array_unique($oldPaths) as $path) {
-                Storage::disk('public')->delete($path);
+                Storage::disk(config('filesystems.materials_disk'))->delete($path);
             }
         } else {
             $set->update($data);
@@ -288,7 +288,7 @@ class StudySetController extends Controller
         $set->delete();
 
         foreach (array_unique($paths) as $path) {
-            Storage::disk('public')->delete($path);
+            Storage::disk(config('filesystems.materials_disk'))->delete($path);
         }
 
         return redirect()
@@ -925,7 +925,8 @@ class StudySetController extends Controller
             true
         );
 
-        $filePath = $file->store('uploads', 'public');
+        $disk = config('filesystems.materials_disk');
+        $filePath = $file->store('uploads', $disk);
 
         try {
             $text = null;
@@ -959,7 +960,7 @@ class StudySetController extends Controller
             ];
 
         } catch (\Throwable $e) {
-            Storage::disk('public')->delete($filePath);
+            Storage::disk($disk)->delete($filePath);
 
             throw $e;
         }

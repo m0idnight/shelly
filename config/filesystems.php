@@ -15,6 +15,8 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'materials_disk' => env('MATERIALS_DISK', 'public'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
@@ -51,13 +53,12 @@ return [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
+            'region' => env('AWS_DEFAULT_REGION', 'ap-southeast-2'),
+            'bucket' => env('AWS_BUCKET', 'shelly-materials'),
+            'endpoint' => env('AWS_ENDPOINT', 'https://wgsdtzeuwrconzdqjckw.storage.supabase.co/storage/v1/s3'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'throw' => true,
+            'report' => true,
         ],
 
     ],

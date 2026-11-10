@@ -221,70 +221,32 @@ class ClaudeService
         }
     }
 
-    /**
-     * Collect all text and image materials from a study set.
-     *
-     * Each text material is divided into smaller sections.
-     * Older study sets using source_text and image_path remain supported.
-     */
-    private function sourceChunks(StudySet $set): array
-    {
-        $chunks = [];
 
-        $materials = $set->materials()->get();
+/**
+ * Collect all text and image materials from a study set.
+ *
+ * Each text material is divided into smaller sections.
+ * Older study sets using source_text and image_path remain supported.
+ */
+private function sourceChunks(StudySet $set): array
+{
+    $chunks = [];
 
-        if ($materials->isNotEmpty()) {
-            foreach ($materials as $material) {
-                $filename = $material->original_name ?: 'Study material';
+    // Use the configured materials storage disk.
+    $disk = Storage::disk(config('filesystems.materials_disk'));
 
-                if (!empty($material->source_text)) {
-                    $textChunks = $this->splitText(
-                        "FILE: {$filename}\n\n" . $material->source_text
-                    );
+    $materials = $set->materials()->get();
 
-                    foreach ($textChunks as $text) {
-                        $chunks[] = [
-                            'parts' => [
-                                ['text' => $text],
-                            ],
-                        ];
-                    }
-                }
+    if ($materials->isNotEmpty()) {
+        foreach ($materials as $material) {
+            $filename = $material->original_name ?: 'Study material';
 
-                if (
-                    !empty($material->file_path) &&
-                    Storage::disk('public')->exists($material->file_path) &&
-                    !empty($material->mime_type) &&
-                    str_starts_with($material->mime_type, 'image/')
-                ) {
-                    $path = Storage::disk('public')->path(
-                        $material->file_path
-                    );
+            if (!empty($material->source_text)) {
+                $textChunks = $this->splitText(
+                    "FILE: {$filename}\n\n" . $material->source_text
+                );
 
-                    $imageData = file_get_contents($path);
-
-                    if ($imageData !== false) {
-                        $chunks[] = [
-                            'parts' => [
-                                [
-                                    'text' => 'Image file: ' . $filename,
-                                ],
-                                [
-                                    'inline_data' => [
-                                        'mime_type' => $material->mime_type,
-                                        'data' => base64_encode($imageData),
-                                    ],
-                                ],
-                            ],
-                        ];
-                    }
-                }
-            }
-
-        } else {
-            // Backward compatibility for older study sets.
-            if (!empty($set->source_text)) {
-                foreach ($this->splitText($set->source_text) as $text) {
+                foreach ($textChunks as $text) {
                     $chunks[] = [
                         'parts' => [
                             ['text' => $text],
@@ -293,50 +255,90 @@ class ClaudeService
                 }
             }
 
-            if (!empty($set->image_path)) {
-                $path = Storage::disk('public')->path($set->image_path);
+            // Read uploaded images from local or cloud storage.
+            if (
+                !empty($material->file_path) &&
+                $disk->exists($material->file_path) &&
+                !empty($material->mime_type) &&
+                str_starts_with($material->mime_type, 'image/')
+            ) {
+                $imageData = $disk->get($material->file_path);
 
-                if (file_exists($path)) {
-                    $ext = strtolower(
-                        pathinfo($path, PATHINFO_EXTENSION)
-                    );
-
-                    $types = [
-                        'jpg' => 'image/jpeg',
-                        'jpeg' => 'image/jpeg',
-                        'png' => 'image/png',
-                        'webp' => 'image/webp',
-                    ];
-
-                    if (isset($types[$ext])) {
-                        $imageData = file_get_contents($path);
-
-                        if ($imageData !== false) {
-                            $chunks[] = [
-                                'parts' => [
-                                    [
-                                        'inline_data' => [
-                                            'mime_type' => $types[$ext],
-                                            'data' => base64_encode($imageData),
-                                        ],
-                                    ],
+                if ($imageData !== false) {
+                    $chunks[] = [
+                        'parts' => [
+                            [
+                                'text' => 'Image file: ' . $filename,
+                            ],
+                            [
+                                'inline_data' => [
+                                    'mime_type' => $material->mime_type,
+                                    'data' => base64_encode($imageData),
                                 ],
-                            ];
-                        }
-                    }
+                            ],
+                        ],
+                    ];
                 }
             }
         }
 
-        if (empty($chunks)) {
-            throw new \Exception(
-                'This study set does not contain readable materials. '
-                . 'Please upload your files again.'
-            );
+    } else {
+        // Backward compatibility for older study sets.
+        if (!empty($set->source_text)) {
+            foreach ($this->splitText($set->source_text) as $text) {
+                $chunks[] = [
+                    'parts' => [
+                        ['text' => $text],
+                    ],
+                ];
+            }
         }
 
-        return $chunks;
+        // Support older study sets containing an image.
+        if (
+            !empty($set->image_path) &&
+            $disk->exists($set->image_path)
+        ) {
+            $ext = strtolower(
+                pathinfo($set->image_path, PATHINFO_EXTENSION)
+            );
+
+            $types = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'webp' => 'image/webp',
+            ];
+
+            if (isset($types[$ext])) {
+                $imageData = $disk->get($set->image_path);
+
+                if ($imageData !== false) {
+                    $chunks[] = [
+                        'parts' => [
+                            [
+                                'inline_data' => [
+                                    'mime_type' => $types[$ext],
+                                    'data' => base64_encode($imageData),
+                                ],
+                            ],
+                        ],
+                    ];
+                }
+            }
+        }
     }
+
+    if (empty($chunks)) {
+        throw new \Exception(
+            'This study set does not contain readable materials. '
+            . 'Please upload your files again.'
+        );
+    }
+
+    return $chunks;
+}
+
 
     /**
      * Split text into manageable sections without intentionally
@@ -449,7 +451,7 @@ private function distributeCount(int $total, int $numberOfChunks): array
     /**
      * Generate study notes from every source section, then combine them.
      */
-    
+
 /**
  * Generate study notes from all source materials.
  * Preserve original extracted text whenever possible.
