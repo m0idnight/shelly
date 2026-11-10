@@ -929,9 +929,13 @@ class StudySetController extends Controller
            $disk = config('filesystems.materials_disk');
 
             Log::info('Shelly S3 credential diagnostic', [
-            'materials_disk' => $disk,
-             'key_present' => !empty(config('filesystems.disks.s3.key')),
-            'secret_present' => !empty(config('filesystems.disks.s3.secret')),
+    'materials_disk' => $disk,
+
+    'config_key_present' => !empty(config('filesystems.disks.s3.key')),
+    'config_secret_present' => !empty(config('filesystems.disks.s3.secret')),
+
+    'process_key_present' => !empty(getenv('AWS_ACCESS_KEY_ID')),
+    'process_secret_present' => !empty(getenv('AWS_SECRET_ACCESS_KEY')),
         ]);
 
             $filePath = $file->store('uploads', $disk);
