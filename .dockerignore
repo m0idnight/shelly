@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.git
+.github
+.vercel
+vendor
+node_modules
+database/*.sqlite
+database/*.sqlite-*
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+config/filesystems.php.backup
