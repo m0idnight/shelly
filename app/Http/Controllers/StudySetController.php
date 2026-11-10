@@ -10,6 +10,7 @@ use App\Services\ClaudeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser;
 use ZipArchive;
@@ -925,8 +926,15 @@ class StudySetController extends Controller
             true
         );
 
-        $disk = config('filesystems.materials_disk');
-        $filePath = $file->store('uploads', $disk);
+           $disk = config('filesystems.materials_disk');
+
+            Log::info('Shelly S3 credential diagnostic', [
+            'materials_disk' => $disk,
+             'key_present' => !empty(config('filesystems.disks.s3.key')),
+            'secret_present' => !empty(config('filesystems.disks.s3.secret')),
+        ]);
+
+            $filePath = $file->store('uploads', $disk);
 
         try {
             $text = null;
