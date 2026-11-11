@@ -50,6 +50,11 @@ Route::post('/sets/{set}/summarize', [StudySetController::class, 'summarize'])
     ->name('sets.summarize');
 
 // Flashcards
+// Flashcard creation hub
+Route::get('/sets/{set}/flashcards/create', [StudySetController::class, 'flashcardCreate'])
+    ->name('sets.flashcards.create');
+
+// Flashcards study page
 Route::get('/sets/{set}/flashcards', [StudySetController::class, 'flashcards'])
     ->name('sets.flashcards');
 
@@ -58,6 +63,15 @@ Route::post('/sets/{set}/flashcards/generate', [StudySetController::class, 'make
 
 Route::post('/sets/{set}/flashcards/{flashcard}/mark', [StudySetController::class, 'markCard'])
     ->name('sets.flashcards.mark');
+    // Manual flashcards
+Route::post('/sets/{set}/flashcards', [StudySetController::class, 'storeManualFlashcard'])
+    ->name('sets.flashcards.store');
+
+Route::put('/sets/{set}/flashcards/{flashcard}', [StudySetController::class, 'updateManualFlashcard'])
+    ->name('sets.flashcards.update');
+
+Route::delete('/sets/{set}/flashcards/{flashcard}', [StudySetController::class, 'destroyManualFlashcard'])
+    ->name('sets.flashcards.destroy');
 
 // Quiz settings
 Route::get('/sets/{set}/quiz', [StudySetController::class, 'quiz'])

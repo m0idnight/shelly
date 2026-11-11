@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser;
+use Symfony\Component\Process\Process;
 use ZipArchive;
 
 class StudySetController extends Controller
@@ -402,6 +403,11 @@ class StudySetController extends Controller
         }
     }
 
+    // FLASHCARD CREATION HUB
+public function flashcardCreate(StudySet $set)
+{
+    return view('flashcard-create', compact('set'));
+}
     // FLASHCARDS PAGE
     public function flashcards(Request $request, StudySet $set)
     {
@@ -424,7 +430,19 @@ class StudySetController extends Controller
             ->where('reviewed', true)
             ->count();
 
+        // Retrieve all manual cards for management.
+        // This is independent of review mode.
+        $manualCards = $set->flashcards()
+            ->where('source', 'manual')
+            ->orderBy('id')
+            ->get();
+
         $reviewMode = $request->boolean('review');
+        // Retrieve manual flashcards for the management section.
+$manualCards = $set->flashcards()
+    ->where('source', 'manual')
+    ->orderBy('id')
+    ->get();
 
         $query = $set->flashcards()
             ->orderBy('id');
@@ -440,6 +458,7 @@ class StudySetController extends Controller
                 'id' => $card->id,
                 'front' => $card->front,
                 'back' => $card->back,
+                'source' => $card->source,
                 'known' => (bool) $card->known,
                 'reviewed' => (bool) $card->reviewed,
                 'markUrl' => route(
@@ -452,26 +471,39 @@ class StudySetController extends Controller
         return view('flashcards', compact(
             'set',
             'cards',
+            'manualCards',
             'knownCount',
             'reviewCount',
             'reviewedCount',
             'reviewMode'
         ));
     }
-
     // GENERATE FLASHCARDS
-    public function makeFlashcards(StudySet $set, ClaudeService $claude)
-    {
+    public function makeFlashcards(
+        Request $request,
+        StudySet $set,
+        ClaudeService $claude
+    ) {
+        $validated = $request->validate([
+            'count' => 'sometimes|required|integer|min:1|max:100',
+        ]);
+
+        // Default to 20 cards for compatibility with the old form.
+        $count = (int) ($validated['count'] ?? 20);
+
         try {
+            // Include the requested quantity in the cache key.
             $cacheKey = $this->aiCacheKey(
                 $set,
-                'flashcards_v3'
+                'flashcards_v4',
+                ['count' => $count]
             );
 
+            // Generate or retrieve cached flashcards.
             $cards = Cache::remember(
                 $cacheKey,
                 now()->addDays(self::AI_CACHE_DAYS),
-                fn () => $claude->flashcards($set)
+                fn () => $claude->flashcards($set, $count)
             );
 
             if (!is_array($cards)) {
@@ -480,11 +512,11 @@ class StudySetController extends Controller
                 );
             }
 
-            // Enforce the maximum of 100 cards.
+            // Enforce the requested quantity and maximum limit.
             $cards = array_slice(
                 $cards,
                 0,
-                self::MAX_FLASHCARDS
+                min($count, self::MAX_FLASHCARDS)
             );
 
             $validCards = [];
@@ -510,14 +542,15 @@ class StudySetController extends Controller
 
             if (empty($validCards)) {
                 throw new \Exception(
-                    'No valid flashcards were generated.'
+                    'Shelly could not create any valid flashcards from your study materials. Please try again.'
                 );
             }
 
-            // Preserve existing progress for matching flashcards.
+            // Preserve progress for matching AI flashcards.
             DB::transaction(function () use ($set, $validCards) {
 
                 $existingCards = $set->flashcards()
+                    ->where('source', 'ai')
                     ->lockForUpdate()
                     ->get();
 
@@ -554,6 +587,8 @@ class StudySetController extends Controller
                     );
 
                     if ($existing) {
+
+                        // Keep the existing card and its study progress.
                         $existing->update([
                             'front' => $card['front'],
                             'back' => $card['back'],
@@ -562,8 +597,11 @@ class StudySetController extends Controller
                         $usedIds[] = $existing->id;
 
                     } else {
+
+                        // Create a new AI-generated flashcard.
                         $newCard = Flashcard::create([
                             ...$card,
+                            'source' => 'ai',
                             'known' => false,
                             'reviewed' => false,
                         ]);
@@ -572,22 +610,58 @@ class StudySetController extends Controller
                     }
                 }
 
-                // Remove only cards that are no longer generated.
+                // Delete outdated AI cards only.
+                // Manual flashcards are never deleted here.
                 $set->flashcards()
+                    ->where('source', 'ai')
                     ->whereNotIn('id', $usedIds)
                     ->delete();
             });
 
+            // Explain when fewer cards were generated than requested.
+            $generatedCount = count($validCards);
+
+            if ($generatedCount < $count) {
+                $message = "Shelly created {$generatedCount} useful flashcards instead of {$count} because your study materials may not support more unique questions.";
+            } else {
+                $message = "Your {$generatedCount} flashcards are ready!";
+            }
+
+            session()->flash('success', $message);
+
+            // Return JSON to the dedicated generating page.
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'generated_count' => $generatedCount,
+                    'requested_count' => $count,
+                    'redirect' => route('sets.flashcards', $set),
+                ]);
+            }
+
         } catch (\Throwable $e) {
+
+            report($e);
+
+            $message = 'Shelly encountered a problem while generating your flashcards. Please try again.';
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                ], 422);
+            }
+
             return redirect()
                 ->route('sets.flashcards', $set)
-                ->withErrors(['ai' => $e->getMessage()]);
+                ->withErrors(['ai' => $message]);
         }
 
         return redirect()
-            ->route('sets.flashcards', $set)
-            ->with('success', 'Your flashcards are ready! ♡');
+            ->route('sets.flashcards', $set);
     }
+
 
     // MARK FLASHCARD
     public function markCard(
@@ -926,35 +1000,31 @@ class StudySetController extends Controller
             true
         );
 
-           $disk = config('filesystems.materials_disk');
+               $disk = config('filesystems.materials_disk');
 
-            Log::info('Shelly S3 credential diagnostic', [
-    'materials_disk' => $disk,
-
-    'config_key_present' => !empty(config('filesystems.disks.s3.key')),
-    'config_secret_present' => !empty(config('filesystems.disks.s3.secret')),
-
-    'process_key_present' => !empty(getenv('AWS_ACCESS_KEY_ID')),
-    'process_secret_present' => !empty(getenv('AWS_SECRET_ACCESS_KEY')),
+        Log::info('Shelly S3 credential diagnostic', [
+            'materials_disk' => $disk,
+            'config_key_present' => !empty(config('filesystems.disks.s3.key')),
+            'config_secret_present' => !empty(config('filesystems.disks.s3.secret')),
+            'process_key_present' => !empty(getenv('AWS_ACCESS_KEY_ID')),
+            'process_secret_present' => !empty(getenv('AWS_SECRET_ACCESS_KEY')),
         ]);
 
-            $filePath = $file->store('uploads', $disk);
+        $filePath = $file->store('uploads', $disk);
 
         try {
             $text = null;
 
-            if (!$isImage) {
-                $text = $this->extractText(
-                    $file->getRealPath(),
-                    $ext
-                );
+            $text = $this->extractText(
+    $file->getRealPath(),
+    $ext
+);
 
-                $text = mb_convert_encoding(
-                    $text,
-                    'UTF-8',
-                    'UTF-8'
-                );
-            }
+$text = mb_convert_encoding(
+    $text,
+    'UTF-8',
+    'UTF-8'
+);
 
             $material = $set->materials()->create([
                 'original_name' => $file->getClientOriginalName(),
@@ -981,6 +1051,29 @@ class StudySetController extends Controller
     // EXTRACT TEXT FROM FILE
     private function extractText(string $path, string $ext): string
     {
+                // IMAGE OCR USING TESSERACT
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            $process = new Process([
+                'tesseract',
+                $path,
+                'stdout',
+                '-l',
+                'eng',
+            ]);
+
+            $process->setTimeout(120);
+            $process->mustRun();
+
+            $text = trim($process->getOutput());
+
+            if ($text === '') {
+                throw new \Exception(
+                    'No readable text was found in the image.'
+                );
+            }
+
+            return $text;
+        }
         // PDF TEXT EXTRACTION
         if ($ext === 'pdf') {
             return (new Parser())
@@ -1166,5 +1259,69 @@ class StudySetController extends Controller
         throw new \Exception(
             'This file format is not supported for text extraction.'
         );
+    }
+
+    // CREATE A MANUAL FLASHCARD
+    public function storeManualFlashcard(Request $request, StudySet $set)
+    {
+        $validated = $request->validate([
+            'front' => ['required', 'string', 'max:5000'],
+            'back' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $set->flashcards()->create([
+            'front' => $validated['front'],
+            'back' => $validated['back'],
+            'source' => 'manual',
+            'known' => false,
+            'reviewed' => false,
+        ]);
+
+        return redirect()
+            ->route('sets.flashcards', $set)
+            ->with('success', 'Your manual flashcard has been created!');
+    }
+
+    // UPDATE A MANUAL FLASHCARD
+    public function updateManualFlashcard(
+        Request $request,
+        StudySet $set,
+        Flashcard $flashcard
+    ) {
+        $manualCard = $set->flashcards()
+            ->whereKey($flashcard->id)
+            ->where('source', 'manual')
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'front' => ['required', 'string', 'max:5000'],
+            'back' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $manualCard->update([
+            'front' => $validated['front'],
+            'back' => $validated['back'],
+        ]);
+
+        return redirect()
+            ->route('sets.flashcards', $set)
+            ->with('success', 'Your manual flashcard has been updated!');
+    }
+
+    // DELETE A MANUAL FLASHCARD
+    public function destroyManualFlashcard(
+        StudySet $set,
+        Flashcard $flashcard
+    ) {
+        $manualCard = $set->flashcards()
+            ->whereKey($flashcard->id)
+            ->where('source', 'manual')
+            ->firstOrFail();
+
+        $manualCard->delete();
+
+        return redirect()
+            ->route('sets.flashcards', $set)
+            ->with('success', 'Your manual flashcard has been deleted!');
     }
 }

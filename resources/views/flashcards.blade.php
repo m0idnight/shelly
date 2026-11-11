@@ -434,6 +434,227 @@
             border-color: var(--pink-dark);
         }
 
+        .generate-button:disabled {
+            opacity: .7;
+            cursor: wait;
+        }
+
+        /* MANUAL FLASHCARD SECTION */
+
+        .manual-section {
+            margin-top: 42px;
+            padding-top: 30px;
+            border-top: 1px solid var(--line);
+        }
+
+        .section-heading {
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        .section-heading h2 {
+            margin: 8px 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 25px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .manual-form,
+        .manual-card-item {
+            padding: 22px;
+            margin-bottom: 16px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fffafb;
+        }
+
+        .manual-form label,
+        .manual-card-item label {
+            display: block;
+            margin: 13px 0 7px;
+            color: var(--pink-dark);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .5px;
+        }
+
+        .manual-form input,
+        .manual-form textarea,
+        .manual-card-item input,
+        .manual-card-item textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            outline: none;
+            background: white;
+            color: var(--ink);
+            font: inherit;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        .manual-form input:focus,
+        .manual-form textarea:focus,
+        .manual-card-item input:focus,
+        .manual-card-item textarea:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(217,135,165,.10);
+        }
+
+        .manual-submit,
+        .manual-edit-button,
+        .manual-delete-button {
+            padding: 11px 17px;
+            border: 1px solid var(--pink);
+            border-radius: 4px;
+            background: var(--pink);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .manual-submit {
+            margin-top: 16px;
+        }
+
+        .manual-submit:hover,
+        .manual-edit-button:hover {
+            background: var(--pink-dark);
+        }
+
+        .manual-list {
+            margin-top: 30px;
+        }
+
+        .manual-card-item h3 {
+            margin: 0 0 12px;
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+        }
+
+        .manual-card-item .card-number {
+            color: var(--pink-dark);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .manual-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 15px;
+        }
+
+        .manual-delete-button {
+            border-color: #e5b7c2;
+            background: white;
+            color: #b96f8e;
+        }
+
+        .manual-delete-button:hover {
+            background: var(--pink-pale);
+        }
+
+        .manual-empty {
+            padding: 20px;
+            border: 1px dashed var(--line);
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+
+        /* AI GENERATION LOADING SCREEN */
+
+        .generation-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(255,250,248,.96);
+            backdrop-filter: blur(8px);
+        }
+
+        .generation-overlay.active {
+            display: flex;
+        }
+
+        .generation-content {
+            width: 100%;
+            max-width: 360px;
+            padding: 35px 25px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .generation-bow {
+            display: inline-block;
+            color: var(--pink);
+            font-size: 42px;
+            animation: bowPulse 1.4s ease-in-out infinite;
+        }
+
+        .generation-content h2 {
+            margin: 15px 0 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 25px;
+        }
+
+        .generation-content p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .generation-track {
+            height: 5px;
+            margin-top: 23px;
+            border-radius: 20px;
+            background: var(--pink-light);
+            overflow: hidden;
+        }
+
+        .generation-progress {
+            width: 35%;
+            height: 100%;
+            border-radius: 20px;
+            background: var(--pink);
+            animation: loadingMove 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bowPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+        }
+
+        @keyframes loadingMove {
+            0% {
+                transform: translateX(-110%);
+            }
+
+            100% {
+                transform: translateX(300%);
+            }
+        }
+
         .error-message {
             min-height: 18px;
             margin-top: 12px;
@@ -536,11 +757,25 @@
                 min-width: 0;
                 flex: 1;
             }
+
+            .manual-form,
+            .manual-card-item {
+                padding: 16px;
+            }
+
+            .manual-actions {
+                flex-direction: column;
+            }
+
+            .manual-actions button {
+                width: 100%;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
             }
         }
     </style>
@@ -575,7 +810,7 @@
     @endif
 
     @if (session('success'))
-        <p class="error-message">{{ session('success') }}</p>
+        <p class="error-message success">{{ session('success') }}</p>
     @endif
 
     <main class="study-panel">
@@ -621,23 +856,24 @@
         @if ($cards->count())
 
             @php
-    $cardData = $cards->map(fn ($c) => [
-        'id' => data_get($c, 'id'),
-        'front' => data_get($c, 'front', ''),
-        'back' => data_get($c, 'back', ''),
-        'known' => (bool) data_get($c, 'known', false),
-        'reviewed' => (bool) data_get($c, 'reviewed', false),
-        'markUrl' => route(
-            'sets.flashcards.mark',
-            [$set, data_get($c, 'id')]
-        ),
-    ])->values();
-@endphp
+                $cardData = $cards->map(fn ($c) => [
+                    'id' => data_get($c, 'id'),
+                    'front' => data_get($c, 'front', ''),
+                    'back' => data_get($c, 'back', ''),
+                    'known' => (bool) data_get($c, 'known', false),
+                    'reviewed' => (bool) data_get($c, 'reviewed', false),
+                    'markUrl' => route(
+                        'sets.flashcards.mark',
+                        [$set, data_get($c, 'id')]
+                    ),
+                ])->values();
+            @endphp
 
             <div class="card-area">
 
                 <div class="card-meta">
                     <span class="card-label">YOUR FLASHCARD COLLECTION</span>
+
                     <span class="counter" id="count">
                         1 / {{ $cards->count() }}
                     </span>
@@ -717,13 +953,151 @@
             </a>
         @endif
 
-        <form method="POST" action="{{ route('sets.flashcards.make', $set) }}">
+        {{-- AI FLASHCARD GENERATION --}}
+
+        <form
+            method="POST"
+            action="{{ route('sets.flashcards.make', $set) }}"
+            id="generateFlashcardsForm"
+        >
             @csrf
 
-            <button type="submit" class="generate-button">
+            <button type="submit" class="generate-button" id="generateButton">
                 ✿ {{ $set->flashcards()->count() ? 'Regenerate flashcards' : 'Create flashcards' }}
             </button>
         </form>
+
+        {{-- MANUAL FLASHCARD CREATION --}}
+
+        <section class="manual-section">
+
+            <div class="section-heading">
+                <span class="eyebrow">A LITTLE PERSONAL TOUCH</span>
+
+                <h2>Create Your Own Cards ♡</h2>
+
+                <p>
+                    Add your own questions, terms, and answers to your study collection.
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ route('sets.flashcards.store', $set) }}"
+                class="manual-form"
+            >
+                @csrf
+
+                <label for="manualFront">QUESTION / TERM</label>
+
+                <textarea
+                    id="manualFront"
+                    name="front"
+                    rows="3"
+                    maxlength="5000"
+                    required
+                    placeholder="Write your question or term here..."
+                >{{ old('front') }}</textarea>
+
+                <label for="manualBack">ANSWER / DEFINITION</label>
+
+                <textarea
+                    id="manualBack"
+                    name="back"
+                    rows="4"
+                    maxlength="5000"
+                    required
+                    placeholder="Write the answer or definition here..."
+                >{{ old('back') }}</textarea>
+
+                <button type="submit" class="manual-submit">
+                    + Add Manual Flashcard
+                </button>
+            </form>
+
+            {{-- MANUAL FLASHCARD MANAGEMENT --}}
+
+            <div class="manual-list">
+
+                <div class="section-heading">
+                    <h2>Your Personal Flashcards</h2>
+                    <p>Edit or remove the cards you've created.</p>
+                </div>
+
+                @forelse ($manualCards as $manualCard)
+
+                    <div class="manual-card-item">
+
+                        <span class="card-number">
+                            PERSONAL CARD #{{ $loop->iteration }}
+                        </span>
+
+                        <form
+                            method="POST"
+                            action="{{ route('sets.flashcards.update', [$set, $manualCard]) }}"
+                        >
+                            @csrf
+                            @method('PUT')
+
+                            <label>QUESTION / TERM</label>
+
+                            <textarea
+                                name="front"
+                                rows="2"
+                                maxlength="5000"
+                                required
+                            >{{ $manualCard->front }}</textarea>
+
+                            <label>ANSWER / DEFINITION</label>
+
+                            <textarea
+                                name="back"
+                                rows="3"
+                                maxlength="5000"
+                                required
+                            >{{ $manualCard->back }}</textarea>
+
+                            <div class="manual-actions">
+                                <button
+                                    type="submit"
+                                    class="manual-edit-button"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+
+                        <form
+                            method="POST"
+                            action="{{ route('sets.flashcards.destroy', [$set, $manualCard]) }}"
+                            onsubmit="return confirm('Are you sure you want to delete this personal flashcard?');"
+                        >
+                            @csrf
+                            @method('DELETE')
+
+                            <div class="manual-actions">
+                                <button
+                                    type="submit"
+                                    class="manual-delete-button"
+                                >
+                                    Delete Card
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+
+                @empty
+
+                    <div class="manual-empty">
+                        You haven't created any personal flashcards yet. ♡
+                    </div>
+
+                @endforelse
+
+            </div>
+
+        </section>
 
     </main>
 
@@ -733,7 +1107,31 @@
 
 </div>
 
+{{-- AI GENERATION LOADING OVERLAY --}}
+
+<div class="generation-overlay" id="generationOverlay">
+    <div class="generation-content">
+
+        <div class="generation-bow">୨୧</div>
+
+        <h2>Creating Your Flashcards ♡</h2>
+
+        <p>
+            Shelly is preparing your study cards.
+            Just a little moment while everything comes together!
+        </p>
+
+        <div class="generation-track">
+            <div class="generation-progress"></div>
+        </div>
+
+        <p>Made with love, just for your learning journey.</p>
+
+    </div>
+</div>
+
 @if ($cards->count())
+
 <script>
     const cards = @json($cardData);
 
@@ -750,6 +1148,7 @@
     let knownCount = {{ $knownCount }};
     let reviewCount = {{ $reviewCount }};
     let reviewedCount = {{ $reviewedCount }};
+
     const totalCards = {{ $set->flashcards()->count() }};
 
     const cardElement = document.getElementById('card');
@@ -757,6 +1156,59 @@
     const againButton = document.getElementById('againButton');
     const knownButton = document.getElementById('knownButton');
     const errorElement = document.getElementById('saveError');
+
+    /* ========================================
+   FLASHCARD CORRECT-ANSWER SOUND
+======================================== */
+
+let audioCtx = null;
+
+function tone(freq, start, duration, type) {
+    try {
+        audioCtx = audioCtx ||
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+        const oscillator = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.value = freq;
+
+        gain.gain.setValueAtTime(
+            0.18,
+            audioCtx.currentTime + start
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioCtx.currentTime + start + duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        oscillator.start(audioCtx.currentTime + start);
+
+        oscillator.stop(
+            audioCtx.currentTime + start + duration
+        );
+
+    } catch (error) {
+        console.warn('Audio is unavailable:', error);
+    }
+}
+
+function playDing() {
+    tone(880, 0, 0.25, 'sine');
+    tone(1320, 0.12, 0.4, 'sine');
+}
+
+    /* ========================================
+       FLASHCARD PROGRESS
+    ======================================== */
 
     function updateStats() {
         document.getElementById('knownCount').textContent = knownCount;
@@ -773,6 +1225,10 @@
         document.getElementById('progressFill').style.width =
             percentage + '%';
     }
+
+    /* ========================================
+       DISPLAY CURRENT FLASHCARD
+    ======================================== */
 
     function showCard() {
         const current = cards[currentIndex];
@@ -795,6 +1251,7 @@
         knownButton.disabled = true;
 
         errorElement.textContent = '';
+        errorElement.className = 'error-message';
 
         document.getElementById('flipHint').textContent =
             current.reviewed
@@ -804,23 +1261,38 @@
                 : 'Select the card to reveal the answer.';
     }
 
+    /* ========================================
+       FLIP FLASHCARD
+    ======================================== */
+
     function flipCard() {
         if (saving) return;
 
         if (cardElement.classList.contains('flipped')) {
             cardElement.classList.remove('flipped');
+
             againButton.disabled = true;
             knownButton.disabled = true;
+
             return;
         }
 
         cardElement.classList.add('flipped');
+
+        // Play the soft flip sound when revealing the answer.
+        // Play the same correct-answer sound used in quizzes.
+playDing();
+
         againButton.disabled = false;
         knownButton.disabled = false;
 
         document.getElementById('flipHint').textContent =
             'How well do you know this topic?';
     }
+
+    /* ========================================
+       MOVE BETWEEN FLASHCARDS
+    ======================================== */
 
     function moveCard(direction) {
         const nextIndex = currentIndex + direction;
@@ -830,8 +1302,13 @@
         }
 
         currentIndex = nextIndex;
+
         showCard();
     }
+
+    /* ========================================
+       SAVE FLASHCARD PROGRESS
+    ======================================== */
 
     async function rateCard(known) {
         if (saving || !cardElement.classList.contains('flipped')) {
@@ -840,10 +1317,9 @@
 
         const current = cards[currentIndex];
 
-        // Do not send another save request if this card already has
-        // the same saved status.
         if (current.reviewed && current.known === known) {
             errorElement.className = 'error-message warning';
+
             errorElement.textContent = known
                 ? '♡ This card is already saved as Known!'
                 : '♡ This card is already saved under Need Review!';
@@ -856,6 +1332,7 @@
         }
 
         saving = true;
+
         againButton.disabled = true;
         knownButton.disabled = true;
 
@@ -868,19 +1345,25 @@
         try {
             const response = await fetch(current.markUrl, {
                 method: 'POST',
+
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ known: known })
+
+                body: JSON.stringify({
+                    known: known
+                })
             });
 
             if (!response.ok) {
-                throw new Error('Your learning progress could not be saved.');
+                throw new Error(
+                    'Your learning progress could not be saved.'
+                );
             }
 
-            // Update the counters only after the server confirms the save.
+            // Update counters only after the server confirms the save.
             if (wasReviewed) {
                 if (wasKnown) {
                     knownCount--;
@@ -903,6 +1386,7 @@
             updateStats();
 
             errorElement.className = 'error-message success';
+
             errorElement.textContent = known
                 ? '♡ Saved! This card is now marked as Known.'
                 : '♡ Saved! This card is now marked for Need Review.';
@@ -916,11 +1400,13 @@
                 try {
                     const logResponse = await fetch(logUrl, {
                         method: 'POST',
+
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
                             'Accept': 'application/json'
                         },
+
                         body: JSON.stringify({
                             study_set_id: studySetId,
                             type: 'flashcard'
@@ -930,12 +1416,16 @@
                     if (!logResponse.ok) {
                         console.warn('Points could not be logged.');
                     }
+
                 } catch (logError) {
-                    console.error('Points could not be logged:', logError);
+                    console.error(
+                        'Points could not be logged:',
+                        logError
+                    );
                 }
             }
 
-            // Leave enough time for the learner to read the confirmation.
+            // Give the learner time to read the confirmation.
             if (currentIndex < cards.length - 1) {
                 setTimeout(() => {
                     moveCard(1);
@@ -946,6 +1436,7 @@
             console.error(error);
 
             errorElement.className = 'error-message';
+
             errorElement.textContent =
                 'Could not save your progress. Please try again.';
 
@@ -956,6 +1447,10 @@
             saving = false;
         }
     }
+
+    /* ========================================
+       CARD CLICK AND KEYBOARD CONTROLS
+    ======================================== */
 
     scene.addEventListener('click', function() {
         if (wasSwipe) {
@@ -972,6 +1467,10 @@
             flipCard();
         }
     });
+
+    /* ========================================
+       SWIPE CONTROLS
+    ======================================== */
 
     scene.addEventListener('pointerdown', function(event) {
         pointerStartX = event.clientX;
@@ -1015,6 +1514,10 @@
         pointerStartY = null;
     });
 
+    /* ========================================
+       BUTTON EVENT LISTENERS
+    ======================================== */
+
     againButton.addEventListener('click', () => rateCard(false));
     knownButton.addEventListener('click', () => rateCard(true));
 
@@ -1026,10 +1529,48 @@
         moveCard(1);
     });
 
+    /* ========================================
+       INITIALIZE FLASHCARDS
+    ======================================== */
+
     showCard();
     updateStats();
+
 </script>
+
 @endif
+
+{{-- ========================================
+     AI FLASHCARD GENERATION LOADING SCRIPT
+======================================== --}}
+
+<script>
+    const generationForm =
+        document.getElementById('generateFlashcardsForm');
+
+    const generationOverlay =
+        document.getElementById('generationOverlay');
+
+    const generateButton =
+        document.getElementById('generateButton');
+
+    if (generationForm) {
+        generationForm.addEventListener('submit', function() {
+
+            // Display the loading overlay.
+            if (generationOverlay) {
+                generationOverlay.classList.add('active');
+            }
+
+            // Prevent repeated submissions.
+            if (generateButton) {
+                generateButton.disabled = true;
+                generateButton.textContent = 'Preparing your cards...';
+            }
+
+        });
+    }
+</script>
 
 </body>
 </html>

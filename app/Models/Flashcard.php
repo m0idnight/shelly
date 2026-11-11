@@ -10,6 +10,7 @@ class Flashcard extends Model
         'study_set_id',
         'front',
         'back',
+        'source',
         'known',
         'reviewed',
     ];

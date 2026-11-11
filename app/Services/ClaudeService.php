@@ -53,7 +53,7 @@ class ClaudeService
 
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
 
-        $maximumAttempts = 3;
+        $maximumAttempts = 2;
 
         $retryableStatuses = [
             408, 500, 502, 503, 504, 529,
@@ -65,7 +65,7 @@ class ClaudeService
             try {
                 $response = Http::withHeaders([
                     'x-goog-api-key' => $apiKey,
-                ])->timeout(180)->post($url, $body);
+                ])->timeout(30)->post($url, $body);
 
                 if (!$response->failed()) {
                     $answer = $response->json(
@@ -638,9 +638,14 @@ private function combineNotes(array $notes, string $system): string
     /**
      * Generate flashcards across all source sections.
      */
-    public function flashcards(StudySet $set): array
-    {
-        $targetCount = $this->flashcardTargetCount($set);
+    public function flashcards(
+    StudySet $set,
+    int $count = 20
+): array {
+    $targetCount = max(
+        1,
+        min($count, self::MAX_GENERATED_ITEMS)
+    );
 
         $system = "You are Shelly, a friendly study helper. "
             . "Use ONLY the provided study materials. "
@@ -659,7 +664,10 @@ private function combineNotes(array $notes, string $system): string
         foreach ($chunks as $chunkIndex => $chunk) {
             $remainingForChunk = $allocations[$chunkIndex];
 
-            while ($remainingForChunk > 0 && count($allCards) < 100) {
+            while (
+    $remainingForChunk > 0 &&
+    count($allCards) < self::MAX_GENERATED_ITEMS
+) {
                 $batchSize = min(10, $remainingForChunk);
 
                 $instruction = $this->flashcardInstruction(
@@ -725,12 +733,12 @@ private function combineNotes(array $notes, string $system): string
                 $remainingForChunk -= $generated;
             }
 
-            if (count($allCards) >= 100) {
+            if (count($allCards) >= self::MAX_GENERATED_ITEMS) {
                 break;
             }
         }
 
-        return array_slice($allCards, 0, 100);
+        return array_slice($allCards, 0, $targetCount);
     }
 
     /**
@@ -762,47 +770,6 @@ private function combineNotes(array $notes, string $system): string
         }
 
         return $instruction;
-    }
-
-    /**
-     * Estimate how many flashcards the study materials can support.
-     */
-    private function flashcardTargetCount(StudySet $set): int
-    {
-        $totalCharacters = 0;
-        $imageCount = 0;
-
-        $materials = $set->materials()->get();
-
-        if ($materials->isNotEmpty()) {
-            foreach ($materials as $material) {
-                $totalCharacters += mb_strlen(
-                    (string) $material->source_text
-                );
-
-                if (
-                    !empty($material->mime_type) &&
-                    str_starts_with($material->mime_type, 'image/')
-                ) {
-                    $imageCount++;
-                }
-            }
-
-        } else {
-            $totalCharacters = mb_strlen(
-                (string) $set->source_text
-            );
-
-            if (!empty($set->image_path)) {
-                $imageCount++;
-            }
-        }
-
-        $estimatedCharacters = $totalCharacters + ($imageCount * 5000);
-
-        $target = (int) ceil($estimatedCharacters / 250);
-
-        return max(10, min(self::MAX_GENERATED_ITEMS, $target));
     }
 
     /**
