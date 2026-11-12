@@ -14,10 +14,11 @@
     <header class="creation-heading">
         <span class="eyebrow">YOUR STUDY COLLECTION</span>
 
-        <h1>How would you like to create?</h1>
+        <h1>Let's create your flashcards.</h1>
 
         <p>
-            Choose your preferred way to build flashcards for
+            Let Shelly help you build a personalized flashcard collection
+            using your uploaded study materials for
             <strong>{{ $set->title }}</strong>.
         </p>
 
@@ -26,12 +27,11 @@
 
     <section class="creation-options">
 
-        <!-- CREATE WITH SHELLY -->
         <article class="creation-card shelly-card">
 
             <div class="card-decoration">✦</div>
 
-            <div class="option-icon shelly-icon">
+            <div class="option-icon">
                 <span>✧</span>
             </div>
 
@@ -40,66 +40,26 @@
             <h2>Create with Shelly</h2>
 
             <p>
-                Let Shelly turn your uploaded study materials into
-                helpful question-and-answer flashcards.
+                Turn your uploaded study materials into helpful
+                question-and-answer flashcards with Shelly.
             </p>
 
             <ul class="feature-list">
-                <li>Generate cards from your study materials</li>
+                <li>Generate flashcards from your study materials</li>
                 <li>Choose how many cards you need</li>
                 <li>Review and study your generated cards</li>
             </ul>
 
             <a
-    href="{{ route('sets.flashcards.setup', $set) }}"
-    class="creation-button shelly-button"
->
-    Create with Shelly
-    <span>→</span>
-</a>
-
-            <span class="card-note">
-                A little help from Shelly
-            </span>
-
-        </article>
-
-
-        <!-- CREATE MANUALLY -->
-        <article class="creation-card manual-card">
-
-            <div class="card-decoration">✿</div>
-
-            <div class="option-icon manual-icon">
-                <span>✎</span>
-            </div>
-
-            <span class="option-label">YOUR OWN QUESTIONS</span>
-
-            <h2>Create Manually</h2>
-
-            <p>
-                Write your own questions and answers, and organize
-                them into a personalized flashcard collection.
-            </p>
-
-            <ul class="feature-list">
-                <li>Choose how many cards to create</li>
-                <li>Write your own questions and answers</li>
-                <li>Save drafts and continue later</li>
-            </ul>
-
-            <a
-                href="#"
-                class="creation-button manual-button"
-                aria-disabled="true"
+                href="{{ route('sets.flashcards.setup', $set) }}"
+                class="creation-button"
             >
-                Coming in the next step
+                Create with Shelly
                 <span>→</span>
             </a>
 
             <span class="card-note">
-                Made by you, at your own pace
+                A little help from Shelly
             </span>
 
         </article>
@@ -174,20 +134,24 @@
     }
 
     .creation-options {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 22px;
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
 
     .creation-card {
         position: relative;
         display: flex;
         flex-direction: column;
+        width: 100%;
+        max-width: 540px;
         min-height: 430px;
         padding: 34px;
         border: 1px solid #efd9e1;
         border-radius: 18px;
-        background: rgba(255, 253, 253, .88);
+        background:
+            radial-gradient(circle at 100% 0%, #fce8ef, transparent 38%),
+            #fffdfd;
         box-shadow: 0 12px 35px rgba(151, 95, 115, .07);
         overflow: hidden;
         transition: transform .25s ease, box-shadow .25s ease;
@@ -196,18 +160,6 @@
     .creation-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 17px 40px rgba(151, 95, 115, .11);
-    }
-
-    .shelly-card {
-        background:
-            radial-gradient(circle at 100% 0%, #fce8ef, transparent 38%),
-            #fffdfd;
-    }
-
-    .manual-card {
-        background:
-            radial-gradient(circle at 100% 0%, #f9edf0, transparent 38%),
-            #fffdfd;
     }
 
     .card-decoration {
@@ -229,10 +181,6 @@
         background: #fff4f7;
         color: #bb7891;
         font-size: 27px;
-    }
-
-    .manual-icon {
-        background: #fcf0f1;
     }
 
     .option-label {
@@ -295,16 +243,17 @@
         font-size: 12px;
         font-weight: 800;
         text-decoration: none;
-        cursor: not-allowed;
-        opacity: .75;
+        cursor: pointer;
+        transition: background .2s ease, transform .2s ease;
+    }
+
+    .creation-button:hover {
+        background: #f2d8e3;
+        transform: translateY(-2px);
     }
 
     .creation-button span {
         font-size: 17px;
-    }
-
-    .manual-button {
-        background: #f9edf0;
     }
 
     .card-note {
@@ -324,10 +273,6 @@
 
         .creation-heading {
             margin: 38px auto 30px;
-        }
-
-        .creation-options {
-            grid-template-columns: 1fr;
         }
 
         .creation-card {

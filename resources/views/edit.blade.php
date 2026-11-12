@@ -13,7 +13,7 @@
         <h1 class="page-title">Edit your study set</h1>
         <p class="page-description">
             Change the title or replace your study materials.
-            Your learning space stays yours. ♡
+            Your learning space stays yours. 
         </p>
     </div>
 
@@ -80,7 +80,7 @@
                 </a>
 
                 <button type="submit" class="button">
-                    Save changes ♡
+                    Save changes 
                 </button>
             </div>
         </form>

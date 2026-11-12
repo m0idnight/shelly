@@ -32,6 +32,7 @@
 
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 120px;
         }
 
         body {
@@ -61,16 +62,33 @@
             margin: 0 auto;
         }
 
-        /* Header */
+        /* SINGLE FLOATING HEADER */
 
         .site-header {
-            min-height: 88px;
+            position: sticky;
+            top: 15px;
+            z-index: 1000;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 24px;
-            border-bottom: 1px solid var(--line);
+            gap: 30px;
+
+            min-height: 82px;
+            margin: 15px 0 0;
+            padding: 12px 30px;
+
+            border: 1px solid rgba(240, 220, 228, .95);
+            border-radius: 28px;
+
+            background: rgba(255, 253, 251, .93);
+            box-shadow: 0 8px 30px rgba(166, 95, 123, .09);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
+
+        /* BRAND */
 
         .brand {
             display: inline-flex;
@@ -90,7 +108,7 @@
             background: #f9dce7;
         }
 
-        /* Original bunny-inspired logo */
+        /* BUNNY LOGO */
 
         .bunny-face {
             position: relative;
@@ -152,7 +170,7 @@
             color: var(--pink);
         }
 
-        /* Navigation */
+        /* NAVIGATION - NO SECOND CAPSULE */
 
         .main-nav {
             display: flex;
@@ -164,54 +182,46 @@
 
         .nav-link {
             position: relative;
-            padding: 10px 15px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 44px;
+            padding: 10px 21px;
+
+            border-radius: 50px;
+            border: 1px solid transparent;
+
             color: #8d7480;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
+            white-space: nowrap;
             text-decoration: none;
-            transition: color .2s ease;
+
+            transition:
+                background .25s ease,
+                color .25s ease,
+                transform .25s ease;
         }
+
+        /* REMOVE UNDERLINES */
 
         .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 15px;
-            right: 15px;
-            bottom: 5px;
-            height: 2px;
-            border-radius: 5px;
-            background: var(--pink-dark);
-            transform: scaleX(0);
-            transition: transform .2s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--pink-dark);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            transform: scaleX(1);
-        }
-
-        .nav-link.nav-primary {
-            padding: 11px 18px;
-            border-radius: 12px;
-            color: white;
-            background: var(--pink);
-        }
-
-        .nav-link.nav-primary::after {
             display: none;
         }
 
-        .nav-link.nav-primary:hover {
-            background: var(--pink-dark);
-            color: white;
+        .nav-link:hover {
+            color: var(--pink-dark);
+            background: var(--pink-soft);
         }
 
-        /* Main content */
+        .nav-link.active {
+            color: var(--pink-dark);
+            background: var(--pink-light);
+        }
+
+        /* MAIN CONTENT */
 
         .page-wrap {
             min-height: 65vh;
@@ -244,112 +254,98 @@
             line-height: 1.8;
         }
 
-        /* Uploaded materials */
+        /* UPLOADED MATERIALS */
 
-.uploaded-materials-section {
-    margin-top: 25px;
-    padding: 28px;
-}
+        .uploaded-materials-section {
+            margin-top: 25px;
+            padding: 28px;
+        }
 
-.uploaded-materials-section .section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 20px;
-}
+        .uploaded-materials-section .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
 
-.uploaded-materials-section h2 {
-    margin: 5px 0;
-    color: #694c5b;
-    font-family: "Playfair Display", serif;
-    font-size: 25px;
-}
+        .uploaded-materials-section h2 {
+            margin: 5px 0;
+            color: #694c5b;
+            font-family: "Playfair Display", serif;
+            font-size: 25px;
+        }
 
-.uploaded-materials-section .section-heading p {
-    margin: 5px 0 0;
-    color: var(--muted);
-    font-size: 14px;
-}
+        .uploaded-materials-section .section-heading p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
 
-.uploaded-materials-list {
-    display: grid;
-    gap: 12px;
-}
+        .uploaded-materials-list {
+            display: grid;
+            gap: 12px;
+        }
 
-.uploaded-material-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px 17px;
-    border: 1px solid var(--line);
-    border-radius: 15px;
-    background: #fff8fa;
-    transition: border-color .2s ease, transform .2s ease;
-}
+        .uploaded-material-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 17px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            background: #fff8fa;
+            transition: border-color .2s ease, transform .2s ease;
+        }
 
-.uploaded-material-item:hover {
-    border-color: #e7b4c7;
-    transform: translateY(-2px);
-}
+        .uploaded-material-item:hover {
+            border-color: #e7b4c7;
+            transform: translateY(-2px);
+        }
 
-.uploaded-material-icon {
-    width: 43px;
-    height: 43px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    border-radius: 13px;
-    background: #fceaf0;
-    color: var(--pink-dark);
-    font-size: 18px;
-}
+        .uploaded-material-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 13px;
+            background: #fceaf0;
+            color: var(--pink-dark);
+            font-size: 18px;
+        }
 
-.uploaded-material-info {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
+        .uploaded-material-info {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
 
-.uploaded-material-info strong {
-    overflow-wrap: anywhere;
-    color: #694c5b;
-    font-size: 14px;
-    font-weight: 800;
-}
+        .uploaded-material-info strong {
+            overflow-wrap: anywhere;
+            color: #694c5b;
+            font-size: 14px;
+            font-weight: 800;
+        }
 
-.uploaded-material-info span {
-    color: var(--muted);
-    font-size: 12px;
-}
+        .uploaded-material-info span {
+            color: var(--muted);
+            font-size: 12px;
+        }
 
-.material-status {
-    flex-shrink: 0;
-    padding: 6px 10px;
-    border-radius: 20px;
-    background: #fceaf0;
-    color: var(--pink-dark);
-    font-size: 11px;
-    font-weight: 800;
-}
+        .material-status {
+            flex-shrink: 0;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #fceaf0;
+            color: var(--pink-dark);
+            font-size: 11px;
+            font-weight: 800;
+        }
 
-@media (max-width: 500px) {
-    .uploaded-materials-section {
-        padding: 20px;
-    }
-
-    .uploaded-material-item {
-        flex-wrap: wrap;
-    }
-
-    .material-status {
-        margin-left: 58px;
-    }
-}
-
-        /* Buttons */
+        /* BUTTONS */
 
         .button {
             display: inline-flex;
@@ -386,7 +382,7 @@
             color: var(--pink-dark);
         }
 
-        /* Form elements */
+        /* FORM ELEMENTS */
 
         input,
         textarea,
@@ -403,7 +399,7 @@
             outline-offset: 3px;
         }
 
-        /* Messages */
+        /* MESSAGES */
 
         .error-message {
             padding: 13px 16px;
@@ -414,7 +410,7 @@
             font-size: 14px;
         }
 
-        /* Butterfly decoration */
+        /* BUTTERFLY DECORATION */
 
         .butterfly {
             position: relative;
@@ -446,7 +442,7 @@
             transform: rotate(-25deg);
         }
 
-        /* Ribbon decoration */
+        /* RIBBON DECORATION */
 
         .ribbon {
             position: relative;
@@ -477,7 +473,7 @@
             transform: rotate(-25deg);
         }
 
-        /* Footer */
+        /* FOOTER */
 
         .site-footer {
             display: flex;
@@ -491,36 +487,33 @@
             text-align: center;
         }
 
-        /* Responsive layout */
+        /* RESPONSIVE LAYOUT */
 
-        @media (max-width: 700px) {
+        @media (max-width: 760px) {
             .site-shell {
                 width: calc(100% - 30px);
             }
 
             .site-header {
-                min-height: auto;
-                padding: 17px 0;
+                top: 10px;
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 14px;
+                align-items: center;
+                gap: 12px;
+                padding: 15px 16px;
+                border-radius: 24px;
             }
 
             .main-nav {
                 width: 100%;
-                justify-content: flex-start;
-                gap: 5px;
+                justify-content: center;
+                gap: 3px;
             }
 
             .nav-link {
-                padding: 9px 11px;
+                flex: 1;
+                min-height: 40px;
+                padding: 9px 10px;
                 font-size: 13px;
-            }
-
-            .nav-link::after {
-                left: 11px;
-                right: 11px;
-                bottom: 4px;
             }
 
             .page-wrap {
@@ -530,16 +523,28 @@
             .page-title {
                 font-size: clamp(29px, 8vw, 38px);
             }
+
+            .uploaded-materials-section {
+                padding: 20px;
+            }
+
+            .uploaded-material-item {
+                flex-wrap: wrap;
+            }
+
+            .material-status {
+                margin-left: 58px;
+            }
         }
 
         @media (max-width: 380px) {
-            .main-nav {
-                gap: 2px;
+            .brand-name {
+                font-size: 26px;
             }
 
             .nav-link {
-                padding: 8px 9px;
-                font-size: 12px;
+                padding: 8px 6px;
+                font-size: 11px;
             }
         }
 
@@ -551,6 +556,7 @@
     <div class="site-shell">
 
         <header class="site-header">
+
             <a class="brand" href="{{ route('dashboard', [], false) }}">
                 <span class="brand-mark" aria-hidden="true">
                     <span class="bunny-face">
@@ -563,27 +569,54 @@
             </a>
 
             <nav class="main-nav" aria-label="Main navigation">
+
+                {{-- HOME --}}
                 <a
                     href="{{ route('dashboard', [], false) }}"
                     class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                    @if(request()->routeIs('dashboard')) aria-current="page" @endif
                 >
-                    Dashboard
+                    Home
                 </a>
 
+                {{-- UPLOAD MATERIALS --}}
                 <a
                     href="{{ route('sets.create', [], false) }}"
                     class="nav-link {{ request()->routeIs('sets.create') ? 'active' : '' }}"
+                    @if(request()->routeIs('sets.create')) aria-current="page" @endif
                 >
-                    Upload Materials
+                    Upload materials
                 </a>
 
+                {{-- MY STUDIES --}}
                 <a
                     href="{{ route('dashboard', [], false) }}#my-study-sets"
-                    class="nav-link"
+                    class="nav-link {{ request()->routeIs(
+                        'sets.show',
+                        'sets.edit',
+                        'sets.update',
+                        'sets.destroy',
+                        'sets.summary*',
+                        'sets.summarize',
+                        'sets.flashcards*',
+                        'sets.quiz*'
+                    ) ? 'active' : '' }}"
+                    @if(request()->routeIs(
+                        'sets.show',
+                        'sets.edit',
+                        'sets.update',
+                        'sets.destroy',
+                        'sets.summary*',
+                        'sets.summarize',
+                        'sets.flashcards*',
+                        'sets.quiz*'
+                    )) aria-current="page" @endif
                 >
-                    My Studies
+                    My studies
                 </a>
+
             </nav>
+
         </header>
 
         <main class="page-wrap">

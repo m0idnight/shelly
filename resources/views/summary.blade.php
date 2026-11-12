@@ -1,5 +1,5 @@
 
-@extends('layouts.app')
+@extends('layouts.focus')
 
 @section('title', 'Study Summary — ' . $set->title)
 

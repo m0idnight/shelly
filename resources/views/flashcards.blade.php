@@ -3,46 +3,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#fff7fa">
 
     <title>Flashcards | Shelly</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --pink: #d987a5;
-            --pink-dark: #b96f8e;
-            --pink-light: #f9e6ed;
-            --pink-pale: #fff5f7;
-            --cream: #fffaf8;
-            --ink: #503b3b;
-            --muted: #a58c91;
-            --line: #efd9df;
-            --white: #fffdfd;
-            --shadow: 0 12px 35px rgba(151, 95, 115, .07);
+            --pink: #e7a1b9;
+            --pink-dark: #a65f7b;
+            --pink-light: #fceaf0;
+            --pink-soft: #fff3f6;
+            --cream: #fffdfb;
+            --ink: #594650;
+            --muted: #9b8490;
+            --line: #f0dce4;
+            --white: #ffffff;
+            --sage: #829e86;
+            --sage-light: #edf4ec;
+            --shadow: 0 12px 35px rgba(166, 95, 123, .08);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 120px;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
-            padding: 34px 20px 55px;
             color: var(--ink);
-            font-family: 'DM Sans', sans-serif;
             background:
-                radial-gradient(circle at 5% 5%, #fcecf0, transparent 27%),
-                radial-gradient(circle at 95% 90%, #fff0eb, transparent 25%),
-                var(--cream);
+                radial-gradient(circle at 5% 10%, #fde8ef 0, transparent 340px),
+                radial-gradient(circle at 95% 35%, #fff0e9 0, transparent 320px),
+                #fff9fa;
+            font-family: "Nunito", sans-serif;
         }
 
-        button, a {
+        button,
+        input,
+        textarea,
+        select {
             font: inherit;
         }
 
@@ -55,108 +65,276 @@
             cursor: pointer;
         }
 
-        .page {
-            width: 100%;
-            max-width: 900px;
-            margin: auto;
+        button:focus-visible,
+        a:focus-visible,
+        #scene:focus-visible {
+            outline: 3px solid #f3c5d6;
+            outline-offset: 3px;
         }
 
-        .topbar {
+        .site-shell {
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        /* DASHBOARD HEADER */
+
+        .site-header {
+            position: sticky;
+            top: 15px;
+            z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 52px;
+            gap: 30px;
+            min-height: 82px;
+            margin: 15px 0 0;
+            padding: 12px 30px;
+            border: 1px solid rgba(240, 220, 228, .95);
+            border-radius: 28px;
+            background: rgba(255, 253, 251, .93);
+            box-shadow: 0 8px 30px rgba(166, 95, 123, .09);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
 
         .brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 25px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--ink);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            text-decoration: none;
         }
 
-        .brand span {
+        .brand-mark {
+            position: relative;
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 15px;
+            background: #f9dce7;
+        }
+
+        .bunny-face {
+            position: relative;
+            width: 22px;
+            height: 20px;
+            margin-top: 7px;
+            border-radius: 48% 48% 45% 45%;
+            background: #fffaf9;
+        }
+
+        .bunny-ear {
+            position: absolute;
+            top: -10px;
+            width: 7px;
+            height: 17px;
+            border-radius: 50%;
+            background: #fffaf9;
+            border: 1px solid #efc6d5;
+        }
+
+        .bunny-ear.left {
+            left: 2px;
+            transform: rotate(-15deg);
+        }
+
+        .bunny-ear.right {
+            right: 2px;
+            transform: rotate(15deg);
+        }
+
+        .bunny-face::before,
+        .bunny-face::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #98677a;
+        }
+
+        .bunny-face::before {
+            left: 6px;
+        }
+
+        .bunny-face::after {
+            right: 6px;
+        }
+
+        .brand-name {
+            color: #805568;
+            font-family: "Playfair Display", serif;
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: -.8px;
+        }
+
+        .brand-name span {
             color: var(--pink);
         }
 
-        .back-link {
-            padding: 11px 17px;
-            border: 1px solid var(--line);
-            border-radius: 5px;
-            background: rgba(255,255,255,.65);
-            color: var(--pink-dark);
-            font-size: 12px;
-            font-weight: 700;
-            transition: .2s;
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .back-link:hover {
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 10px 21px;
+            border-radius: 50px;
+            border: 1px solid transparent;
+            color: #8d7480;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: background .25s ease, color .25s ease, transform .25s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--pink-dark);
+            background: var(--pink-soft);
+        }
+
+        .nav-link.active {
+            color: var(--pink-dark);
             background: var(--pink-light);
         }
 
+        /* PAGE CONTENT */
+
+        .page-wrap {
+            min-height: 65vh;
+            padding: 42px 0 65px;
+        }
+
+        .back-row {
+            display: flex;
+            justify-content: flex-end;
+            margin: -15px 0 28px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 40px;
+            padding: 9px 16px;
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, .8);
+            color: var(--pink-dark);
+            font-size: 12px;
+            font-weight: 800;
+            transition: .2s ease;
+        }
+
+        .back-link:hover {
+            border-color: #e5b5c7;
+            background: var(--pink-soft);
+            transform: translateY(-1px);
+        }
+
+        /* HEADING */
+
         .heading {
-            margin-bottom: 34px;
+            margin-bottom: 35px;
             text-align: center;
         }
 
         .eyebrow {
             color: var(--pink-dark);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 2.5px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .15em;
+            text-transform: uppercase;
         }
 
         h1 {
             margin: 12px 0 8px;
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(32px, 5vw, 43px);
-            font-weight: 700;
-            letter-spacing: .5px;
+            color: #694c5b;
+            font-family: "Playfair Display", serif;
+            font-size: clamp(32px, 5vw, 46px);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -.8px;
         }
 
         .subtitle {
             margin: 0;
             color: var(--muted);
-            font-family: 'Playfair Display', serif;
+            font-family: "Playfair Display", serif;
             font-size: 15px;
         }
 
         .ornament {
             margin-top: 17px;
             color: var(--pink);
-            font-size: 17px;
-            letter-spacing: 10px;
+            font-size: 16px;
+            letter-spacing: 8px;
         }
 
+        /* MESSAGES */
+
+        .error-message {
+            min-height: 18px;
+            margin-top: 13px;
+            color: #b75d78;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .error-message.success {
+            color: #79967e;
+            font-weight: 800;
+        }
+
+        .error-message.warning {
+            color: var(--pink-dark);
+            font-weight: 800;
+        }
+
+        /* STUDY PANEL */
+
         .study-panel {
-            padding: 30px;
-            border: 1px solid var(--line);
-            border-radius: 7px;
-            background: rgba(255,255,255,.76);
+            padding: 34px;
+            border: 1px solid rgba(240, 220, 228, .95);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, .82);
             box-shadow: var(--shadow);
         }
+
+        /* STATISTICS */
 
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 13px;
-            margin-bottom: 28px;
+            gap: 14px;
+            margin-bottom: 29px;
         }
 
         .stat {
-            padding: 17px 12px;
+            padding: 19px 12px;
             border: 1px solid var(--line);
-            border-radius: 5px;
+            border-radius: 17px;
             background: #fffafb;
             text-align: center;
         }
 
         .stat-number {
             display: block;
-            font-family: 'Playfair Display', serif;
-            font-size: 27px;
+            font-family: "Playfair Display", serif;
+            font-size: 29px;
             font-weight: 700;
         }
 
@@ -165,13 +343,13 @@
             margin-top: 5px;
             color: var(--muted);
             font-size: 10px;
-            font-weight: 800;
+            font-weight: 900;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .stat.known .stat-number {
-            color: #8eaa91;
+            color: var(--sage);
         }
 
         .stat.review .stat-number {
@@ -182,6 +360,8 @@
             color: var(--ink);
         }
 
+        /* PROGRESS */
+
         .progress-heading {
             display: flex;
             justify-content: space-between;
@@ -189,13 +369,14 @@
             margin-bottom: 10px;
             color: var(--muted);
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 900;
+            letter-spacing: .8px;
         }
 
         .progress-track {
-            height: 7px;
-            margin-bottom: 28px;
-            border-radius: 20px;
+            height: 9px;
+            margin-bottom: 34px;
+            border-radius: 30px;
             background: #f5e8eb;
             overflow: hidden;
         }
@@ -209,7 +390,7 @@
         }
 
         .card-area {
-            max-width: 650px;
+            max-width: 690px;
             margin: auto;
         }
 
@@ -218,33 +399,37 @@
             justify-content: space-between;
             align-items: center;
             gap: 10px;
-            margin-bottom: 13px;
+            margin-bottom: 15px;
         }
 
         .card-label {
             color: var(--pink-dark);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1.6px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1.3px;
         }
 
         .counter {
-            padding: 8px 13px;
+            padding: 8px 14px;
             border: 1px solid var(--line);
-            border-radius: 4px;
-            background: var(--pink-pale);
+            border-radius: 30px;
+            background: var(--pink-soft);
             color: var(--pink-dark);
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
         }
 
+        /* FLASHCARD */
+
         #scene {
-            height: 330px;
-            perspective: 1300px;
+            height: 340px;
+            perspective: 1400px;
             cursor: pointer;
             touch-action: pan-y;
             outline: none;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #card {
@@ -252,7 +437,7 @@
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            transition: transform .65s cubic-bezier(.2,.7,.3,1);
+            transition: transform .65s cubic-bezier(.2, .7, .3, 1);
         }
 
         #card.flipped {
@@ -266,24 +451,24 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 35px;
-            border: 1px solid #e9cbd5;
-            border-radius: 5px;
+            padding: 42px;
+            border: 1px solid #edced8;
+            border-radius: 23px;
             background:
-                linear-gradient(135deg, rgba(255,239,244,.8), transparent 50%),
+                radial-gradient(circle at 10% 10%, rgba(249, 230, 237, .9), transparent 40%),
                 #fffdfd;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             text-align: center;
             overflow-wrap: anywhere;
-            box-shadow: 0 8px 25px rgba(151,95,115,.06);
+            box-shadow: 0 12px 30px rgba(151, 95, 115, .075);
         }
 
         .face::before {
             content: "✿";
             position: absolute;
-            top: 18px;
-            left: 20px;
+            top: 21px;
+            left: 25px;
             color: #d99ab0;
             font-size: 19px;
         }
@@ -291,307 +476,337 @@
         .face::after {
             content: "✧";
             position: absolute;
-            right: 20px;
-            bottom: 13px;
+            right: 24px;
+            bottom: 17px;
             color: #d99ab0;
-            font-size: 24px;
+            font-size: 23px;
         }
 
         .back {
             transform: rotateY(180deg);
             background:
-                linear-gradient(135deg, #fcecf1, transparent 65%),
+                radial-gradient(circle at 90% 10%, #fcecf1, transparent 42%),
                 #fffafb;
         }
 
         .face-label {
-            margin-bottom: 22px;
+            margin-bottom: 23px;
             color: var(--pink-dark);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 2.5px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 2px;
         }
 
         .face-content {
             max-width: 100%;
-            font-family: 'DM Sans', sans-serif;
-            font-size: clamp(19px, 3.2vw, 25px);
-            font-weight: 600;
-            line-height: 1.6;
-            letter-spacing: 0;
+            font-size: clamp(19px, 3.2vw, 26px);
+            font-weight: 700;
+            line-height: 1.65;
         }
 
         .flip-hint {
-            margin: 18px 0 23px;
+            margin: 18px 0 24px;
             color: var(--muted);
-            font-family: 'Playfair Display', serif;
+            font-family: "Playfair Display", serif;
             font-size: 13px;
             font-style: italic;
             text-align: center;
         }
 
+        /* RATING BUTTONS */
+
         .rate-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 13px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .rate-button {
-            min-height: 49px;
-            padding: 12px 15px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            background: white;
-            font-size: 12px;
-            font-weight: 800;
-            transition: .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            min-height: 55px;
+            padding: 13px 17px;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 900;
+            transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
         }
 
         .rate-button:disabled {
             opacity: .45;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .rate-button.again {
+            border-color: #f0d6df;
+            background: #fff0f4;
             color: var(--pink-dark);
         }
 
         .rate-button.again:not(:disabled):hover {
-            background: var(--pink-pale);
+            background: #fbe5ec;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(185, 111, 142, .1);
         }
 
         .rate-button.known {
-            border-color: #d8e5d8;
-            color: #79967e;
+            border-color: #dce8dc;
+            background: var(--sage-light);
+            color: #78967d;
         }
 
         .rate-button.known:not(:disabled):hover {
-            background: #f2f8f1;
+            background: #e4eee2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(121, 150, 126, .1);
         }
 
         .swipe-hint {
-            margin: 0 0 21px;
+            margin: 0 0 24px;
             color: var(--muted);
-            font-size: 10px;
+            font-size: 11px;
             text-align: center;
         }
 
+        /* PREVIOUS AND NEXT BUTTONS */
+
         .controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 470px;
+            margin: 0 auto;
         }
 
         .nav-button {
-            min-width: 125px;
-            padding: 11px 18px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            background: white;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+            min-height: 57px;
+            padding: 13px 22px;
+            border: 1px solid #edcfda;
+            border-radius: 17px;
+            background: linear-gradient(145deg, #fffefe, #fff7fa);
             color: var(--pink-dark);
-            font-size: 11px;
-            font-weight: 800;
-            transition: .2s;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: 0 5px 14px rgba(166, 95, 123, .055);
+            transition:
+                transform .22s ease,
+                background .22s ease,
+                border-color .22s ease,
+                box-shadow .22s ease;
         }
 
-        .nav-button:hover {
-            background: var(--pink-pale);
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            border-color: #e3afc2;
+            background: #fff0f5;
+            box-shadow: 0 9px 20px rgba(166, 95, 123, .11);
+        }
+
+        .nav-button:active:not(:disabled) {
+            transform: translateY(-1px);
         }
 
         .nav-button:disabled {
             opacity: .4;
             cursor: not-allowed;
+            box-shadow: none;
         }
+
+        .nav-button .arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--pink-light);
+            color: var(--pink-dark);
+            font-size: 16px;
+            line-height: 1;
+            transition: background .2s ease, color .2s ease;
+        }
+
+        .nav-button:hover:not(:disabled) .arrow {
+            background: var(--pink);
+            color: white;
+        }
+
+        .save-error {
+            min-height: 18px;
+            margin-top: 15px;
+            color: #b75d78;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .save-error.success {
+            color: #79967e;
+            font-weight: 800;
+        }
+
+        .save-error.warning {
+            color: var(--pink-dark);
+            font-weight: 800;
+        }
+
+        /* REVIEW LINK */
 
         .review-link {
             display: block;
             width: fit-content;
-            margin: 22px auto 0;
+            margin: 24px auto 0;
+            padding: 11px 17px;
+            border: 1px solid transparent;
+            border-radius: 30px;
             color: var(--pink-dark);
-            font-size: 11px;
-            font-weight: 800;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-        }
-
-        /* FLASHCARD ACTION BUTTONS */
-
-        .flashcard-action-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 28px auto 0;
-            flex-wrap: wrap;
-        }
-
-        .manual-cards-link,
-        .generate-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            min-height: 42px;
-            margin: 0;
-            padding: 11px 19px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            background: rgba(255,255,255,.85);
-            color: var(--pink-dark);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: .3px;
-            text-decoration: none;
+            background: var(--pink-soft);
+            font-size: 12px;
+            font-weight: 900;
+            text-align: center;
             transition: .2s ease;
-            cursor: pointer;
         }
 
-        .manual-cards-link:hover,
-        .generate-button:hover {
-            border-color: var(--pink);
-            background: var(--pink-pale);
-            color: var(--pink-dark);
+        .review-link:hover {
+            border-color: #edcfda;
+            background: var(--pink-light);
             transform: translateY(-1px);
         }
 
-        .manual-cards-link span {
-            font-size: 16px;
-            line-height: 1;
-        }
+        /* ADDITIONAL ACTIONS */
 
-        /* MANUAL FLASHCARD SECTION */
-
-        .manual-section {
-            margin-top: 42px;
+        .action-section {
+            margin-top: 38px;
             padding-top: 30px;
             border-top: 1px solid var(--line);
         }
 
-        .section-heading {
-            margin-bottom: 22px;
+        .action-heading {
+            margin-bottom: 19px;
             text-align: center;
         }
 
-        .section-heading h2 {
-            margin: 8px 0;
-            font-family: 'Playfair Display', serif;
-            font-size: 25px;
+        .action-heading h2 {
+            margin: 0 0 7px;
+            color: #694c5b;
+            font-family: "Playfair Display", serif;
+            font-size: 23px;
         }
 
-        .section-heading p {
+        .action-heading p {
+            margin: 0;
             color: var(--muted);
             font-size: 12px;
+        }
+
+        .flashcard-action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 720px;
+            margin: auto;
+        }
+
+        .action-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 94px;
+            padding: 19px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fffdfd;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            border-color: #e3b7c7;
+            box-shadow: 0 9px 22px rgba(151, 95, 115, .09);
+        }
+
+        .action-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: var(--pink-light);
+            color: var(--pink-dark);
+            font-size: 21px;
+        }
+
+        .action-card.generate .action-icon {
+            background: var(--sage-light);
+            color: var(--sage);
+        }
+
+        .action-text {
+            min-width: 0;
+        }
+
+        .action-title {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .action-description {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .action-arrow {
+            margin-left: auto;
+            color: var(--pink);
+            font-size: 20px;
+        }
+
+        /* EMPTY STATE */
+
+        .empty-state {
+            padding: 60px 22px;
+            border: 1px dashed #e9cbd5;
+            border-radius: 20px;
+            background: #fffafb;
+            text-align: center;
+        }
+
+        .empty-state .symbol {
+            color: var(--pink);
+            font-size: 37px;
+        }
+
+        .empty-state h2 {
+            margin: 14px 0 7px;
+            color: #694c5b;
+            font-family: "Playfair Display", serif;
+            font-size: 26px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 13px;
             line-height: 1.7;
         }
 
-        .manual-form,
-        .manual-card-item {
-            padding: 22px;
-            margin-bottom: 16px;
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            background: #fffafb;
-        }
-
-        .manual-form label,
-        .manual-card-item label {
-            display: block;
-            margin: 13px 0 7px;
-            color: var(--pink-dark);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: .5px;
-        }
-
-        .manual-form input,
-        .manual-form textarea,
-        .manual-card-item input,
-        .manual-card-item textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            outline: none;
-            background: white;
-            color: var(--ink);
-            font: inherit;
-            font-size: 13px;
-            resize: vertical;
-        }
-
-        .manual-form input:focus,
-        .manual-form textarea:focus,
-        .manual-card-item input:focus,
-        .manual-card-item textarea:focus {
-            border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(217,135,165,.10);
-        }
-
-        .manual-submit,
-        .manual-edit-button,
-        .manual-delete-button {
-            padding: 11px 17px;
-            border: 1px solid var(--pink);
-            border-radius: 4px;
-            background: var(--pink);
-            color: white;
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .manual-submit {
-            margin-top: 16px;
-        }
-
-        .manual-submit:hover,
-        .manual-edit-button:hover {
-            background: var(--pink-dark);
-        }
-
-        .manual-list {
-            margin-top: 30px;
-        }
-
-        .manual-card-item h3 {
-            margin: 0 0 12px;
-            font-family: 'Playfair Display', serif;
-            font-size: 17px;
-        }
-
-        .manual-card-item .card-number {
-            color: var(--pink-dark);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .manual-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 9px;
-            margin-top: 15px;
-        }
-
-        .manual-delete-button {
-            border-color: #e5b7c2;
-            background: white;
-            color: #b96f8e;
-        }
-
-        .manual-delete-button:hover {
-            background: var(--pink-pale);
-        }
-
-        .manual-empty {
-            padding: 20px;
-            border: 1px dashed var(--line);
-            color: var(--muted);
-            font-size: 12px;
-            text-align: center;
-        }
-
-        /* AI GENERATION LOADING SCREEN */
+        /* GENERATION OVERLAY */
 
         .generation-overlay {
             position: fixed;
@@ -601,7 +816,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: rgba(255,250,248,.96);
+            background: rgba(255, 250, 248, .96);
             backdrop-filter: blur(8px);
         }
 
@@ -611,10 +826,10 @@
 
         .generation-content {
             width: 100%;
-            max-width: 360px;
-            padding: 35px 25px;
+            max-width: 370px;
+            padding: 38px 27px;
             border: 1px solid var(--line);
-            border-radius: 8px;
+            border-radius: 22px;
             background: white;
             text-align: center;
             box-shadow: var(--shadow);
@@ -629,18 +844,19 @@
 
         .generation-content h2 {
             margin: 15px 0 8px;
-            font-family: 'Playfair Display', serif;
+            color: #694c5b;
+            font-family: "Playfair Display", serif;
             font-size: 25px;
         }
 
         .generation-content p {
             color: var(--muted);
-            font-size: 12px;
+            font-size: 13px;
             line-height: 1.7;
         }
 
         .generation-track {
-            height: 5px;
+            height: 6px;
             margin-top: 23px;
             border-radius: 20px;
             background: var(--pink-light);
@@ -656,99 +872,145 @@
         }
 
         @keyframes bowPulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.12);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
         }
 
         @keyframes loadingMove {
-            0% {
-                transform: translateX(-110%);
-            }
-
-            100% {
-                transform: translateX(300%);
-            }
+            0% { transform: translateX(-110%); }
+            100% { transform: translateX(300%); }
         }
 
-        .error-message {
-            min-height: 18px;
-            margin-top: 12px;
-            color: #b75d78;
-            font-size: 11px;
-            text-align: center;
-        }
+        /* FOOTER */
 
-        .error-message.success {
-            color: #79967e;
-            font-weight: 700;
-        }
-
-        .error-message.warning {
-            color: var(--pink-dark);
-            font-weight: 700;
-        }
-
-        .empty-state {
-            padding: 55px 20px;
-            border: 1px dashed #e9cbd5;
-            background: #fffafb;
-            text-align: center;
-        }
-
-        .empty-state .symbol {
-            color: var(--pink);
-            font-size: 37px;
-        }
-
-        .empty-state h2 {
-            margin: 13px 0 7px;
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-        }
-
-        .empty-state p {
-            color: var(--muted);
+        .site-footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 23px 0 30px;
+            border-top: 1px solid var(--line);
+            color: #a88d99;
             font-size: 12px;
-            line-height: 1.7;
-        }
-
-        .footer {
-            margin-top: 32px;
-            color: var(--muted);
-            font-family: 'Playfair Display', serif;
-            font-size: 12px;
-            font-style: italic;
             text-align: center;
         }
 
-        @media (max-width: 600px) {
-            body {
-                padding: 20px 13px 35px;
+        .butterfly {
+            position: relative;
+            display: inline-block;
+            width: 24px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .butterfly::before,
+        .butterfly::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            width: 10px;
+            height: 13px;
+            background: #e9b2c5;
+        }
+
+        .butterfly::before {
+            left: 1px;
+            border-radius: 90% 15% 75% 30%;
+            transform: rotate(25deg);
+        }
+
+        .butterfly::after {
+            right: 1px;
+            border-radius: 15% 90% 30% 75%;
+            transform: rotate(-25deg);
+        }
+
+        .ribbon {
+            position: relative;
+            display: inline-block;
+            width: 25px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+        .ribbon::before,
+        .ribbon::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 11px;
+            height: 10px;
+            border: 2px solid #d98eaa;
+            border-radius: 7px 7px 3px 7px;
+        }
+
+        .ribbon::before {
+            left: 0;
+            transform: rotate(25deg);
+        }
+
+        .ribbon::after {
+            right: 0;
+            transform: rotate(-25deg);
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 760px) {
+            .site-shell {
+                width: calc(100% - 30px);
             }
 
-            .topbar {
-                margin-bottom: 38px;
+            .site-header {
+                top: 10px;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                padding: 15px 16px;
+                border-radius: 24px;
+            }
+
+            .main-nav {
+                width: 100%;
+                justify-content: center;
+                gap: 3px;
+            }
+
+            .nav-link {
+                flex: 1;
+                min-height: 40px;
+                padding: 9px 10px;
+                font-size: 13px;
+            }
+
+            .page-wrap {
+                padding: 30px 0 48px;
+            }
+
+            .back-row {
+                margin: -5px 0 25px;
+            }
+
+            .heading {
+                margin-bottom: 27px;
             }
 
             .study-panel {
-                padding: 19px 13px;
+                padding: 24px 18px;
+                border-radius: 20px;
             }
 
             .stats {
-                gap: 7px;
+                gap: 8px;
             }
 
             .stat {
-                padding: 13px 5px;
+                padding: 15px 6px;
+                border-radius: 13px;
             }
 
             .stat-number {
-                font-size: 23px;
+                font-size: 25px;
             }
 
             .stat-label {
@@ -761,7 +1023,18 @@
             }
 
             .face {
-                padding: 22px;
+                padding: 25px 20px;
+                border-radius: 19px;
+            }
+
+            .face::before {
+                top: 15px;
+                left: 17px;
+            }
+
+            .face::after {
+                right: 17px;
+                bottom: 12px;
             }
 
             .rate-actions {
@@ -769,43 +1042,77 @@
             }
 
             .rate-button {
+                min-height: 50px;
                 padding: 10px 7px;
-                font-size: 10px;
+                font-size: 11px;
+            }
+
+            .controls {
+                gap: 10px;
             }
 
             .nav-button {
-                min-width: 0;
-                flex: 1;
-            }
-
-            .manual-form,
-            .manual-card-item {
-                padding: 16px;
-            }
-
-            .manual-actions {
-                flex-direction: column;
-            }
-
-            .manual-actions button {
-                width: 100%;
+                min-height: 52px;
+                padding: 10px;
+                font-size: 12px;
             }
 
             .flashcard-action-row {
-                gap: 8px;
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
 
-            .manual-cards-link,
-            .generate-button {
-                padding: 10px 13px;
+            .action-card {
+                min-height: 80px;
+                padding: 15px;
+            }
+
+            .action-icon {
+                width: 41px;
+                height: 41px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .brand-name {
+                font-size: 26px;
+            }
+
+            .nav-link {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+
+            .card-label {
+                font-size: 9px;
+            }
+
+            .counter {
+                padding: 7px 10px;
                 font-size: 10px;
+            }
+
+            #scene {
+                height: 265px;
+            }
+
+            .study-panel {
+                padding: 19px 12px;
+            }
+
+            .nav-button {
+                gap: 6px;
+                font-size: 11px;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+            *,
+            *::before,
+            *::after {
                 transition-duration: .01ms !important;
                 animation-duration: .01ms !important;
+                scroll-behavior: auto !important;
             }
         }
     </style>
@@ -813,201 +1120,352 @@
 
 <body>
 
-<div class="page">
+<div class="site-shell">
 
-    <header class="topbar">
-        <a href="{{ route('dashboard') }}" class="brand">
-            shelly<span>୨୧</span>
+    {{-- DASHBOARD-MATCHING NAVIGATION --}}
+
+    <header class="site-header">
+
+        <a class="brand" href="{{ route('dashboard', [], false) }}">
+            <span class="brand-mark" aria-hidden="true">
+                <span class="bunny-face">
+                    <span class="bunny-ear left"></span>
+                    <span class="bunny-ear right"></span>
+                </span>
+            </span>
+
+            <span class="brand-name">shel<span>ly</span></span>
         </a>
 
-        <a href="{{ route('sets.show', $set) }}" class="back-link">
-            ← Back to study set
-        </a>
+        <nav class="main-nav" aria-label="Main navigation">
+
+            <a
+                href="{{ route('dashboard', [], false) }}"
+                class="nav-link"
+            >
+                Home
+            </a>
+
+            <a
+                href="{{ route('sets.create', [], false) }}"
+                class="nav-link"
+            >
+                Upload materials
+            </a>
+
+            <a
+                href="{{ route('dashboard', [], false) }}#my-study-sets"
+                class="nav-link active"
+                aria-current="page"
+            >
+                My studies
+            </a>
+
+        </nav>
+
     </header>
 
-    <section class="heading">
-        <span class="eyebrow">YOUR LITTLE STUDY CORNER</span>
+    <main class="page-wrap">
 
-        <h1>Flashcard Study</h1>
+        {{-- BACK TO STUDY SET --}}
 
-        <p class="subtitle">{{ $set->title }}</p>
+        <div class="back-row">
+            <a href="{{ route('sets.show', $set) }}" class="back-link">
+                <span aria-hidden="true">←</span>
+                Back to study set
+            </a>
+        </div>
 
-        <div class="ornament">✧ ✿ ୨୧ ✿ ✧</div>
-    </section>
+        {{-- PAGE HEADING --}}
 
-    @if ($errors->any())
-        <p class="error-message">{{ $errors->first() }}</p>
-    @endif
+        <section class="heading">
+            <span class="eyebrow">YOUR LITTLE STUDY CORNER</span>
 
-    @if (session('success'))
-        <p class="error-message success">{{ session('success') }}</p>
-    @endif
+            <h1>Flashcard Study</h1>
 
-    <main class="study-panel">
+            <p class="subtitle">{{ $set->title }}</p>
 
-        <section class="stats">
-            <div class="stat known">
-                <span class="stat-number" id="knownCount">{{ $knownCount }}</span>
-                <span class="stat-label">Known</span>
-            </div>
-
-            <div class="stat review">
-                <span class="stat-number" id="reviewCount">{{ $reviewCount }}</span>
-                <span class="stat-label">Need review</span>
-            </div>
-
-            <div class="stat total">
-                <span class="stat-number" id="reviewedCount">{{ $reviewedCount }}</span>
-                <span class="stat-label">Reviewed</span>
-            </div>
+            <div class="ornament">✧ ✿ ୨୧ ✿ ✧</div>
         </section>
 
-        <div class="progress-heading">
-            <span>YOUR LEARNING PROGRESS</span>
-            <span id="progressPercentage">
-                {{ $set->flashcards()->count() ? round(($reviewedCount / $set->flashcards()->count()) * 100) : 0 }}%
-            </span>
-        </div>
-
-        <div class="progress-track">
-            <div
-                class="progress-fill"
-                id="progressFill"
-                style="width: {{ $set->flashcards()->count() ? ($reviewedCount / $set->flashcards()->count()) * 100 : 0 }}%"
-            ></div>
-        </div>
-
-        @if ($reviewMode)
-            <p class="card-label" style="text-align:center; margin-bottom:20px;">
-                CARDS THAT NEED MORE PRACTICE
-            </p>
+        @if ($errors->any())
+            <p class="error-message">{{ $errors->first() }}</p>
         @endif
 
-        @if ($cards->count())
+        @if (session('success'))
+            <p class="error-message success">{{ session('success') }}</p>
+        @endif
 
-            @php
-                $cardData = $cards->map(fn ($c) => [
-                    'id' => data_get($c, 'id'),
-                    'front' => data_get($c, 'front', ''),
-                    'back' => data_get($c, 'back', ''),
-                    'known' => (bool) data_get($c, 'known', false),
-                    'reviewed' => (bool) data_get($c, 'reviewed', false),
-                    'markUrl' => route(
-                        'sets.flashcards.mark',
-                        [$set, data_get($c, 'id')]
-                    ),
-                ])->values();
-            @endphp
+        <section class="study-panel">
 
-            <div class="card-area">
+            {{-- PROGRESS STATISTICS --}}
 
-                <div class="card-meta">
-                    <span class="card-label">YOUR FLASHCARD COLLECTION</span>
+            <section class="stats">
 
-                    <span class="counter" id="count">
-                        1 / {{ $cards->count() }}
-                    </span>
+                <div class="stat known">
+                    <span class="stat-number" id="knownCount">{{ $knownCount }}</span>
+                    <span class="stat-label">Known</span>
                 </div>
 
-                <div id="scene" role="button" tabindex="0" aria-label="Flip flashcard">
-                    <div id="card">
+                <div class="stat review">
+                    <span class="stat-number" id="reviewCount">{{ $reviewCount }}</span>
+                    <span class="stat-label">Need review</span>
+                </div>
 
-                        <div class="face">
-                            <span class="face-label">QUESTION ✧</span>
-                            <span class="face-content" id="frontText"></span>
-                        </div>
+                <div class="stat total">
+                    <span class="stat-number" id="reviewedCount">{{ $reviewedCount }}</span>
+                    <span class="stat-label">Reviewed</span>
+                </div>
 
-                        <div class="face back">
-                            <span class="face-label">ANSWER ✿</span>
-                            <span class="face-content" id="backText"></span>
+            </section>
+
+            {{-- LEARNING PROGRESS --}}
+
+            <div class="progress-heading">
+                <span>YOUR LEARNING PROGRESS</span>
+
+                <span id="progressPercentage">
+                    {{ $set->flashcards()->count() ? round(($reviewedCount / $set->flashcards()->count()) * 100) : 0 }}%
+                </span>
+            </div>
+
+            <div class="progress-track">
+                <div
+                    class="progress-fill"
+                    id="progressFill"
+                    style="width: {{ $set->flashcards()->count() ? ($reviewedCount / $set->flashcards()->count()) * 100 : 0 }}%"
+                ></div>
+            </div>
+
+            @if ($reviewMode)
+                <p class="card-label" style="text-align:center; margin-bottom:20px;">
+                    CARDS THAT NEED MORE PRACTICE
+                </p>
+            @endif
+
+            @if ($cards->count())
+
+                @php
+                    $cardData = $cards->map(fn ($c) => [
+                        'id' => data_get($c, 'id'),
+                        'front' => data_get($c, 'front', ''),
+                        'back' => data_get($c, 'back', ''),
+                        'known' => (bool) data_get($c, 'known', false),
+                        'reviewed' => (bool) data_get($c, 'reviewed', false),
+                        'markUrl' => route(
+                            'sets.flashcards.mark',
+                            [$set, data_get($c, 'id')]
+                        ),
+                    ])->values();
+                @endphp
+
+                <div class="card-area">
+
+                    <div class="card-meta">
+                        <span class="card-label">YOUR FLASHCARD COLLECTION</span>
+
+                        <span class="counter" id="count">
+                            1 / {{ $cards->count() }}
+                        </span>
+                    </div>
+
+                    {{-- FLASHCARD --}}
+
+                    <div
+                        id="scene"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Reveal flashcard answer"
+                        aria-keyshortcuts="Enter Space"
+                    >
+                        <div id="card">
+
+                            <div class="face">
+                                <span class="face-label">QUESTION ✧</span>
+                                <span class="face-content" id="frontText"></span>
+                            </div>
+
+                            <div class="face back">
+                                <span class="face-label">ANSWER ✿</span>
+                                <span class="face-content" id="backText"></span>
+                            </div>
+
                         </div>
+                    </div>
+
+                    <p class="flip-hint" id="flipHint">
+                        Tap or select the card to reveal the answer.
+                    </p>
+
+                    {{-- RATE THE CARD --}}
+
+                    <div class="rate-actions">
+
+                        <button
+                            type="button"
+                            class="rate-button again"
+                            id="againButton"
+                            disabled
+                        >
+                            ↶ Study Again
+                        </button>
+
+                        <button
+                            type="button"
+                            class="rate-button known"
+                            id="knownButton"
+                            disabled
+                        >
+                            I Know This ✓
+                        </button>
 
                     </div>
+
+                    <p class="swipe-hint">
+                        Swipe left for Study Again · Swipe right for I Know This
+                    </p>
+
+                    {{-- PREVIOUS AND NEXT --}}
+
+                    <div class="controls">
+
+                        <button
+                            type="button"
+                            class="nav-button"
+                            id="prevButton"
+                        >
+                            <span class="arrow" aria-hidden="true">←</span>
+                            Previous
+                        </button>
+
+                        <button
+                            type="button"
+                            class="nav-button"
+                            id="nextButton"
+                        >
+                            Next
+                            <span class="arrow" aria-hidden="true">→</span>
+                        </button>
+
+                    </div>
+
+                    <p class="save-error" id="saveError" role="status" aria-live="polite"></p>
+
                 </div>
 
-                <p class="flip-hint" id="flipHint">
-                    Select the card to reveal the answer.
-                </p>
+            @else
 
-                <div class="rate-actions">
-                    <button type="button" class="rate-button again" id="againButton" disabled>
-                        ↶ Study Again
-                    </button>
+                {{-- EMPTY STATE --}}
 
-                    <button type="button" class="rate-button known" id="knownButton" disabled>
-                        I Know This ✓
-                    </button>
+                <div class="empty-state">
+
+                    <div class="symbol">✿</div>
+
+                    @if ($reviewMode)
+
+                        <h2>All caught up!</h2>
+
+                        <p>
+                            You have no reviewed cards waiting for another round.
+                        </p>
+
+                        <a class="review-link" href="{{ route('sets.flashcards', $set) }}">
+                            Return to all flashcards
+                        </a>
+
+                    @else
+
+                        <h2>Your study cards are waiting</h2>
+
+                        <p>
+                            Create your first set of flashcards from your uploaded study materials.
+                        </p>
+
+                    @endif
+
                 </div>
 
-                <p class="swipe-hint">
-                    Swipe left for Study Again · Swipe right for I Know This
-                </p>
+            @endif
 
-                <div class="controls">
-                    <button type="button" class="nav-button" id="prevButton">
-                        ← Previous
-                    </button>
+            {{-- REVIEW LINK --}}
 
-                    <button type="button" class="nav-button" id="nextButton">
-                        Next →
-                    </button>
+            @if (!$reviewMode && $reviewCount > 0)
+
+                <a
+                    class="review-link"
+                    href="{{ route('sets.flashcards', ['set' => $set->id, 'review' => 1]) }}"
+                >
+                    Review the {{ $reviewCount }} cards that need more practice →
+                </a>
+
+            @endif
+
+            {{-- ADDITIONAL ACTIONS --}}
+
+            <section class="action-section">
+
+                <div class="action-heading">
+                    <h2>Keep building your collection</h2>
+
+                    <p>
+                        Add your own questions or let Shelly prepare more cards.
+                    </p>
                 </div>
 
-                <p class="error-message" id="saveError" role="status" aria-live="polite"></p>
+                <div class="flashcard-action-row">
 
-            </div>
+                    <a
+                        href="{{ route('sets.flashcards.manual', $set) }}"
+                        class="action-card"
+                    >
 
-        @else
+                        <span class="action-icon">＋</span>
 
-            <div class="empty-state">
-                <div class="symbol">✿</div>
+                        <span class="action-text">
+                            <span class="action-title">Add Manual Cards</span>
 
-                @if ($reviewMode)
-                    <h2>All caught up!</h2>
-                    <p>You have no reviewed cards waiting for another round.</p>
+                            <span class="action-description">
+                                Write your own questions and answers.
+                            </span>
+                        </span>
 
-                    <a class="review-link" href="{{ route('sets.flashcards', $set) }}">
-                        Return to all flashcards
+                        <span class="action-arrow">›</span>
+
                     </a>
-                @else
-                    <h2>Your study cards are waiting</h2>
-                    <p>Create your first set of flashcards from your uploaded study materials.</p>
-                @endif
-            </div>
 
-        @endif
+                    <a
+                        href="{{ route('sets.flashcards.setup', $set) }}"
+                        class="action-card generate"
+                    >
 
-        @if (!$reviewMode && $reviewCount > 0)
-            <a class="review-link" href="{{ route('sets.flashcards', ['set' => $set->id, 'review' => 1]) }}">
-                Review the {{ $reviewCount }} cards that need more practice →
-            </a>
-        @endif
+                        <span class="action-icon">✧</span>
 
-        {{-- FLASHCARD ACTION BUTTONS --}}
+                        <span class="action-text">
+                            <span class="action-title">
+                                {{ $set->flashcards()->count() ? 'Generation Settings' : 'Create Flashcards' }}
+                            </span>
 
-        <div class="flashcard-action-row">
+                            <span class="action-description">
+                                {{ $set->flashcards()->count() ? 'Customize and generate more study cards.' : 'Let Shelly create cards from your materials.' }}
+                            </span>
+                        </span>
 
-            <a
-                href="{{ route('sets.flashcards.manual', $set) }}"
-                class="manual-cards-link"
-            >
-                <span>＋</span>
-                Add Manual Cards
-            </a>
+                        <span class="action-arrow">›</span>
 
-            <a
-                href="{{ route('sets.flashcards.setup', $set) }}"
-                class="generate-button"
-            >
-                ✿ {{ $set->flashcards()->count() ? 'Generation Settings' : 'Create flashcards' }}
-            </a>
+                    </a>
 
-        </div>
+                </div>
+
+            </section>
+
+        </section>
 
     </main>
 
-    <footer class="footer">
-        made with love by shelly ✧
+    <footer class="site-footer">
+        <span class="butterfly" aria-hidden="true"></span>
+        <span>A gentle space to learn and grow.</span>
+        <span class="ribbon" aria-hidden="true"></span>
     </footer>
 
 </div>
@@ -1015,11 +1473,12 @@
 {{-- AI GENERATION LOADING OVERLAY --}}
 
 <div class="generation-overlay" id="generationOverlay">
+
     <div class="generation-content">
 
         <div class="generation-bow">୨୧</div>
 
-        <h2>Creating Your Flashcards ✧</h2>
+        <h2>Creating Your Flashcards</h2>
 
         <p>
             Shelly is preparing your study cards.
@@ -1030,9 +1489,10 @@
             <div class="generation-progress"></div>
         </div>
 
-        <p>Made with love, just for your learning journey.</p>
+        <p>Made with care for your learning journey.</p>
 
     </div>
+
 </div>
 
 @if ($cards->count())
@@ -1150,17 +1610,17 @@
         knownButton.disabled = true;
 
         errorElement.textContent = '';
-        errorElement.className = 'error-message';
+        errorElement.className = 'save-error';
 
         document.getElementById('flipHint').textContent =
             current.reviewed
                 ? (current.known
-                    ? 'You marked this card as known.'
-                    : 'You marked this card for more practice.')
-                : 'Select the card to reveal the answer.';
+                    ? 'You marked this card as known. Tap to view the answer.'
+                    : 'You marked this card for more practice. Tap to view the answer.')
+                : 'Tap or select the card to reveal the answer.';
     }
 
-    /* FLIP FLASHCARD */
+    /* FLIP FLASHCARD BY SELECTING THE CARD */
 
     function flipCard() {
         if (saving) return;
@@ -1170,6 +1630,9 @@
 
             againButton.disabled = true;
             knownButton.disabled = true;
+
+            document.getElementById('flipHint').textContent =
+                'Tap the card to reveal the answer.';
 
             return;
         }
@@ -1209,7 +1672,7 @@
         const current = cards[currentIndex];
 
         if (current.reviewed && current.known === known) {
-            errorElement.className = 'error-message warning';
+            errorElement.className = 'save-error warning';
 
             errorElement.textContent = known
                 ? 'This card is already saved as Known!'
@@ -1230,7 +1693,7 @@
         const wasReviewed = current.reviewed;
         const wasKnown = current.known;
 
-        errorElement.className = 'error-message';
+        errorElement.className = 'save-error';
         errorElement.textContent = 'Saving your progress...';
 
         try {
@@ -1276,7 +1739,7 @@
 
             updateStats();
 
-            errorElement.className = 'error-message success';
+            errorElement.className = 'save-error success';
 
             errorElement.textContent = known
                 ? 'Saved! This card is now marked as Known.'
@@ -1326,7 +1789,7 @@
         } catch (error) {
             console.error(error);
 
-            errorElement.className = 'error-message';
+            errorElement.className = 'save-error';
 
             errorElement.textContent =
                 'Could not save your progress. Please try again.';

@@ -15,45 +15,49 @@
                 Choose how many flashcards Shelly should create from your study materials.
             </p>
         </div>
-
-        <div class="heading-decoration">୨୧</div>
-    </div>
-
-    <div class="material-panel">
-        <div class="material-icon">✧</div>
-
-        <div class="material-details">
-            <span class="material-label">CREATING FLASHCARDS FOR</span>
-            <h2>{{ $set->title }}</h2>
-        </div>
     </div>
 
     @if ($errors->any())
         <div class="setup-error">
-            {{ $errors->first() }}
+            @foreach ($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
         </div>
     @endif
 
+    {{-- STUDY MATERIAL --}}
+
+    <div class="material-card">
+        <div class="material-icon">✿</div>
+
+        <div class="material-info">
+            <span class="material-label">YOUR STUDY MATERIAL</span>
+            <h3>{{ $set->title }}</h3>
+            <p>Shelly will use this study set to prepare your flashcards.</p>
+        </div>
+    </div>
+
+    {{-- FLASHCARD SETUP FORM --}}
+
     <form
-        method="POST"
         action="{{ route('sets.flashcards.prepare', $set) }}"
-        class="setup-form"
+        method="POST"
+        id="flashcardSetupForm"
     >
         @csrf
 
-        <section class="setup-section">
-            <div class="section-heading">
-                <span class="section-number">01</span>
+        {{-- CARD QUANTITY --}}
 
+        <section class="quantity-section">
+
+            <div class="section-heading">
                 <div>
-                    <h2>How many flashcards do you need?</h2>
-                    <p>
-                        Choose a quantity that suits your study session.
-                    </p>
+                    <h2>How many cards do you need?</h2>
+                    <p>Select a quantity or enter your own number.</p>
                 </div>
             </div>
 
-            <div class="quantity-grid">
+            <div class="quantity-options">
 
                 @foreach ([10, 20, 30, 50] as $quantity)
                     <label class="quantity-option">
@@ -61,12 +65,12 @@
                             type="radio"
                             name="count"
                             value="{{ $quantity }}"
-                            {{ (int) old('count', 20) === $quantity ? 'checked' : '' }}
+                            {{ (string) old('count', 20) === (string) $quantity ? 'checked' : '' }}
                         >
 
-                        <span class="quantity-content">
+                        <span class="quantity-option-content">
                             <strong>{{ $quantity }}</strong>
-                            <small>cards</small>
+                            <small>Cards</small>
                         </span>
                     </label>
                 @endforeach
@@ -74,485 +78,546 @@
             </div>
 
             <div class="custom-quantity">
-                <label for="custom-count">
+                <label for="customCount">
                     Or enter a custom quantity
                 </label>
 
-                <div class="custom-input-wrap">
-                    <input
-                        type="number"
-                        id="custom-count"
-                        min="1"
-                        max="100"
-                        value="{{ in_array((int) old('count', 20), [10, 20, 30, 50]) ? '' : old('count') }}"
-                        placeholder="Enter 1–100"
-                    >
+                <input
+                    type="number"
+                    id="customCount"
+                    min="1"
+                    max="100"
+                    step="1"
+                    placeholder="Enter a number (1–100)"
+                    value="{{ old('custom_count') }}"
+                >
 
-                    <span>flashcards</span>
-                </div>
+                <p>Choose between 1 and 100 flashcards.</p>
+            </div>
 
-                <p class="input-hint">
-                    Choose between 1 and 100 flashcards.
+            <div class="generation-note">
+                <span class="note-icon">✧</span>
+
+                <p>
+                    Shelly will organize the important concepts from your materials
+                    into question-and-answer flashcards.
                 </p>
             </div>
+
         </section>
 
-        <div class="generation-note">
-            <span class="note-icon">✦</span>
+        {{-- CONTINUE BUTTON --}}
 
-            <div>
-                <strong>A little note from Shelly</strong>
-                <p>
-                    Shelly will use your uploaded study materials to create
-                    relevant questions and answers. The actual number may be
-                    lower if your materials do not contain enough distinct information.
-                </p>
+        <div class="setup-continue-section">
+
+            <div class="continue-message">
+                <span class="continue-decoration">୨୧</span>
+
+                <div>
+                    <strong>Ready to start studying?</strong>
+                    <p>
+                        Shelly is ready to prepare your personalized flashcards.
+                    </p>
+                </div>
             </div>
-        </div>
 
-        <div class="setup-actions">
-            <a
-                href="{{ route('sets.flashcards.create', $set) }}"
-                class="back-link"
-            >
-                ← Back to creation options
-            </a>
-
-            <button type="submit" class="generate-button">
-                Continue <span>→</span>
+            <button type="submit" class="continue-button">
+                <span>Continue with Shelly</span>
+                <span class="continue-arrow">→</span>
             </button>
+
+            <p class="continue-note">
+                Your flashcards will be created using your selected study materials.
+            </p>
+
         </div>
 
     </form>
 
-    <p class="bottom-note">
-        Your study session, your pace.
-    </p>
-
 </div>
 
-@endsection
-
-@push('styles')
 <style>
-.flashcard-setup-page {
-    max-width: 850px;
-    margin: 0 auto;
-    padding-bottom: 35px;
-}
-
-.flashcard-setup-page .setup-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.flashcard-setup-page .page-title {
-    margin: 7px 0;
-}
-
-.flashcard-setup-page .page-kicker {
-    color: #b97891;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.flashcard-setup-page .page-description {
-    margin: 0;
-    color: #a18c96;
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-.flashcard-setup-page .heading-decoration {
-    display: grid;
-    place-items: center;
-    width: 62px;
-    height: 62px;
-    flex-shrink: 0;
-    border: 1px solid #efd4df;
-    border-radius: 50%;
-    background: #fff1f6;
-    color: #cf91aa;
-    font-size: 27px;
-}
-
-.flashcard-setup-page .material-panel {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 18px 20px;
-    margin-bottom: 20px;
-    border: 1px solid #efdde4;
-    border-radius: 15px;
-    background: #fffdfd;
-    box-shadow: 0 8px 25px rgba(151, 95, 115, .05);
-}
-
-.flashcard-setup-page .material-icon {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    border-radius: 14px;
-    background: #fff0f5;
-    color: #c47e9b;
-    font-size: 22px;
-}
-
-.flashcard-setup-page .material-label {
-    color: #b98a9d;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: .13em;
-}
-
-.flashcard-setup-page .material-details h2 {
-    margin: 4px 0 0;
-    color: #795568;
-    font-family: Georgia, serif;
-    font-size: 17px;
-    overflow-wrap: anywhere;
-}
-
-.flashcard-setup-page .setup-error {
-    padding: 13px 16px;
-    margin-bottom: 18px;
-    border: 1px solid #f0cbd7;
-    border-radius: 12px;
-    background: #fff2f5;
-    color: #a75c73;
-    font-size: 13px;
-}
-
-.flashcard-setup-page .setup-form {
-    display: grid;
-    gap: 18px;
-}
-
-.flashcard-setup-page .setup-section {
-    padding: 26px;
-    border: 1px solid #efdde4;
-    border-radius: 17px;
-    background: #fffdfd;
-    box-shadow: 0 8px 25px rgba(151, 95, 115, .05);
-}
-
-.flashcard-setup-page .section-heading {
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
-    margin-bottom: 24px;
-}
-
-.flashcard-setup-page .section-number {
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-    border-radius: 11px;
-    background: #fff0f5;
-    color: #b16f8a;
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.flashcard-setup-page .section-heading h2 {
-    margin: 2px 0 5px;
-    color: #795568;
-    font-family: Georgia, serif;
-    font-size: 19px;
-}
-
-.flashcard-setup-page .section-heading p {
-    margin: 0;
-    color: #a18c96;
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-.flashcard-setup-page .quantity-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.flashcard-setup-page .quantity-option {
-    position: relative;
-    cursor: pointer;
-}
-
-.flashcard-setup-page .quantity-option input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.flashcard-setup-page .quantity-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 112px;
-    border: 1px solid #f0e2e7;
-    border-radius: 15px;
-    background: #fffdfd;
-    transition: .2s ease;
-}
-
-.flashcard-setup-page .quantity-content strong {
-    color: #795568;
-    font-family: Georgia, serif;
-    font-size: 29px;
-}
-
-.flashcard-setup-page .quantity-content small {
-    margin-top: 3px;
-    color: #a18c96;
-    font-size: 11px;
-}
-
-.flashcard-setup-page .quantity-option input:checked + .quantity-content {
-    border-color: #d99bb0;
-    background: #fff3f7;
-    box-shadow: 0 0 0 2px #f7e3eb;
-}
-
-.flashcard-setup-page .quantity-option input:focus-visible + .quantity-content {
-    outline: 3px solid #d99bb0;
-    outline-offset: 3px;
-}
-
-.flashcard-setup-page .custom-quantity {
-    margin-top: 26px;
-}
-
-.flashcard-setup-page .custom-quantity > label {
-    display: block;
-    margin-bottom: 10px;
-    color: #795568;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.flashcard-setup-page .custom-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.flashcard-setup-page .custom-input-wrap input {
-    width: 180px;
-    max-width: 60%;
-    padding: 12px 14px;
-    border: 1px solid #ecdce3;
-    border-radius: 11px;
-    background: #fffdfd;
-    color: #755d69;
-    font: inherit;
-    font-size: 13px;
-}
-
-.flashcard-setup-page .custom-input-wrap input:focus {
-    outline: none;
-    border-color: #d99bb0;
-    box-shadow: 0 0 0 3px #fff0f5;
-}
-
-.flashcard-setup-page .custom-input-wrap > span {
-    color: #a18c96;
-    font-size: 12px;
-}
-
-.flashcard-setup-page .input-hint {
-    margin: 7px 0 0;
-    color: #a18c96;
-    font-size: 10px;
-}
-
-.flashcard-setup-page .generation-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
-    padding: 18px;
-    border: 1px solid #f0dce4;
-    border-radius: 14px;
-    background: #fff5f8;
-}
-
-.flashcard-setup-page .note-icon {
-    color: #c47e9b;
-    font-size: 20px;
-}
-
-.flashcard-setup-page .generation-note strong {
-    color: #795568;
-    font-size: 12px;
-}
-
-.flashcard-setup-page .generation-note p {
-    margin: 5px 0 0;
-    color: #a18c96;
-    font-size: 11px;
-    line-height: 1.7;
-}
-
-.flashcard-setup-page .setup-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    margin-top: 5px;
-}
-
-.flashcard-setup-page .back-link {
-    color: #a16f86;
-    font-size: 12px;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.flashcard-setup-page .back-link:hover {
-    text-decoration: underline;
-}
-
-.flashcard-setup-page .generate-button {
-    padding: 13px 22px;
-    border: 0;
-    border-radius: 12px;
-    background: #d98eaa;
-    color: white;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.flashcard-setup-page .generate-button:hover {
-    background: #bd7894;
-    transform: translateY(-1px);
-}
-
-.flashcard-setup-page .generate-button span {
-    margin-left: 6px;
-}
-
-.flashcard-setup-page .bottom-note {
-    margin: 22px 0 8px;
-    color: #a17e8e;
-    font-family: Georgia, serif;
-    font-size: 12px;
-    font-style: italic;
-    text-align: center;
-}
-
-@media (max-width: 650px) {
-    .flashcard-setup-page .quantity-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .flashcard-setup-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 28px 20px 65px;
+        color: #59434d;
     }
 
-    .flashcard-setup-page .setup-section {
-        padding: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .flashcard-setup-page .setup-heading {
-        align-items: flex-start;
+    .setup-heading {
+        margin-bottom: 28px;
     }
 
-    .flashcard-setup-page .heading-decoration {
-        width: 48px;
-        height: 48px;
+    .page-kicker,
+    .section-kicker {
+        display: inline-block;
+        color: #bd829b;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 9px;
+    }
+
+    .page-title {
+        color: #654b57;
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: clamp(30px, 5vw, 39px);
+        font-weight: 500;
+        margin: 0 0 9px;
+    }
+
+    .page-description {
+        color: #987d89;
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .setup-error {
+        background: #fff0f1;
+        border: 1px solid #f0cbd2;
+        border-radius: 14px;
+        color: #a34e62;
+        padding: 13px 17px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .setup-error p {
+        margin: 3px 0;
+    }
+
+    /* STUDY MATERIAL CARD */
+
+    .material-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: #fffaf7;
+        border: 1px solid #f0e1e3;
+        border-radius: 19px;
+        padding: 19px 21px;
+        margin-bottom: 35px;
+        box-shadow: 0 5px 18px rgba(128, 83, 101, 0.035);
+    }
+
+    .material-icon {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        background: #f9e6ed;
+        color: #bd7c98;
+        border-radius: 14px;
         font-size: 22px;
     }
 
-    .flashcard-setup-page .setup-actions {
-        align-items: stretch;
-        flex-direction: column-reverse;
+    .material-label {
+        color: #bd829b;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
     }
 
-    .flashcard-setup-page .generate-button {
+    .material-info h3 {
+        color: #694e5b;
+        font-size: 15px;
+        margin: 4px 0;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .material-info p {
+        color: #a48d97;
+        font-size: 12px;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* QUANTITY SECTION */
+
+    .quantity-section {
+        background: #ffffff;
+        border: 1px solid #f0e5e8;
+        border-radius: 22px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 7px 24px rgba(128, 83, 101, 0.035);
+    }
+
+    .section-heading {
+        margin-bottom: 22px;
+    }
+
+    .section-heading h2 {
+        color: #684d59;
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 23px;
+        font-weight: 500;
+        margin: 0 0 7px;
+    }
+
+    .section-heading p {
+        color: #a18a95;
+        font-size: 12px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* QUANTITY OPTIONS */
+
+    .quantity-options {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .quantity-option {
+        cursor: pointer;
+    }
+
+    .quantity-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .quantity-option-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-height: 83px;
+        background: #fffaf9;
+        border: 1px solid #f0e1e5;
+        border-radius: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .quantity-option-content strong {
+        color: #795b69;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .quantity-option-content small {
+        color: #b0929f;
+        font-size: 11px;
+    }
+
+    .quantity-option input:checked + .quantity-option-content {
+        background: #fbe8ef;
+        border-color: #d99bb4;
+        box-shadow: 0 0 0 2px rgba(217, 155, 180, 0.12);
+    }
+
+    .quantity-option input:checked + .quantity-option-content strong {
+        color: #a85f7e;
+    }
+
+    .quantity-option:focus-within .quantity-option-content {
+        outline: 2px solid #d99bb4;
+        outline-offset: 3px;
+    }
+
+    /* CUSTOM QUANTITY */
+
+    .custom-quantity {
+        margin-top: 22px;
+    }
+
+    .custom-quantity label {
+        display: block;
+        color: #765b68;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .custom-quantity input {
         width: 100%;
+        box-sizing: border-box;
+        min-height: 46px;
+        border: 1px solid #ead9df;
+        border-radius: 12px;
+        background: #fffdfc;
+        padding: 0 14px;
+        color: #684d59;
+        font-family: "Nunito", sans-serif;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .flashcard-setup-page .back-link {
+    .custom-quantity input:focus {
+        border-color: #d69bb2;
+        box-shadow: 0 0 0 3px rgba(214, 155, 178, 0.13);
+    }
+
+    .custom-quantity p {
+        color: #b09aa3;
+        font-size: 10px;
+        margin: 7px 0 0;
+    }
+
+    /* GENERATION NOTE */
+
+    .generation-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: #fff8fa;
+        border: 1px solid #f5e6eb;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-top: 21px;
+    }
+
+    .note-icon {
+        color: #c1849f;
+        font-size: 17px;
+        line-height: 1;
+    }
+
+    .generation-note p {
+        color: #9b818d;
+        font-size: 11px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* CONTINUE SECTION */
+
+    .setup-continue-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 25px 22px;
+        border: 1px solid #f0dce4;
+        border-radius: 20px;
+        background: linear-gradient(145deg, #fff9fb, #fff2f6);
+        box-shadow: 0 7px 24px rgba(128, 83, 101, 0.045);
+    }
+
+    .continue-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        margin-bottom: 21px;
+        text-align: left;
+    }
+
+    .continue-decoration {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 13px;
+        background: #f9e5ed;
+        color: #b66f8b;
+        font-size: 20px;
+    }
+
+    .continue-message strong {
+        display: block;
+        color: #704e5e;
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .continue-message p {
+        color: #a18a95;
+        font-size: 11px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .continue-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        width: 100%;
+        max-width: 390px;
+        min-height: 54px;
+        padding: 14px 24px;
+        border: 1px solid #d995af;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #e7a1b9, #d88da8);
+        color: #ffffff;
+        font-family: "Nunito", sans-serif;
+        font-size: 13px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 7px 17px rgba(166, 95, 123, 0.16);
+        transition: all 0.22s ease;
+    }
+
+    .continue-button:hover {
+        border-color: #a65f7b;
+        background: linear-gradient(135deg, #d88da8, #c97f9b);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(166, 95, 123, 0.23);
+    }
+
+    .continue-button:active {
+        transform: translateY(0);
+    }
+
+    .continue-button:focus-visible {
+        outline: 3px solid rgba(166, 95, 123, 0.25);
+        outline-offset: 4px;
+    }
+
+    .continue-arrow {
+        font-size: 18px;
+        transition: transform 0.2s ease;
+    }
+
+    .continue-button:hover .continue-arrow {
+        transform: translateX(4px);
+    }
+
+    .continue-note {
+        color: #b09aa3;
+        font-size: 10px;
+        line-height: 1.6;
         text-align: center;
+        margin: 13px 0 0;
     }
-}
+
+    /* RESPONSIVE */
+
+    @media (max-width: 600px) {
+        .flashcard-setup-page {
+            padding: 20px 14px 45px;
+        }
+
+        .quantity-section {
+            padding: 19px 15px;
+        }
+
+        .quantity-options {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .setup-continue-section {
+            padding: 22px 16px;
+        }
+
+        .continue-button {
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .continue-message strong {
+            font-size: 15px;
+        }
+
+        .continue-message p {
+            font-size: 10px;
+        }
+    }
 </style>
-@endpush
 
-@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const customInput = document.getElementById('custom-count');
-    const presetInputs = document.querySelectorAll(
-        '.flashcard-setup-page input[name="count"]'
-    );
+    document.addEventListener('DOMContentLoaded', function () {
+        const customInput = document.getElementById('customCount');
+        const form = document.getElementById('flashcardSetupForm');
 
-    if (!customInput) {
-        return;
-    }
+        const presetRadios = document.querySelectorAll(
+            'input[name="count"][type="radio"]'
+        );
 
-    customInput.addEventListener('input', function () {
-        const value = this.value;
+        if (!customInput || !form) {
+            return;
+        }
 
-        presetInputs.forEach(function (radio) {
-            radio.checked = false;
+        // Selecting a preset clears the custom quantity.
+
+        presetRadios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                if (radio.checked) {
+                    customInput.value = '';
+                    customInput.setCustomValidity('');
+                }
+            });
         });
 
-        if (value !== '') {
-            const number = Number(value);
+        // Typing a custom quantity clears the preset selection.
 
-            if (Number.isInteger(number) && number >= 1 && number <= 100) {
-                const hiddenInput = document.createElement('input');
+        customInput.addEventListener('input', function () {
+            presetRadios.forEach(function (radio) {
+                radio.checked = false;
+            });
 
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'count';
-                hiddenInput.value = number;
-                hiddenInput.id = 'custom-count-submission';
+            customInput.setCustomValidity('');
+        });
 
-                const oldHidden = document.getElementById(
-                    'custom-count-submission'
-                );
+        // Validate the selected quantity before submitting.
 
-                if (oldHidden) {
-                    oldHidden.remove();
+        form.addEventListener('submit', function (event) {
+            const customValue = customInput.value.trim();
+
+            let hiddenInput = form.querySelector(
+                'input[name="count"][type="hidden"]'
+            );
+
+            if (customValue !== '') {
+                const number = Number(customValue);
+
+                if (
+                    !Number.isInteger(number) ||
+                    number < 1 ||
+                    number > 100
+                ) {
+                    event.preventDefault();
+
+                    customInput.setCustomValidity(
+                        'Please enter a whole number between 1 and 100.'
+                    );
+
+                    customInput.reportValidity();
+                    customInput.focus();
+
+                    return;
                 }
 
-                document.querySelector('.flashcard-setup-page .setup-form')
-                    .appendChild(hiddenInput);
-            }
-        } else {
-            const oldHidden = document.getElementById(
-                'custom-count-submission'
-            );
+                customInput.setCustomValidity('');
 
-            if (oldHidden) {
-                oldHidden.remove();
-            }
-        }
-    });
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'count';
+                    form.appendChild(hiddenInput);
+                }
 
-    presetInputs.forEach(function (radio) {
-        radio.addEventListener('change', function () {
-            customInput.value = '';
+                hiddenInput.value = number;
 
-            const oldHidden = document.getElementById(
-                'custom-count-submission'
-            );
+            } else {
+                if (hiddenInput) {
+                    hiddenInput.remove();
+                }
 
-            if (oldHidden) {
-                oldHidden.remove();
+                const selectedPreset = form.querySelector(
+                    'input[name="count"]:checked'
+                );
+
+                if (!selectedPreset) {
+                    event.preventDefault();
+
+                    alert('Please select a flashcard quantity.');
+                }
             }
         });
     });
-});
 </script>
-@endpush
+
+@endsection

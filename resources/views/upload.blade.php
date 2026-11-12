@@ -5,77 +5,66 @@
 
 @section('content')
 
-<div class="upload-page">
+<div class="shelly-upload-page">
 
-    <div class="upload-decoration butterfly butterfly-one">🦋</div>
-    <div class="upload-decoration butterfly butterfly-two">🦋</div>
-    <div class="upload-decoration bow bow-one">୨୧</div>
-    <div class="upload-decoration bow bow-two">୨୧</div>
+    {{-- Decorative details --}}
+    <div class="page-decoration decoration-one">୨୧</div>
+    <div class="page-decoration decoration-two">✿</div>
+    <div class="page-decoration decoration-three">✧</div>
 
-    <section class="upload-layout">
+    <main class="upload-container">
 
-        <div class="upload-intro">
+        {{-- Welcome header --}}
+        <header class="upload-welcome">
+            <div class="welcome-topline">
+                <span class="welcome-tag">
+                    <span>✿</span>
+                    YOUR LITTLE STUDY LIBRARY
+                </span>
 
-            <div class="intro-label">
-                <span>✿</span>
-                YOUR LITTLE STUDY SPACE
+                <span class="welcome-bow">🎀</span>
             </div>
 
             <h1>
-                Make studying<br>
-                feel a little <span>sweeter.</span>
+                Let's prepare your
+                <span>study materials.</span>
             </h1>
 
-            <p class="intro-description">
-                Welcome to Shelly's cozy little study corner.
-                Upload your learning materials and turn them
-                into summaries, flashcards, and fun quizzes.
-                One little step at a time.
+            <p>
+                Bring your notes, documents, and learning resources
+                together in one cozy little space.
             </p>
 
-            <div class="intro-features">
-                <div><span>♡</span> Simple study tools</div>
-                <div><span>♡</span> Learn at your own pace</div>
-                <div><span>♡</span> Your personal study space</div>
+            <div class="welcome-decoration">
+                <span></span>
+                <span>✿</span>
+                <span></span>
             </div>
+        </header>
 
-            <div class="reminder-card">
-                <div class="reminder-bunny">🐰</div>
 
-                <div>
-                    <strong>A little reminder</strong>
-                    <p>You're doing lovely. One page at a time!</p>
-                </div>
-
-                <span class="reminder-bow">୨୧</span>
-            </div>
-
-        </div>
-
+        {{-- Main upload card --}}
         <section class="upload-card">
 
-            <div class="card-ribbon">🎀</div>
+            <div class="card-heading">
+                <div class="heading-icon">
+                    <span>📚</span>
+                </div>
 
-            <div class="upload-heading">
-                <span class="section-label">LET'S GET STARTED</span>
+                <div>
+                    <span class="eyebrow">A FRESH STUDY SESSION</span>
+                    <h2>Create a new study set</h2>
+                    <p>First, give your materials a name.</p>
+                </div>
 
-                <h2>Add your study materials</h2>
-
-                <p>
-                    Choose one or more files, preview them,
-                    and let Shelly help make studying easier.
-                </p>
+                <div class="heading-ribbon">୨୧</div>
             </div>
 
-            <div class="divider-decoration">
-                <span>♡</span>
-                <span>✿</span>
-                <span>♡</span>
-            </div>
 
+            {{-- Error messages --}}
             @if ($errors->any())
-                <div class="error-message" role="alert">
-                    <strong>Oopsie! Please check your information.</strong>
+                <div class="form-message error-message" role="alert">
+                    <strong>Let's fix a few things!</strong>
 
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -85,30 +74,32 @@
                 </div>
             @endif
 
+            {{-- Success message --}}
             @if (session('success'))
-                <div class="success-message" role="status">
+                <div class="form-message success-message" role="status">
                     {{ session('success') }}
                 </div>
             @endif
+
 
             <form
                 method="POST"
                 action="{{ route('sets.store', [], false) }}"
                 enctype="multipart/form-data"
-                class="upload-form"
                 id="upload-form"
             >
                 @csrf
 
-                {{-- Study set title --}}
-                <div class="study-title-field">
+                {{-- Study set name --}}
+                <div class="form-section">
 
-                    <label for="study-title">
-                        Give your study set a name
+                    <label for="study-title" class="field-label">
+                        <span class="field-number">01</span>
+                        Name your study set
                     </label>
 
-                    <p>
-                        Choose a title that helps you recognize these materials later.
+                    <p class="field-description">
+                        Choose a name that makes your materials easy to find.
                     </p>
 
                     <input
@@ -116,20 +107,41 @@
                         id="study-title"
                         name="title"
                         value="{{ old('title') }}"
-                        placeholder="e.g. Nursing - Chapter 1"
+                        placeholder="e.g. Biology — Chapter 1"
                         maxlength="255"
                         required
+                        class="title-input"
                     >
 
                     @error('title')
-                        <span class="title-error">{{ $message }}</span>
+                        <span class="field-error">{{ $message }}</span>
                     @enderror
 
                 </div>
 
-                {{-- File picker --}}
-                <div class="file-picker-wrapper">
 
+                {{-- File upload --}}
+                <div class="form-section file-section">
+
+                    <div class="file-section-heading">
+                        <div>
+                            <label class="field-label">
+                                <span class="field-number">02</span>
+                                Add your materials
+                            </label>
+
+                            <p class="field-description">
+                                Select the files you want to study.
+                            </p>
+                        </div>
+
+                        <span class="file-count-badge" id="file-count">
+                            0 files selected
+                        </span>
+                    </div>
+
+
+                    {{-- Hidden actual file input --}}
                     <input
                         type="file"
                         id="study-file"
@@ -139,38 +151,87 @@
                         hidden
                     >
 
-                    <label class="file-drop" for="study-file">
 
-                        <div class="upload-icon">♡</div>
+                    {{-- Drop area --}}
+                    <label
+                        for="study-file"
+                        class="file-drop"
+                        id="file-drop"
+                        tabindex="0"
+                    >
 
-                        <span class="file-title">
-                            Drop your files here
-                        </span>
+                        <div class="drop-illustration">
+                            <div class="folder-icon">
+                                <svg
+                                    viewBox="0 0 64 64"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M7 18C7 14.7 9.7 12 13 12H26L32 19H51C54.3 19 57 21.7 57 25V48C57 51.3 54.3 54 51 54H13C9.7 54 7 51.3 7 48V18Z"
+                                        fill="#F5C8D7"
+                                    />
+                                    <path
+                                        d="M7 27C7 23.7 9.7 21 13 21H51C54.3 21 57 23.7 57 27V48C57 51.3 54.3 54 51 54H13C9.7 54 7 51.3 7 48V27Z"
+                                        fill="#EAAFC2"
+                                    />
+                                    <path
+                                        d="M32 29V44M25 36.5L32 29L39 36.5"
+                                        stroke="#9E5D78"
+                                        stroke-width="2.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </div>
 
-                        <span class="file-description">
-                            PDF, TXT, DOCX, PPTX, JPG, PNG, WEBP
-                        </span>
+                            <span class="drop-sparkle sparkle-left">✧</span>
+                            <span class="drop-sparkle sparkle-right">✿</span>
+                        </div>
+
+                        <h3>Drop your files here</h3>
+
+                        <p class="drop-subtitle">
+                            or browse files from your device
+                        </p>
 
                         <span class="browse-button">
                             <span>＋</span>
                             Browse files
                         </span>
 
-                        <span class="selected-file" id="file-count">
-                            No files selected yet
+                        <span class="supported-formats">
+                            PDF · DOCX · PPTX · TXT · JPG · PNG · WEBP
+                        </span>
+
+                        <span class="drop-helper">
+                            You can select multiple files at once.
                         </span>
 
                     </label>
 
+
                     {{-- Selected files --}}
-                    <div class="file-selection" id="file-selection" hidden>
+                    <div
+                        class="file-selection"
+                        id="file-selection"
+                        hidden
+                    >
 
-                        <div class="selection-heading">
-                            <span class="selection-label">
-                                YOUR SELECTED FILES
-                            </span>
+                        <div class="selection-header">
+                            <div>
+                                <span class="selection-title">
+                                    YOUR SELECTED MATERIALS
+                                </span>
 
-                            <span class="selection-limit" id="selection-limit">
+                                <p>Review your files before uploading.</p>
+                            </div>
+
+                            <span
+                                class="selection-limit"
+                                id="selection-limit"
+                            >
                                 0 / 10
                             </span>
                         </div>
@@ -191,36 +252,67 @@
 
                     </div>
 
+
+                    {{-- Validation notice --}}
                     <p
                         class="file-limit-message"
                         id="file-limit-message"
                         role="alert"
+                        aria-live="polite"
                         hidden
                     ></p>
 
+
+                    {{-- Upload information --}}
+                    <div class="upload-info">
+                        <span class="info-icon">ⓘ</span>
+
+                        <p>
+                            Up to <strong>10 files</strong>,
+                            <strong>25 MB per file</strong>,
+                            and <strong>128 MB combined</strong>.
+                        </p>
+                    </div>
+
                 </div>
 
-                <button class="button upload-button" type="submit">
-                    Upload my materials
-                    <span>✧</span>
-                </button>
+
+                {{-- Create button --}}
+                <div class="submit-area">
+
+                    <button
+                        type="submit"
+                        class="create-button"
+                        id="upload-button"
+                    >
+                        <span>Create My Study Set</span>
+                        <span class="button-sparkle">✧</span>
+                    </button>
+
+                    <p class="submit-note">
+                        Your materials will be organized into a new study set.
+                    </p>
+
+                </div>
 
             </form>
 
-            <div class="upload-card-footer">
-                <span>🎀</span>
-                Your study corner, one topic at a time.
-                <span>♡</span>
-            </div>
-
         </section>
 
-    </section>
+
+        {{-- Small footer note --}}
+        <footer class="upload-footer">
+            <span>🎀</span>
+            <p>One little step at a time. You've got this!</p>
+            <span>✿</span>
+        </footer>
+
+    </main>
 
 </div>
 
 
-{{-- FILE PREVIEW MODAL --}}
+{{-- File preview modal --}}
 <div class="preview-modal" id="preview-modal" hidden>
 
     <div
@@ -228,23 +320,18 @@
         id="preview-backdrop"
     ></div>
 
-    <div
+    <section
         class="preview-window"
         role="dialog"
         aria-modal="true"
         aria-labelledby="preview-title"
     >
 
-        <div class="preview-header">
+        <header class="preview-header">
 
             <div>
-                <span class="section-label">
-                    YOUR STUDY MATERIAL
-                </span>
-
-                <h3 id="preview-title">
-                    File Preview
-                </h3>
+                <span class="eyebrow">YOUR STUDY MATERIAL</span>
+                <h3 id="preview-title">File Preview</h3>
             </div>
 
             <button
@@ -256,19 +343,19 @@
                 ×
             </button>
 
-        </div>
+        </header>
 
         <div
             class="preview-content"
             id="preview-content"
         ></div>
 
-        <div class="preview-footer">
-            <span>♡</span>
-            Your file stays private until you upload it.
-        </div>
+        <footer class="preview-footer">
+            <span>🎀</span>
+            Your file is ready for your study set.
+        </footer>
 
-    </div>
+    </section>
 
 </div>
 
@@ -276,424 +363,333 @@
 <style>
 
 /* =========================================
-   UPLOAD PAGE
+   BASE
 ========================================= */
 
-.upload-page {
+.shelly-upload-page {
+    --su-pink: #d98eaa;
+    --su-pink-dark: #a96380;
+    --su-pink-light: #fff0f5;
+    --su-pink-soft: #f9e6ec;
+    --su-cream: #fffaf6;
+    --su-ink: #765666;
+    --su-muted: #a88d9b;
+    --su-border: #f0dce4;
+
     position: relative;
     isolation: isolate;
     width: 100%;
-    padding: 38px 0 25px;
-    color: var(--ink);
+    min-height: 75vh;
+    padding: 45px 20px 35px;
+    box-sizing: border-box;
+    overflow: hidden;
+    color: var(--su-ink);
     font-family: "Nunito", sans-serif;
 }
 
-.upload-layout {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr);
-    align-items: center;
-    gap: clamp(35px, 6vw, 80px);
-    width: min(1080px, 100%);
-    margin: 0 auto;
-    padding: 0 20px;
+.shelly-upload-page *,
+.shelly-upload-page *::before,
+.shelly-upload-page *::after {
     box-sizing: border-box;
 }
 
-
-/* =========================================
-   WELCOME SECTION
-========================================= */
-
-.upload-intro {
+.upload-container {
     position: relative;
-    padding: 25px 0;
-    transform: translateY(-20px);
-}
-
-.intro-label {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 20px;
-    color: var(--pink-dark);
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
-
-.intro-label span {
-    font-size: 19px;
-}
-
-.upload-intro h1 {
-    margin: 0;
-    color: #755267;
-    font-family: "Playfair Display", serif;
-    font-size: clamp(38px, 4.5vw, 57px);
-    font-weight: 600;
-    line-height: 1.17;
-    letter-spacing: -1.5px;
-}
-
-.upload-intro h1 span {
-    color: #d982a6;
-}
-
-.intro-description {
-    max-width: 480px;
-    margin: 22px 0 0;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.9;
-}
-
-.intro-features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 13px 19px;
-    margin-top: 27px;
-}
-
-.intro-features div {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: #927486;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.intro-features span {
-    color: #d982a6;
-    font-size: 17px;
-}
-
-.reminder-card {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    width: fit-content;
-    max-width: 100%;
-    margin-top: 38px;
-    padding: 14px 19px;
-    border: 1px solid #f0dce4;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, .75);
-}
-
-.reminder-bunny {
-    font-size: 28px;
-}
-
-.reminder-card strong {
-    color: #a65f7b;
-    font-family: "Playfair Display", serif;
-    font-size: 14px;
-}
-
-.reminder-card p {
-    margin: 4px 0 0;
-    color: var(--muted);
-    font-size: 11px;
-}
-
-.reminder-bow {
-    margin-left: 12px;
-    color: #d98eaa;
-    font-size: 25px;
-}
-
-
-
-/* =========================================
-   UPLOAD PAGE
-========================================= */
-
-.upload-page {
-    position: relative;
-    isolation: isolate;
+    z-index: 1;
     width: 100%;
-    min-width: 0;
-    padding: 38px 0 25px;
-    color: var(--ink);
-    font-family: "Nunito", sans-serif;
-    box-sizing: border-box;
+    max-width: 760px;
+    margin: 0 auto;
 }
 
-.upload-layout {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
-    align-items: center;
-    gap: clamp(35px, 6vw, 80px);
-    width: min(1080px, 100%);
-    min-width: 0;
-    margin: 0 auto;
-    padding: 0 20px;
-    box-sizing: border-box;
-}
 
 /* =========================================
-   WELCOME SECTION
+   DECORATIONS
 ========================================= */
 
-.upload-intro {
-    position: relative;
-    min-width: 0;
-    padding: 25px 0;
-    transform: translateY(-20px);
+.page-decoration {
+    position: absolute;
+    z-index: -1;
+    color: #e7b4c5;
+    opacity: .55;
+    pointer-events: none;
+    user-select: none;
 }
 
-.intro-label {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 20px;
-    color: var(--pink-dark);
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 2px;
+.decoration-one {
+    top: 100px;
+    left: 5%;
+    font-size: 55px;
+    transform: rotate(-12deg);
 }
 
-.intro-label span {
-    font-size: 19px;
+.decoration-two {
+    top: 420px;
+    right: 6%;
+    font-size: 35px;
 }
 
-.upload-intro h1 {
-    margin: 0;
-    color: #755267;
-    font-family: "Playfair Display", serif;
-    font-size: clamp(38px, 4.5vw, 57px);
-    font-weight: 600;
-    line-height: 1.17;
-    letter-spacing: -1.5px;
-}
-
-.upload-intro h1 span {
-    color: #d982a6;
-}
-
-.intro-description {
-    max-width: 480px;
-    margin: 22px 0 0;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.9;
-}
-
-.intro-features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 13px 19px;
-    margin-top: 27px;
-}
-
-.intro-features div {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: #927486;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.intro-features span {
-    color: #d982a6;
-    font-size: 17px;
-}
-
-.reminder-card {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    width: fit-content;
-    max-width: 100%;
-    margin-top: 38px;
-    padding: 14px 19px;
-    border: 1px solid #f0dce4;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, .75);
-}
-
-.reminder-bunny {
+.decoration-three {
+    top: 650px;
+    left: 9%;
     font-size: 28px;
 }
 
-.reminder-card strong {
-    color: #a65f7b;
-    font-family: "Playfair Display", serif;
-    font-size: 14px;
+
+/* =========================================
+   WELCOME HEADER
+========================================= */
+
+.upload-welcome {
+    position: relative;
+    margin-bottom: 28px;
+    padding: 30px 35px 27px;
+    overflow: hidden;
+    border: 1px solid #efd6df;
+    border-radius: 24px;
+    background-color: #f9e9ed;
+    background-image:
+        linear-gradient(rgba(255,255,255,.30) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.30) 1px, transparent 1px);
+    background-size: 18px 18px;
 }
 
-.reminder-card p {
-    margin: 4px 0 0;
-    color: var(--muted);
-    font-size: 11px;
+.welcome-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
 }
 
-.reminder-bow {
-    margin-left: 12px;
-    color: #d98eaa;
+.welcome-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #a16f88;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+}
+
+.welcome-tag span {
+    font-size: 17px;
+}
+
+.welcome-bow {
     font-size: 25px;
 }
 
+.upload-welcome h1 {
+    max-width: 580px;
+    margin: 0;
+    color: #704d60;
+    font-family: "Georgia", serif;
+    font-size: clamp(30px, 5vw, 43px);
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -.8px;
+}
+
+.upload-welcome h1 span {
+    display: block;
+    color: #c77e9b;
+    font-style: italic;
+}
+
+.upload-welcome > p {
+    max-width: 500px;
+    margin: 15px 0 0;
+    color: #947987;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.welcome-decoration {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100px;
+    margin-top: 23px;
+    color: #d18ca7;
+}
+
+.welcome-decoration span:first-child,
+.welcome-decoration span:last-child {
+    flex: 1;
+    height: 1px;
+    background: #dfb5c5;
+}
+
+
 /* =========================================
-   UPLOAD CARD
+   MAIN CARD
 ========================================= */
 
 .upload-card {
     position: relative;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 35px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 27px;
-    background: rgba(255, 253, 251, .96);
-    box-shadow: var(--shadow);
+    padding: 32px;
+    border: 1px solid var(--su-border);
+    border-radius: 25px;
+    background: rgba(255, 253, 251, .98);
+    box-shadow: 0 12px 35px rgba(143, 95, 116, .07);
 }
 
-.card-ribbon {
-    position: absolute;
-    top: 19px;
-    right: 22px;
-    display: grid;
-    place-items: center;
-    width: 43px;
-    height: 43px;
-    border-radius: 15px;
-    background: var(--pink-light);
-    font-size: 22px;
-    transform: rotate(8deg);
-}
-
-.upload-heading {
-    padding-right: 25px;
-}
-
-.section-label {
-    color: var(--pink-dark);
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
-
-.upload-heading h2 {
-    margin: 12px 0 8px;
-    color: #755267;
-    font-family: "Playfair Display", serif;
-    font-size: 25px;
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-.upload-heading p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.8;
-}
-
-.divider-decoration {
+.card-heading {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin: 24px 0;
-    color: #d98eaa;
-    font-size: 15px;
+    gap: 15px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #f1e3e7;
 }
 
-.divider-decoration::before,
-.divider-decoration::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--line);
+.heading-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 51px;
+    height: 51px;
+    border: 1px solid #f0d6df;
+    border-radius: 16px;
+    background: #fff0f5;
+    font-size: 23px;
 }
+
+.card-heading > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.eyebrow {
+    color: #b17b93;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+}
+
+.card-heading h2 {
+    margin: 5px 0 3px;
+    color: #765366;
+    font-family: Georgia, serif;
+    font-size: 23px;
+    font-weight: 500;
+}
+
+.card-heading p {
+    margin: 0;
+    color: var(--su-muted);
+    font-size: 11px;
+}
+
+.heading-ribbon {
+    color: #d99bb2;
+    font-size: 31px;
+}
+
 
 /* =========================================
-   UPLOAD FORM AND TITLE
+   FORM SECTIONS
 ========================================= */
 
-.upload-form {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 17px;
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
+.form-section {
+    margin-top: 27px;
 }
 
-.study-title-field {
+.field-label {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
-}
-
-.study-title-field label {
-    color: #805d72;
-    font-size: 12px;
+    align-items: center;
+    gap: 10px;
+    color: #79596d;
+    font-size: 13px;
     font-weight: 900;
 }
 
-.study-title-field p {
-    margin: 0 0 3px;
+.field-number {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 9px;
+    background: #f9e8ee;
+    color: #b77b94;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.field-description {
+    margin: 8px 0 12px 35px;
     color: #a88d9b;
     font-size: 11px;
     line-height: 1.6;
 }
 
-.study-title-field input {
+.title-input {
+    display: block;
     width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    min-height: 47px;
-    padding: 12px 14px;
-    border: 1px solid #edcbd9;
-    border-radius: 13px;
+    min-height: 49px;
+    padding: 12px 15px;
+    border: 1px solid #ebd2dc;
+    border-radius: 12px;
     outline: none;
     background: #fffafd;
-    color: #755267;
+    color: #765666;
     font-family: "Nunito", sans-serif;
-    font-size: 12px;
-    transition: .2s ease;
+    font-size: 13px;
+    transition: border-color .2s, box-shadow .2s;
 }
 
-.study-title-field input::placeholder {
-    color: #c2a8b5;
+.title-input::placeholder {
+    color: #c4a9b5;
 }
 
-.study-title-field input:focus {
-    border-color: #d982a6;
-    box-shadow: 0 0 0 3px rgba(217, 130, 166, .13);
+.title-input:focus {
+    border-color: #d98eaa;
+    box-shadow: 0 0 0 3px rgba(217, 142, 170, .14);
 }
 
-.title-error {
-    color: #a34e65;
+.field-error {
+    display: block;
+    margin-top: 7px;
+    color: #b04f69;
     font-size: 11px;
 }
 
+
 /* =========================================
-   FILE PICKER
+   FILE SECTION
 ========================================= */
 
-.file-picker-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
+.file-section {
+    padding-top: 24px;
+    border-top: 1px solid #f1e3e7;
 }
+
+.file-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 17px;
+}
+
+.file-section-heading .field-description {
+    margin-bottom: 0;
+}
+
+.file-count-badge {
+    flex-shrink: 0;
+    padding: 7px 10px;
+    border: 1px solid #efd6df;
+    border-radius: 30px;
+    background: #fff5f8;
+    color: #aa748c;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+
+/* =========================================
+   DROP ZONE
+========================================= */
 
 .file-drop {
     position: relative;
@@ -701,54 +697,77 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    min-height: 205px;
-    padding: 23px 16px;
-    box-sizing: border-box;
-    border: 2px dashed #e8b8cc;
-    border-radius: 21px;
+    min-height: 265px;
+    padding: 28px 18px;
+    border: 2px dashed #e8bdcc;
+    border-radius: 19px;
+    outline: none;
     background:
-        radial-gradient(circle at 10% 15%, #fff0f6 0, transparent 28%),
-        #fff8fb;
-    color: #89677a;
+        radial-gradient(circle at 15% 15%, #fff0f5 0, transparent 30%),
+        radial-gradient(circle at 85% 85%, #fff1f5 0, transparent 30%),
+        #fffafd;
     text-align: center;
     cursor: pointer;
-    transition: .2s ease;
+    transition: background .2s, border-color .2s, transform .2s;
 }
 
-.file-drop:hover {
-    border-color: #d98eaa;
-    background-color: #fff0f6;
-    transform: translateY(-2px);
+.file-drop:hover,
+.file-drop.drag-active {
+    border-color: #d58ca8;
+    background-color: #fff2f6;
 }
 
-.file-drop:focus-within {
-    outline: 3px solid #f3c5d6;
-    outline-offset: 3px;
+.file-drop:focus-visible {
+    outline: 3px solid #efc6d5;
+    outline-offset: 4px;
 }
 
-.upload-icon {
+.drop-illustration {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.folder-icon {
     display: grid;
     place-items: center;
-    width: 53px;
-    height: 53px;
-    border-radius: 18px;
-    background: #ffe8f1;
-    color: #d27fa2;
-    font-size: 29px;
+    width: 75px;
+    height: 75px;
+    border-radius: 25px;
+    background: #fbe7ee;
 }
 
-.file-title {
-    color: #805d72;
-    font-family: "Playfair Display", serif;
-    font-size: 16px;
-    font-weight: 600;
+.folder-icon svg {
+    width: 60px;
+    height: 60px;
 }
 
-.file-description {
+.drop-sparkle {
+    position: absolute;
+    color: #d58ca8;
+}
+
+.sparkle-left {
+    top: 0;
+    left: -16px;
+    font-size: 19px;
+}
+
+.sparkle-right {
+    right: -17px;
+    bottom: 4px;
+    font-size: 17px;
+}
+
+.file-drop h3 {
+    margin: 0;
+    color: #79576b;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.drop-subtitle {
+    margin: 7px 0 15px;
     color: #a88d9b;
     font-size: 11px;
 }
@@ -756,39 +775,51 @@
 .browse-button {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    margin-top: 3px;
-    padding: 9px 17px;
-    border: 1px solid #edcbd9;
+    justify-content: center;
+    gap: 8px;
+    min-height: 39px;
+    padding: 8px 19px;
+    border: 1px solid #e7b9ca;
     border-radius: 30px;
-    background: white;
-    color: var(--pink-dark);
+    background: #f9e8ee;
+    color: #9f6680;
     font-size: 11px;
     font-weight: 900;
+    transition: background .2s, transform .2s;
+}
+
+.file-drop:hover .browse-button {
+    background: #f5dce6;
+    transform: translateY(-1px);
 }
 
 .browse-button span {
-    font-size: 17px;
+    font-size: 16px;
 }
 
-.selected-file {
-    max-width: 100%;
-    color: #a88d9b;
-    font-size: 11px;
-    font-weight: 800;
+.supported-formats {
+    margin-top: 17px;
+    color: #a98295;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .4px;
 }
+
+.drop-helper {
+    margin-top: 6px;
+    color: #b59eaa;
+    font-size: 10px;
+}
+
 
 /* =========================================
    SELECTED FILES
 ========================================= */
 
 .file-selection {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    padding: 14px;
-    box-sizing: border-box;
-    border: 1px solid #f0dce4;
+    margin-top: 17px;
+    padding: 16px;
+    border: 1px solid #efdae2;
     border-radius: 16px;
     background: #fffafd;
 }
@@ -797,75 +828,74 @@
     display: none;
 }
 
-.selection-heading {
+.selection-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 11px;
+    margin-bottom: 13px;
 }
 
-.selection-label {
+.selection-title {
     color: #a16f88;
     font-size: 9px;
     font-weight: 900;
-    letter-spacing: 1.4px;
+    letter-spacing: 1.5px;
+}
+
+.selection-header p {
+    margin: 5px 0 0;
+    color: #b096a2;
+    font-size: 10px;
 }
 
 .selection-limit {
-    color: #b58a9e;
+    color: #b17b93;
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .selected-file-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    min-width: 0;
+    gap: 9px;
 }
 
 .file-chip {
     display: flex;
     align-items: center;
-    gap: 9px;
-    width: 100%;
+    gap: 11px;
     min-width: 0;
-    max-width: 100%;
-    padding: 9px 10px;
-    box-sizing: border-box;
-    border: 1px solid #f1dce5;
+    padding: 10px;
+    border: 1px solid #f0e0e6;
     border-radius: 13px;
-    background: white;
-    color: #916c80;
+    background: #fff;
 }
 
 .file-chip-icon {
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: #fff0f5;
-    color: #c57697;
-    font-size: 12px;
+    width: 39px;
+    height: 39px;
+    border-radius: 12px;
+    background: #fbeaf0;
+    color: #b2718c;
+    font-size: 10px;
     font-weight: 900;
 }
 
 .file-chip-details {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     min-width: 0;
-    overflow: hidden;
 }
 
 .file-chip-label {
     overflow: hidden;
-    color: #916c80;
+    color: #805e72;
     font-size: 11px;
     font-weight: 900;
     text-overflow: ellipsis;
@@ -873,23 +903,24 @@
 }
 
 .file-chip-size {
-    color: #b58a9e;
+    color: #b097a3;
     font-size: 10px;
 }
 
 .file-chip-actions {
     display: flex;
     align-items: center;
+    gap: 7px;
     flex-shrink: 0;
-    gap: 6px;
 }
 
 .file-chip-preview {
+    min-height: 32px;
     padding: 6px 10px;
-    border: 1px solid #edcbd9;
-    border-radius: 20px;
-    background: #fff8fb;
-    color: #a65f7b;
+    border: 1px solid #ebd0db;
+    border-radius: 25px;
+    background: #fff7fa;
+    color: #a36e86;
     font-family: inherit;
     font-size: 10px;
     font-weight: 900;
@@ -897,83 +928,214 @@
 }
 
 .file-chip-preview:hover {
-    background: #ffeaf2;
+    background: #f9e7ee;
 }
 
 .file-chip-remove {
     display: grid;
     place-items: center;
-    width: 25px;
-    height: 25px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    border: 0;
+    border: 1px solid #f0dce4;
     border-radius: 50%;
-    background: #fff0f5;
-    color: #c57697;
-    font-size: 16px;
+    background: #fff3f7;
+    color: #b87591;
+    font-size: 19px;
     cursor: pointer;
-    transition: .2s ease;
 }
 
 .file-chip-remove:hover {
-    background: #f7dce7;
-    color: #a94f77;
+    background: #f8e0e9;
 }
 
 .add-files-button {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     margin-top: 13px;
-    padding: 7px 12px;
-    border: 1px solid #edcbd9;
-    border-radius: 30px;
+    padding: 8px 13px;
+    border: 1px solid #ebd0db;
+    border-radius: 25px;
     background: white;
-    color: var(--pink-dark);
+    color: #a36e86;
     font-family: inherit;
     font-size: 10px;
     font-weight: 900;
     cursor: pointer;
-    transition: .2s ease;
 }
 
 .add-files-button:hover {
-    background: #fff0f6;
-    border-color: #d98eaa;
-}
-
-.add-files-button span {
-    font-size: 15px;
+    background: #fff2f6;
 }
 
 .add-files-button:disabled {
-    opacity: .45;
+    opacity: .5;
     cursor: not-allowed;
 }
 
+
+/* =========================================
+   UPLOAD LIMITS AND INFO
+========================================= */
+
 .file-limit-message {
-    margin: -5px 0 0;
-    padding: 10px 12px;
-    border: 1px solid #efc2ce;
-    border-radius: 10px;
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #efc4cf;
+    border-radius: 11px;
     background: #fff0f3;
     color: #a34e65;
     font-size: 11px;
     line-height: 1.6;
-    text-align: center;
 }
 
 .file-limit-message[hidden] {
     display: none;
 }
 
+.upload-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 14px;
+    padding: 12px 13px;
+    border: 1px solid #f0e3e8;
+    border-radius: 11px;
+    background: #fffafc;
+}
+
+.info-icon {
+    color: #c28ba2;
+    font-size: 14px;
+}
+
+.upload-info p {
+    margin: 0;
+    color: #a58b98;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.upload-info strong {
+    color: #926a7e;
+}
+
+
+/* =========================================
+   SUBMIT AREA
+========================================= */
+
+.submit-area {
+    margin-top: 29px;
+    padding-top: 22px;
+    border-top: 1px solid #f1e3e7;
+    text-align: center;
+}
+
+.create-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    width: 100%;
+    min-height: 54px;
+    padding: 13px 20px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(110deg, #e5a0b7, #d587a5);
+    box-shadow: 0 7px 16px rgba(205, 125, 157, .17);
+    color: #fff;
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+}
+
+.create-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 21px rgba(205, 125, 157, .23);
+}
+
+.create-button:active {
+    transform: translateY(0);
+}
+
+.create-button:disabled {
+    opacity: .65;
+    cursor: wait;
+    transform: none;
+}
+
+.button-sparkle {
+    font-size: 19px;
+}
+
+.submit-note {
+    margin: 11px 0 0;
+    color: #b096a2;
+    font-size: 10px;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.upload-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+    color: #aa8798;
+}
+
+.upload-footer span {
+    color: #d69bb1;
+    font-size: 15px;
+}
+
+.upload-footer p {
+    margin: 0;
+    font-size: 10px;
+}
+
+
+/* =========================================
+   FEEDBACK MESSAGES
+========================================= */
+
+.form-message {
+    margin: 18px 0;
+    padding: 13px 15px;
+    border-radius: 12px;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.error-message {
+    border: 1px solid #efc4cf;
+    background: #fff0f3;
+    color: #a34e65;
+}
+
+.error-message ul {
+    margin: 7px 0 0;
+    padding-left: 19px;
+}
+
+.success-message {
+    border: 1px solid #d8e9d8;
+    background: #f4fbf2;
+    color: #668d65;
+}
+
+
 /* =========================================
    PREVIEW MODAL
 ========================================= */
-
-.preview-modal[hidden] {
-    display: none;
-}
 
 .preview-modal {
     position: fixed;
@@ -984,25 +1146,28 @@
     padding: 20px;
 }
 
+.preview-modal[hidden] {
+    display: none;
+}
+
 .preview-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(63, 39, 54, .58);
+    background: rgba(69, 43, 58, .55);
     backdrop-filter: blur(4px);
 }
 
 .preview-window {
     position: relative;
-    z-index: 1;
     display: flex;
     flex-direction: column;
     width: min(850px, 100%);
     max-height: 90vh;
     overflow: hidden;
-    border: 1px solid #f0dce4;
-    border-radius: 22px;
-    background: #fffdfc;
-    box-shadow: 0 20px 70px rgba(63, 39, 54, .2);
+    border: 1px solid #efdce3;
+    border-radius: 19px;
+    background: #fffdfb;
+    box-shadow: 0 20px 60px rgba(45, 25, 35, .2);
 }
 
 .preview-header {
@@ -1010,15 +1175,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-    padding: 18px 22px;
-    border-bottom: 1px solid #f0dce4;
+    padding: 17px 20px;
+    border-bottom: 1px solid #f0e1e6;
 }
 
 .preview-header h3 {
     margin: 5px 0 0;
-    color: #755267;
-    font-family: "Playfair Display", serif;
-    font-size: 21px;
+    color: #765366;
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-weight: 500;
     overflow-wrap: anywhere;
 }
 
@@ -1026,53 +1192,54 @@
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    border: 1px solid #f0dce4;
+    width: 37px;
+    height: 37px;
+    border: 1px solid #efdce3;
     border-radius: 50%;
-    background: #fff5f9;
-    color: #a65f7b;
-    font-size: 25px;
+    background: #fff3f7;
+    color: #a96e87;
+    font-size: 23px;
     cursor: pointer;
 }
 
 .preview-content {
+    display: grid;
+    place-items: center;
     min-height: 250px;
-    overflow: auto;
     padding: 18px;
-    background: #fff8fb;
+    overflow: auto;
+    background: #fff9fb;
 }
 
 .preview-image {
     display: block;
     max-width: 100%;
     max-height: 65vh;
-    margin: auto;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 9px;
 }
 
 .preview-pdf {
-    display: block;
     width: 100%;
     height: 65vh;
     border: 0;
-    border-radius: 10px;
-    background: white;
+    border-radius: 9px;
+    background: #fff;
 }
 
 .preview-text {
+    width: 100%;
     max-height: 65vh;
-    overflow: auto;
     margin: 0;
-    padding: 20px;
+    padding: 17px;
+    overflow: auto;
     border: 1px solid #f0dce4;
-    border-radius: 12px;
+    border-radius: 11px;
     background: white;
-    color: #70596a;
-    font-family: "Nunito", sans-serif;
-    font-size: 13px;
-    line-height: 1.8;
+    color: #765666;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.7;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
@@ -1081,333 +1248,173 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 12px;
-    min-height: 250px;
+    max-width: 430px;
     padding: 25px;
-    color: #916c80;
     text-align: center;
 }
 
 .preview-notice-icon {
     display: grid;
     place-items: center;
-    width: 65px;
-    height: 65px;
+    width: 62px;
+    height: 62px;
     border-radius: 20px;
-    background: #ffe8f1;
-    color: #c57697;
-    font-size: 29px;
+    background: #fbe8ef;
+    color: #b87591;
+    font-size: 25px;
 }
 
 .preview-notice strong {
-    color: #805d72;
-    font-family: "Playfair Display", serif;
+    color: #79576b;
+    font-family: Georgia, serif;
     font-size: 19px;
+    font-weight: 500;
 }
 
 .preview-notice p {
-    max-width: 380px;
     margin: 0;
     color: #a88d9b;
     font-size: 12px;
-    line-height: 1.7;
+    line-height: 1.8;
 }
 
 .preview-footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 13px;
-    border-top: 1px solid #f0dce4;
-    color: #a88d9b;
-    font-size: 10px;
-}
-
-.preview-footer span {
-    color: #d98eaa;
-}
-
-/* =========================================
-   UPLOAD BUTTON
-========================================= */
-
-.upload-button {
-    width: 100%;
-    min-width: 0;
-    min-height: 53px;
-    gap: 10px;
-    border-radius: 15px;
-    background: linear-gradient(110deg, #e99bb9, #d982a6);
-    box-shadow: 0 8px 18px rgba(216, 127, 166, .16);
-}
-
-.upload-button:hover {
-    background: linear-gradient(110deg, #df8eaf, #c76d97);
-    box-shadow: 0 10px 22px rgba(216, 127, 166, .22);
-}
-
-.upload-button span {
-    font-size: 19px;
-}
-
-.upload-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 9px;
-    margin-top: 21px;
+    padding: 13px;
+    border-top: 1px solid #f0e1e6;
     color: #a88d9b;
     font-size: 10px;
 }
 
-.upload-card-footer span {
-    color: #d98eaa;
-}
 
 /* =========================================
-   FEEDBACK MESSAGES
+   RESPONSIVE — TABLET
 ========================================= */
 
-.upload-page .error-message,
-.upload-page .success-message {
-    margin: 15px 0;
-    padding: 13px 16px;
-    border-radius: 13px;
-    font-size: 12px;
-    line-height: 1.6;
-}
+@media (max-width: 768px) {
 
-.upload-page .error-message {
-    border: 1px solid #efc2ce;
-    background: #fff0f3;
-    color: #a34e65;
-}
-
-.upload-page .error-message ul {
-    margin: 6px 0 0;
-    padding-left: 19px;
-}
-
-.upload-page .success-message {
-    border: 1px solid #d9e9d8;
-    background: #f4fbf2;
-    color: #668d65;
-}
-
-/* =========================================
-   DECORATIVE ELEMENTS
-========================================= */
-
-.upload-decoration {
-    position: absolute;
-    z-index: 0;
-    pointer-events: none;
-    user-select: none;
-}
-
-.butterfly-one {
-    top: 15px;
-    left: 3%;
-    transform: rotate(-17deg);
-}
-
-.butterfly-two {
-    right: 3%;
-    bottom: 70px;
-    transform: rotate(15deg);
-}
-
-.upload-page .butterfly {
-    font-size: 25px;
-    opacity: .65;
-}
-
-.bow-one {
-    top: 42%;
-    left: -5px;
-    transform: rotate(-15deg);
-}
-
-.bow-two {
-    right: 3%;
-    top: 13%;
-    transform: rotate(12deg);
-}
-
-.upload-page .bow {
-    color: #e4a0ba;
-    font-size: 36px;
-    opacity: .65;
-}
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-/* =========================================
-   IPAD LANDSCAPE OPTIMIZATION
-========================================= */
-
-@media (min-width: 851px) and (max-width: 1100px) {
-
-    .upload-layout {
-        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-        gap: 28px;
-        width: 100%;
-        max-width: 1000px;
-        padding: 0 25px;
+    .shelly-upload-page {
+        padding: 30px 17px;
     }
 
-    .upload-intro {
-        min-width: 0;
+    .upload-container {
+        max-width: 650px;
     }
 
-    .upload-intro h1 {
-        font-size: clamp(36px, 4vw, 48px);
-    }
-
-    .intro-description {
-        font-size: 13px;
+    .upload-welcome {
+        padding: 27px;
     }
 
     .upload-card {
-        min-width: 0;
-        padding: 30px;
+        padding: 26px;
     }
 
-    .file-drop {
-        min-height: 195px;
+    .decoration-one {
+        left: -10px;
     }
 
-    .file-chip-preview,
-    .file-chip-remove,
-    .preview-close {
-        min-height: 36px;
+    .decoration-two {
+        right: -5px;
     }
 
-    .file-chip-remove {
-        min-width: 36px;
-    }
 }
 
-@media (max-width: 850px) {
 
-    .upload-page {
-        width: 100%;
-        max-width: 100%;
-        padding: 25px 0;
-        box-sizing: border-box;
-    }
-
-    .upload-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        width: 100%;
-        max-width: 570px;
-        min-width: 0;
-        gap: 25px;
-        padding: 0 15px;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
-
-    .upload-intro {
-        padding: 12px 5px;
-        transform: none;
-    }
-
-    .upload-intro h1 {
-        font-size: clamp(39px, 7vw, 52px);
-    }
-
-    .upload-intro,
-    .upload-card {
-        width: 100%;
-        min-width: 0;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
-    .upload-form,
-    .study-title-field,
-    .file-picker-wrapper,
-    .file-drop,
-    .file-selection,
-    .selected-file-list {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
-    }
-}
+/* =========================================
+   RESPONSIVE — MOBILE
+========================================= */
 
 @media (max-width: 480px) {
 
-    .upload-page {
-        padding-top: 15px;
-        overflow-x: clip;
+    .shelly-upload-page {
+        padding: 18px 12px 25px;
     }
 
-    .upload-layout {
-        width: 100%;
-        min-width: 0;
-        padding: 0 12px;
+    .upload-welcome {
+        padding: 22px 19px;
+        border-radius: 19px;
     }
 
-    .upload-intro h1 {
-        font-size: 38px;
+    .welcome-topline {
+        margin-bottom: 17px;
     }
 
-    .intro-description {
-        font-size: 13px;
+    .welcome-tag {
+        font-size: 8px;
+        letter-spacing: 1.2px;
     }
 
-    .intro-features {
-        gap: 11px;
+    .upload-welcome h1 {
+        font-size: 31px;
     }
 
-    .intro-features div {
+    .upload-welcome > p {
         font-size: 11px;
     }
 
     .upload-card {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        padding: 25px 19px;
-        border-radius: 23px;
+        padding: 20px 16px;
+        border-radius: 19px;
     }
 
-    .upload-form,
-    .study-title-field,
-    .file-picker-wrapper,
-    .file-selection,
-    .selected-file-list,
-    .file-chip {
-        width: 100%;
-        min-width: 0;
-        max-width: 100%;
-        box-sizing: border-box;
+    .card-heading {
+        gap: 11px;
     }
 
-    .upload-heading h2 {
-        font-size: 22px;
+    .heading-icon {
+        width: 43px;
+        height: 43px;
+        font-size: 19px;
+    }
+
+    .card-heading h2 {
+        font-size: 19px;
+    }
+
+    .heading-ribbon {
+        font-size: 23px;
+    }
+
+    .file-section-heading {
+        flex-direction: column;
+        gap: 10px;
     }
 
     .file-drop {
-        min-height: 190px;
+        min-height: 245px;
+        padding: 22px 12px;
     }
 
-    .file-chip-details {
-        min-width: 0;
+    .file-drop h3 {
+        font-size: 18px;
     }
 
-    .bow-one,
-    .bow-two,
-    .butterfly-two {
-        display: none;
+    .supported-formats {
+        font-size: 9px;
+    }
+
+    .file-chip {
+        gap: 7px;
+        padding: 8px;
+    }
+
+    .file-chip-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .file-chip-preview {
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+
+    .file-chip-remove {
+        width: 29px;
+        height: 29px;
     }
 
     .preview-modal {
@@ -1418,35 +1425,31 @@
         max-height: 95vh;
     }
 
-    .preview-header {
-        padding: 14px;
-    }
-
-    .preview-content {
-        padding: 10px;
-    }
-
     .preview-pdf {
         height: 65vh;
     }
-}
 
-@media (prefers-reduced-motion: reduce) {
-
-    .upload-page *,
-    .upload-page *::before,
-    .upload-page *::after {
-        transition: none !important;
+    .decoration-one,
+    .decoration-two,
+    .decoration-three {
+        display: none;
     }
+
 }
 
 
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
 @media (prefers-reduced-motion: reduce) {
 
-    .upload-page *,
-    .upload-page *::before,
-    .upload-page *::after {
+    .shelly-upload-page *,
+    .shelly-upload-page *::before,
+    .shelly-upload-page *::after {
+        scroll-behavior: auto !important;
         transition: none !important;
+        animation: none !important;
     }
 
 }
@@ -1465,6 +1468,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const addFilesButton = document.getElementById('add-files-button');
     const limitMessage = document.getElementById('file-limit-message');
     const uploadForm = document.getElementById('upload-form');
+    const fileDrop = document.getElementById('file-drop');
+    const uploadButton = document.getElementById('upload-button');
 
     const previewModal = document.getElementById('preview-modal');
     const previewContent = document.getElementById('preview-content');
@@ -1480,7 +1485,8 @@ document.addEventListener('DOMContentLoaded', function () {
         !selectionLimit ||
         !addFilesButton ||
         !limitMessage ||
-        !uploadForm
+        !uploadForm ||
+        !fileDrop
     ) {
         return;
     }
@@ -1492,10 +1498,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const MAX_FILES = 10;
 
-    // 25 MB per file.
     const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
-    // 128 MB combined for all selected files.
     const MAX_TOTAL_SIZE = 128 * 1024 * 1024;
 
     const ALLOWED_EXTENSIONS = [
@@ -1518,7 +1522,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // =====================================
-    // FILE SIZE HELPERS
+    // FILE HELPERS
     // =====================================
 
     function formatFileSize(bytes) {
@@ -1556,6 +1560,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         limitMessage.textContent = message;
         limitMessage.hidden = false;
+
+    }
+
+
+    function clearLimitMessage() {
+
+        limitMessage.textContent = '';
+        limitMessage.hidden = true;
 
     }
 
@@ -1708,8 +1720,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             showNotice(
                 'Loading your document...',
-                'Just a little moment while Shelly prepares your preview.',
-                '♡'
+                'Just a moment while Shelly prepares your preview.',
+                'TXT'
             );
 
             try {
@@ -1739,7 +1751,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 showNotice(
                     'Preview unavailable',
                     'Shelly could not read this text file in the browser.',
-                    '♡'
+                    'TXT'
                 );
 
             }
@@ -1749,13 +1761,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        // DOCX preview.
+        // DOCX preview notice.
         if (extension === 'docx') {
 
             showNotice(
                 'Document selected!',
                 'Your DOCX document is ready to upload. Browser preview is not available for this file type, but Shelly can process it after uploading.',
-                '📄'
+                'DOC'
             );
 
             return;
@@ -1763,13 +1775,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        // PPTX preview.
+        // PPTX preview notice.
         if (extension === 'pptx') {
 
             showNotice(
                 'Presentation selected!',
-                'Your PowerPoint presentation is ready to upload. Shelly will extract its slide text after uploading. Browser preview is not available for this file type.',
-                '📊'
+                'Your PowerPoint presentation is ready to upload. Shelly can process it after uploading. Browser preview is not available for this file type.',
+                'PPT'
             );
 
             return;
@@ -1780,7 +1792,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showNotice(
             'Preview unavailable',
             'This file type cannot be previewed in the browser.',
-            '♡'
+            'FILE'
         );
 
     }
@@ -1796,10 +1808,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const totalSize = getTotalSize();
 
         fileCount.textContent = count === 0
-            ? 'No files selected yet'
+            ? '0 files selected'
             : count === 1
-                ? '1 file selected · ' + formatFileSize(totalSize)
-                : count + ' files selected · ' + formatFileSize(totalSize);
+                ? '1 file selected'
+                : count + ' files selected';
 
         selectionLimit.textContent = count + ' / ' + MAX_FILES;
 
@@ -1816,14 +1828,14 @@ document.addEventListener('DOMContentLoaded', function () {
             chip.className = 'file-chip';
 
 
-            // File icon.
+            // File type icon.
             const icon = document.createElement('div');
             icon.className = 'file-chip-icon';
 
             const extension = getExtension(file);
 
             if (['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-                icon.textContent = '♡';
+                icon.textContent = 'IMG';
             } else if (extension === 'pdf') {
                 icon.textContent = 'PDF';
             } else if (extension === 'docx') {
@@ -1840,13 +1852,11 @@ document.addEventListener('DOMContentLoaded', function () {
             details.className = 'file-chip-details';
 
             const label = document.createElement('span');
-
             label.className = 'file-chip-label';
             label.textContent = file.name;
             label.title = file.name;
 
             const size = document.createElement('span');
-
             size.className = 'file-chip-size';
             size.textContent = formatFileSize(file.size);
 
@@ -1854,12 +1864,12 @@ document.addEventListener('DOMContentLoaded', function () {
             details.appendChild(size);
 
 
-            // File actions.
+            // Actions.
             const actions = document.createElement('div');
             actions.className = 'file-chip-actions';
 
 
-            // Preview button.
+            // Preview.
             const previewButton = document.createElement('button');
 
             previewButton.type = 'button';
@@ -1876,7 +1886,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
 
-            // Remove button.
+            // Remove.
             const removeButton = document.createElement('button');
 
             removeButton.type = 'button';
@@ -1902,7 +1912,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 updateInputFiles();
                 renderFiles();
 
-                limitMessage.hidden = true;
+                clearLimitMessage();
 
             });
 
@@ -1927,45 +1937,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addSelectedFiles(files) {
 
-        limitMessage.hidden = true;
+        clearLimitMessage();
 
         const incomingFiles = Array.from(files || []);
-
-        let addedCount = 0;
 
         incomingFiles.forEach(function (file) {
 
             const extension = getExtension(file);
 
 
-            // Check supported file types.
+            // File type.
             if (!ALLOWED_EXTENSIONS.includes(extension)) {
 
                 showLimitMessage(
-                    file.name + ' is not a supported file type. Please choose PDF, TXT, DOCX, PPTX, JPG, PNG, or WEBP files.'
+                    file.name + ' is not supported. Please choose PDF, TXT, DOCX, PPTX, JPG, PNG, or WEBP files.'
                 );
 
                 return;
 
             }
 
-            // Check for duplicate files.
-const isDuplicate = selectedFiles.some(function (selectedFile) {
-    return (
-        selectedFile.name === file.name &&
-        selectedFile.size === file.size &&
-        selectedFile.lastModified === file.lastModified
-    );
-});
 
-if (isDuplicate) {
-    showLimitMessage(
-        file.name + ' has already been selected. Please choose a different file.'
-    );
+            // Duplicate check.
+            const isDuplicate = selectedFiles.some(function (selectedFile) {
 
-    return;
-}
-            // Check individual file size.
+                return (
+                    selectedFile.name === file.name &&
+                    selectedFile.size === file.size &&
+                    selectedFile.lastModified === file.lastModified
+                );
+
+            });
+
+            if (isDuplicate) {
+
+                showLimitMessage(
+                    file.name + ' has already been selected.'
+                );
+
+                return;
+
+            }
+
+
+            // Individual file size.
             if (file.size > MAX_FILE_SIZE) {
 
                 showLimitMessage(
@@ -1977,7 +1992,7 @@ if (isDuplicate) {
             }
 
 
-            // Check maximum number of files.
+            // File count.
             if (selectedFiles.length >= MAX_FILES) {
 
                 showLimitMessage(
@@ -1989,13 +2004,13 @@ if (isDuplicate) {
             }
 
 
-            // Check combined upload size.
+            // Combined file size.
             const newTotalSize = getTotalSize() + file.size;
 
             if (newTotalSize > MAX_TOTAL_SIZE) {
 
                 showLimitMessage(
-                    'Your selected files would exceed the combined 128 MB upload limit. Remove a file or choose smaller files.'
+                    'Your selected files would exceed the combined 128 MB upload limit.'
                 );
 
                 return;
@@ -2005,17 +2020,11 @@ if (isDuplicate) {
 
             selectedFiles.push(file);
 
-            addedCount++;
-
         });
 
 
         updateInputFiles();
         renderFiles();
-
-        if (addedCount > 0 && limitMessage.hidden === false) {
-            // Keep any warning visible if another selected file was rejected.
-        }
 
     }
 
@@ -2044,7 +2053,65 @@ if (isDuplicate) {
 
 
     // =====================================
-    // MODAL EVENTS
+    // DRAG AND DROP
+    // =====================================
+
+    ['dragenter', 'dragover'].forEach(function (eventName) {
+
+        fileDrop.addEventListener(eventName, function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            fileDrop.classList.add('drag-active');
+
+        });
+
+    });
+
+
+    ['dragleave', 'dragend'].forEach(function (eventName) {
+
+        fileDrop.addEventListener(eventName, function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            fileDrop.classList.remove('drag-active');
+
+        });
+
+    });
+
+
+    fileDrop.addEventListener('drop', function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        fileDrop.classList.remove('drag-active');
+
+        if (event.dataTransfer && event.dataTransfer.files) {
+            addSelectedFiles(event.dataTransfer.files);
+        }
+
+    });
+
+
+    fileDrop.addEventListener('keydown', function (event) {
+
+        if (event.key === 'Enter' || event.key === ' ') {
+
+            event.preventDefault();
+            fileInput.click();
+
+        }
+
+    });
+
+
+    // =====================================
+    // PREVIEW MODAL EVENTS
     // =====================================
 
     previewClose.addEventListener('click', closePreview);
@@ -2061,7 +2128,6 @@ if (isDuplicate) {
         if (event.key === 'Escape') {
 
             event.preventDefault();
-
             closePreview();
 
             return;
@@ -2071,7 +2137,6 @@ if (isDuplicate) {
         if (event.key === 'Tab') {
 
             event.preventDefault();
-
             previewClose.focus();
 
         }
@@ -2085,26 +2150,26 @@ if (isDuplicate) {
 
     uploadForm.addEventListener('submit', function (event) {
 
-        limitMessage.hidden = true;
+        clearLimitMessage();
 
 
-        // At least one file is required.
+        // At least one file.
         if (selectedFiles.length === 0) {
 
             event.preventDefault();
 
             showLimitMessage(
-                'Please select at least one study material before uploading.'
+                'Please select at least one study material before creating your study set.'
             );
 
-            fileInput.focus();
+            fileDrop.focus();
 
             return;
 
         }
 
 
-        // Final file-count check.
+        // Maximum file count.
         if (selectedFiles.length > MAX_FILES) {
 
             event.preventDefault();
@@ -2118,7 +2183,7 @@ if (isDuplicate) {
         }
 
 
-        // Final per-file size check.
+        // Individual file size.
         const oversizedFile = selectedFiles.find(function (file) {
             return file.size > MAX_FILE_SIZE;
         });
@@ -2136,7 +2201,7 @@ if (isDuplicate) {
         }
 
 
-        // Final combined size check.
+        // Combined size.
         if (getTotalSize() > MAX_TOTAL_SIZE) {
 
             event.preventDefault();
@@ -2150,8 +2215,18 @@ if (isDuplicate) {
         }
 
 
-        // Synchronize the files before sending the form.
+        // Make sure the actual input contains every selected file.
         updateInputFiles();
+
+        // Prevent accidental repeated submissions.
+        if (uploadButton) {
+
+            uploadButton.disabled = true;
+
+            uploadButton.querySelector('span:first-child').textContent =
+                'Uploading your materials...';
+
+        }
 
     });
 

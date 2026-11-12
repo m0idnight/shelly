@@ -29,10 +29,6 @@
             <h1>study corner<span>୨୧</span></h1>
             <p>A calm little place to organize your learning.</p>
         </div>
-
-        <a href="{{ route('sets.create') }}" class="add-set-button">
-            <span>+</span> New study set
-        </a>
     </div>
 
     {{-- Main layout --}}
@@ -137,9 +133,9 @@
                 <a href="#my-study-sets">My study sets</a>
 
                 @if ($sets->count())
-                    <a href="{{ route('sets.flashcards', $sets->first()) }}">
-                        Flashcards
-                    </a>
+                    <a href="{{ route('sets.flashcards.create', $sets->first()) }}">
+    Flashcards
+</a>
 
                     <a href="{{ route('sets.quiz', $sets->first()) }}">
                         Practice quiz
@@ -174,10 +170,6 @@
                         <span class="table-heading-icon">☷</span>
                         <h2>my study sets <span>୨୧</span></h2>
                     </div>
-
-                    <a href="{{ route('sets.create') }}" class="table-add-link">
-                        + Add new
-                    </a>
                 </div>
 
                 @if ($sets->count())
@@ -265,66 +257,74 @@
             </section>
 
             {{-- Study tools --}}
-            <section class="tools-section" id="study-tools">
+<section class="tools-section" id="study-tools">
 
-                <div class="main-section-heading">
-                    <div>
-                        <span class="heading-kicker">YOUR LEARNING SPACE</span>
-                        <h2>study tools</h2>
-                    </div>
-                </div>
+    <div class="main-section-heading">
+        <div>
+            <span class="heading-kicker">YOUR LEARNING SPACE</span>
+            <h2>study tools</h2>
+        </div>
+    </div>
 
-                <div class="tools-grid">
-                    @if ($sets->count())
+    <div class="tools-grid">
+        @if ($sets->count())
 
-                        <a href="{{ route('sets.flashcards', $sets->first()) }}"
-                           class="tool-card">
-                            <span class="tool-art flashcard-art">
-                                <span></span>
-                            </span>
+            <a href="{{ route('sets.flashcards.create', $sets->first()) }}"
+   class="tool-card">
 
-                            <h3>Flashcards</h3>
-                            <p>Review and remember key ideas.</p>
-                            <span class="tool-link">Start reviewing →</span>
-                        </a>
+                <span class="tool-art flashcard-art">
+                    <span class="flashcard-icon"></span>
+                </span>
 
-                        <a href="{{ route('sets.quiz', $sets->first()) }}"
-                           class="tool-card">
-                            <span class="tool-art quiz-art">
-                                <span>?</span>
-                            </span>
+                <h3>Flashcards</h3>
+                <p>Review and remember key ideas.</p>
+                <span class="tool-link">Start reviewing →</span>
+            </a>
 
-                            <h3>Practice quiz</h3>
-                            <p>Check what you have learned.</p>
-                            <span class="tool-link">Take a quiz →</span>
-                        </a>
+            <a href="{{ route('sets.quiz', $sets->first()) }}"
+               class="tool-card">
 
-                        <a href="{{ route('sets.summary.setup', $sets->first()) }}"
-                           class="tool-card">
-                            <span class="tool-art notes-art">
-                                <span></span>
-                            </span>
+                <span class="tool-art quiz-art">
+                    <span class="quiz-icon">?</span>
+                </span>
 
-                            <h3>Study summaries</h3>
-                            <p>Read through your generated notes.</p>
-                            <span class="tool-link">View summaries →</span>
-                        </a>
+                <h3>Practice quiz</h3>
+                <p>Check what you have learned.</p>
+                <span class="tool-link">Take a quiz →</span>
+            </a>
 
-                    @else
+            <a href="{{ route('sets.summary.setup', $sets->first()) }}"
+               class="tool-card">
 
-                        <a href="{{ route('sets.create') }}" class="tool-card">
-                            <span class="tool-art upload-art">
-                                <span>+</span>
-                            </span>
+                <span class="tool-art notes-art">
+                    <span class="notes-icon">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                    </span>
+                </span>
 
-                            <h3>Upload materials</h3>
-                            <p>Create your first study set.</p>
-                            <span class="tool-link">Get started →</span>
-                        </a>
+                <h3>Study summaries</h3>
+                <p>Read through your generated notes.</p>
+                <span class="tool-link">View summaries →</span>
+            </a>
 
-                    @endif
-                </div>
-            </section>
+        @else
+
+            <a href="{{ route('sets.create') }}" class="tool-card">
+
+                <span class="tool-art upload-art">
+                    <span class="upload-icon">+</span>
+                </span>
+
+                <h3>Upload materials</h3>
+                <p>Create your first study set.</p>
+                <span class="tool-link">Get started →</span>
+            </a>
+
+        @endif
+    </div>
+</section>
 
             {{-- Learning collection --}}
             <section class="gallery-section">
@@ -334,10 +334,6 @@
                         <span class="heading-kicker">KEEP EVERYTHING TOGETHER</span>
                         <h2>my learning collection</h2>
                     </div>
-
-                    <a href="{{ route('sets.create') }}" class="table-add-link">
-                        Add set +
-                    </a>
                 </div>
 
                 @if ($sets->count())
@@ -1248,118 +1244,192 @@
 
     /* Study tools */
 
-    .tools-section,
-    .gallery-section {
-        margin-top: 37px;
-        scroll-margin-top: 20px;
-    }
+.tools-section,
+.gallery-section {
+    margin-top: 37px;
+    scroll-margin-top: 20px;
+}
 
-    .main-section-heading {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
+.main-section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
 
-    .main-section-heading h2 {
-        margin: 5px 0 0;
-        color: #44383d;
-        font-family: Georgia, serif;
-        font-size: 22px;
-        letter-spacing: .08em;
-    }
+.main-section-heading h2 {
+    margin: 5px 0 0;
+    color: #44383d;
+    font-family: Georgia, serif;
+    font-size: 22px;
+    letter-spacing: .08em;
+}
 
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.tool-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 190px;
+    padding: 20px;
+    border: 1px solid #eee0e5;
+    border-radius: 5px;
+    background: #fffafb;
+    text-decoration: none;
+    transition: border-color .2s ease, background .2s ease,
+                transform .2s ease;
+}
+
+.tool-card:hover {
+    border-color: #e4b5c7;
+    background: #fff6f9;
+    transform: translateY(-2px);
+}
+
+/* Icon container */
+
+.tool-art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 47px;
+    height: 47px;
+    margin-bottom: 16px;
+    border: 1px solid #efcfdb;
+    border-radius: 14px;
+    background: #faeaf0;
+    color: #c77f9c;
+}
+
+/* Flashcards: overlapping outlined cards */
+
+.flashcard-icon {
+    position: relative;
+    display: block;
+    width: 21px;
+    height: 25px;
+    border: 1.5px solid #d78ba6;
+    border-radius: 3px;
+    background: #fffafb;
+    box-shadow: 4px 3px 0 #e9c3d1;
+}
+
+.flashcard-icon::before {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 17px;
+    height: 21px;
+    border: 1px solid #e6a9bd;
+    border-radius: 3px;
+    background: #fceef3;
+    content: "";
+    z-index: -1;
+}
+
+/* Quiz: outlined question mark */
+
+.quiz-icon {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border: 1.5px solid #d78ba6;
+    border-radius: 50%;
+    background: #fceef3;
+    color: #c47d99;
+    font-family: Georgia, serif;
+    font-size: 15px;
+    font-weight: normal;
+}
+
+/* Summaries: lined notebook */
+
+.notes-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 21px;
+    height: 25px;
+    overflow: hidden;
+    border: 1.5px solid #d78ba6;
+    border-radius: 2px;
+    background: #fffafb;
+}
+
+.notes-icon i {
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: #e5a9bd;
+}
+
+/* Upload: outlined plus */
+
+.upload-icon {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border: 1.5px solid #d78ba6;
+    border-radius: 50%;
+    color: #c47d99;
+    font-family: Arial, sans-serif;
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.tool-card h3 {
+    margin: 0 0 5px;
+    color: #755465;
+    font-family: Georgia, serif;
+    font-size: 14px;
+}
+
+.tool-card p {
+    margin: 0;
+    color: #a18c96;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.tool-link {
+    margin-top: auto;
+    padding-top: 14px;
+    color: #b16f8a;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+@media (max-width: 850px) {
     .tools-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 11px;
     }
 
     .tool-card {
-        display: flex;
-        flex-direction: column;
-        min-height: 185px;
-        padding: 17px;
-        border: 1px solid #eee0e5;
-        border-radius: 4px;
-        background: #fffafb;
-        text-decoration: none;
-        transition: .2s ease;
+        min-height: 180px;
+        padding: 15px;
     }
+}
 
-    .tool-card:hover {
-        border-color: #dba8ba;
-        background: #fff5f8;
-        transform: translateY(-2px);
+@media (max-width: 390px) {
+    .tools-grid {
+        grid-template-columns: 1fr;
     }
-
-    .tool-art {
-        position: relative;
-        display: grid;
-        place-items: center;
-        width: 38px;
-        height: 38px;
-        margin-bottom: 12px;
-        border: 1px solid #edceda;
-        border-radius: 10px;
-        background: #f9eaf0;
-        color: #b56e8a;
-        font-family: Georgia, serif;
-        font-size: 20px;
-    }
-
-    .flashcard-art span {
-        width: 17px;
-        height: 21px;
-        border: 1px solid #c887a0;
-        border-radius: 2px;
-        background: #fffafb;
-        box-shadow: 4px 3px 0 #e8c1d0;
-    }
-
-    .quiz-art span {
-        display: grid;
-        place-items: center;
-        width: 20px;
-        height: 20px;
-        border: 1px solid #c887a0;
-        border-radius: 50%;
-        font-size: 13px;
-    }
-
-    .notes-art span {
-        width: 17px;
-        height: 21px;
-        border: 1px solid #c887a0;
-        background: repeating-linear-gradient(
-            to bottom,
-            #fffafb 0 5px,
-            #edcbd8 6px 7px
-        );
-    }
-
-    .tool-card h3 {
-        margin: 0 0 5px;
-        color: #755465;
-        font-family: Georgia, serif;
-        font-size: 14px;
-    }
-
-    .tool-card p {
-        margin: 0;
-        color: #a18c96;
-        font-size: 10px;
-        line-height: 1.6;
-    }
-
-    .tool-link {
-        margin-top: auto;
-        padding-top: 12px;
-        color: #b16f8a;
-        font-size: 10px;
-        font-weight: 800;
-    }
+}
 
     /* Collection gallery */
 
