@@ -10,18 +10,18 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --pink: #e99bb9;
+            --pink: #d797b0;
             --pink-dark: #a85e7d;
             --pink-light: #fff0f6;
             --pink-soft: #fff8fb;
             --cream: #fffdfb;
             --ink: #604b56;
             --muted: #a58c98;
-            --line: #f3dce6;
+            --line: #f2dce5;
         }
 
         * {
@@ -45,101 +45,205 @@
 
         .container {
             width: 100%;
-            max-width: 510px;
-        }
-
-        .brand {
-            display: block;
-            width: fit-content;
-            margin: 0 auto 23px;
-            color: var(--pink-dark);
-            font-family: 'Fredoka', sans-serif;
-            font-size: 25px;
-            font-weight: 600;
-            text-decoration: none;
+            max-width: 620px;
         }
 
         .card {
             position: relative;
-            padding: 40px 34px;
+            overflow: hidden;
+            width: 100%;
+            padding: 65px 45px;
             border: 1px solid var(--line);
-            border-radius: 27px;
-            background: white;
-            box-shadow: 0 15px 45px rgba(150, 91, 117, .09);
+            border-radius: 28px;
+            background: #ffffff;
+            box-shadow: 0 15px 45px rgba(128, 75, 99, 0.07);
             text-align: center;
         }
 
-        .bow {
-            margin-bottom: 15px;
-            color: var(--pink);
+        /* Decorations */
+
+        .generating-decoration {
+            position: absolute;
+            color: #e9b9cc;
+            opacity: .7;
+        }
+
+        .decoration-one {
+            top: 25px;
+            left: 30px;
+            font-size: 25px;
+        }
+
+        .decoration-two {
+            right: 35px;
+            bottom: 30px;
+            font-size: 30px;
+        }
+
+        /* Loader */
+
+        .shelly-loader {
+            position: relative;
+            width: 95px;
+            height: 95px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader-ring {
+            position: absolute;
+            inset: 0;
+            border: 4px solid #f8e7ee;
+            border-top-color: #d78eaa;
+            border-right-color: #d78eaa;
+            border-radius: 50%;
+            animation: shelly-spin 1.4s linear infinite;
+        }
+
+        .loader-star {
+            color: #ce86a2;
             font-size: 35px;
-            animation: float 2.5s ease-in-out infinite;
+            animation: shelly-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shelly-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes shelly-pulse {
+            50% {
+                transform: scale(1.2);
+                opacity: .65;
+            }
+        }
+
+        /* Heading */
+
+        .generating-label {
+            display: block;
+            margin-bottom: 13px;
+            color: #c17e99;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
         }
 
         h1 {
-            margin: 0;
-            color: #795568;
-            font-family: 'Fredoka', sans-serif;
-            font-size: 29px;
-            font-weight: 600;
+            margin: 0 0 15px;
+            color: #503c47;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(27px, 5vw, 36px);
+            font-weight: 500;
         }
 
         .subtitle {
-            max-width: 365px;
-            margin: 12px auto 25px;
-            color: var(--muted);
-            font-size: 13px;
+            max-width: 440px;
+            margin: 0 auto 28px;
+            color: #8e7b85;
+            font-size: 14px;
             line-height: 1.8;
         }
 
-        .loader {
-            width: 43px;
-            height: 43px;
-            margin: 0 auto 22px;
-            border: 4px solid var(--pink-light);
-            border-top-color: var(--pink);
-            border-radius: 50%;
-            animation: spin .9s linear infinite;
-        }
+        /* Progress */
 
         .progress-track {
             width: 100%;
-            height: 8px;
+            height: 7px;
             overflow: hidden;
+            margin: 30px 0 15px;
             border-radius: 20px;
-            background: var(--pink-light);
+            background: #f8eaf0;
         }
 
         .progress-fill {
             width: 35%;
             height: 100%;
             border-radius: inherit;
-            background: linear-gradient(90deg, #e99bb9, #c77d9c);
-            animation: progress 3s ease-in-out infinite;
+            background: linear-gradient(90deg, #d99ab3, #edc1d2);
+            animation: shelly-progress 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes shelly-progress {
+            from {
+                transform: translateX(-35%);
+            }
+
+            to {
+                transform: translateX(190%);
+            }
         }
 
         .status {
             min-height: 22px;
             margin: 17px 0;
-            color: var(--pink-dark);
+            color: #b07b91;
+            font-size: 12px;
+        }
+
+        /* Selected settings */
+
+        .details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+            padding: 17px;
+            border: 1px solid #f2e3e9;
+            border-radius: 14px;
+            background: #fff9fb;
+            text-align: left;
+        }
+
+        .material-title {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0e2e7;
+        }
+
+        .detail-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #b18c9c;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .material-title strong {
+            display: block;
+            color: #795568;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .setting-item strong {
+            color: #bd7895;
             font-size: 12px;
             font-weight: 700;
         }
 
-        .details {
-            padding: 13px 16px;
-            border: 1px solid var(--line);
-            border-radius: 13px;
-            background: var(--pink-soft);
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.8;
-            overflow-wrap: anywhere;
-        }
+        /* Error */
 
-        .details strong {
-            color: #795568;
-            font-size: 12px;
+        .error-icon {
+            width: 75px;
+            height: 75px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 35px;
+            color: #bd7895;
+            background: #fff0f0;
         }
 
         .error-box {
@@ -164,11 +268,13 @@
             font-weight: 800;
         }
 
+        /* Actions */
+
         .actions {
             display: none;
             flex-wrap: wrap;
             gap: 10px;
-            margin-top: 18px;
+            margin-top: 20px;
         }
 
         .actions.show {
@@ -180,15 +286,16 @@
             flex: 1;
             align-items: center;
             justify-content: center;
-            min-height: 43px;
-            padding: 11px 15px;
-            border: 0;
-            border-radius: 11px;
+            min-height: 45px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 30px;
             font-family: inherit;
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 12px;
+            font-weight: 700;
             text-decoration: none;
             cursor: pointer;
+            transition: background .2s ease, transform .2s ease;
         }
 
         .button:disabled {
@@ -197,133 +304,207 @@
         }
 
         .button-primary {
-            color: white;
-            background: var(--pink);
+            color: #ffffff;
+            background: #d797b0;
         }
 
         .button-primary:hover {
-            background: var(--pink-dark);
+            background: #c7809e;
+            transform: translateY(-2px);
         }
 
         .button-secondary {
-            color: var(--pink-dark);
-            background: var(--pink-light);
+            color: #a77b8f;
+            background: #fff0f6;
         }
 
         .button-secondary:hover {
             background: #f9dce8;
         }
 
+        [hidden],
         .hidden {
             display: none !important;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        /* Responsive */
 
-        @keyframes progress {
-            0% { transform: translateX(-110%); }
-            50% { transform: translateX(100%); }
-            100% { transform: translateX(290%); }
-        }
+        @media (max-width: 600px) {
+            body {
+                padding: 25px 15px;
+            }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-
-        @media (max-width: 480px) {
             .card {
-                padding: 32px 20px;
+                padding: 55px 24px;
             }
 
             h1 {
-                font-size: 26px;
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .settings-row {
+                grid-template-columns: 1fr;
             }
 
             .actions {
                 flex-direction: column;
             }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <main class="container">
 
-        <a href="{{ route('dashboard') }}" class="brand">🎀 shelly</a>
+    <main class="container">
 
         <section class="card">
 
-            <div class="bow">🎀</div>
+            <div class="generating-decoration decoration-one">✦</div>
+            <div class="generating-decoration decoration-two">✧</div>
 
-            <h1 id="pageTitle">Preparing your study notes!</h1>
+            <!-- LOADING STATE -->
+            <div id="loading-state">
 
-            <p class="subtitle">
-                Shelly is reading your materials and organizing
-                your notes according to your preferences.
-            </p>
-
-            <div class="loader" id="loader"></div>
-
-            <div class="progress-track" id="progressTrack">
-                <div class="progress-fill"></div>
-            </div>
-
-            <p class="status" id="status" aria-live="polite">
-                Getting everything ready...
-            </p>
-
-            <div class="details">
-                <strong>{{ $set->title }}</strong>
-                <br>
-                @switch($settings['length'])
-                    @case('quick')
-                        Quick review
-                        @break
-                    @case('detailed')
-                        Detailed notes
-                        @break
-                    @default
-                        Balanced notes
-                @endswitch
-                ·
-                @switch($settings['format'])
-                    @case('key_points')
-                        Key points
-                        @break
-                    @case('exam_revision')
-                        Exam revision
-                        @break
-                    @default
-                        Organized notes
-                @endswitch
-            </div>
-
-            <div class="error-box" id="errorBox" role="alert">
-                <div class="error-title">
-                    Oh no! Something went wrong.
+                <div class="shelly-loader">
+                    <div class="loader-ring"></div>
+                    <span class="loader-star">✦</span>
                 </div>
-                <div id="errorMessage">
-                    Shelly couldn't finish creating your summary.
+
+                <span class="generating-label">
+                    A LITTLE HELP FROM SHELLY
+                </span>
+
+                <h1 id="pageTitle">
+                    Creating your study notes
+                </h1>
+
+                <p class="subtitle">
+                    Shelly is reading your study materials and organizing
+                    important concepts, explanations, and information
+                    into clear study notes.
+                </p>
+
+                <div class="progress-track" id="progressTrack">
+                    <div class="progress-fill"></div>
                 </div>
+
+                <p class="status" id="status" aria-live="polite">
+                    Preparing your study materials...
+                </p>
+
+                <div class="details">
+
+                    <div class="material-title">
+                        <span class="detail-label">STUDY MATERIAL</span>
+                        <strong>{{ $set->title }}</strong>
+                    </div>
+
+                    <div class="settings-row">
+
+                        <div class="setting-item">
+                            <span class="detail-label">SUMMARY LENGTH</span>
+
+                            <strong>
+                                @switch($settings['length'])
+                                    @case('quick')
+                                        Quick review
+                                        @break
+                                    @case('detailed')
+                                        Detailed notes
+                                        @break
+                                    @default
+                                        Balanced notes
+                                @endswitch
+                            </strong>
+                        </div>
+
+                        <div class="setting-item">
+                            <span class="detail-label">NOTE FORMAT</span>
+
+                            <strong>
+                                @switch($settings['format'])
+                                    @case('key_points')
+                                        Key points
+                                        @break
+                                    @case('exam_revision')
+                                        Exam revision
+                                        @break
+                                    @case('table')
+                                        Table format
+                                        @break
+                                    @default
+                                        Organized notes
+                                @endswitch
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="actions" id="actions">
-                <button type="button"
+            <!-- ERROR STATE -->
+            <div id="error-state" hidden>
+
+                <div class="error-icon">!</div>
+
+                <span class="generating-label">
+                    SOMETHING WENT WRONG
+                </span>
+
+                <h1>Let's try that again.</h1>
+
+                <p class="subtitle">
+                    Shelly couldn't finish creating your study notes.
+                    You can try again or return to your settings.
+                </p>
+
+                <div class="error-box show" id="errorBox" role="alert">
+                    <div class="error-title">
+                        Oh no! Something went wrong.
+                    </div>
+
+                    <div id="errorMessage">
+                        Shelly couldn't finish creating your summary.
+                    </div>
+                </div>
+
+                <div class="actions show">
+
+                    <button
+                        type="button"
                         class="button button-primary"
-                        id="retryButton">
-                    Try again
-                </button>
+                        id="retryButton"
+                    >
+                        Try again
+                    </button>
 
-                <a href="{{ route('sets.summary.setup', $set) }}"
-                   class="button button-secondary">
-                    Back to settings
-                </a>
+                    <a
+                        href="{{ route('sets.summary.setup', $set) }}"
+                        class="button button-secondary"
+                    >
+                        Back to settings
+                    </a>
+
+                </div>
+
             </div>
 
         </section>
+
     </main>
 
     <script>
@@ -334,13 +515,12 @@
             'meta[name="csrf-token"]'
         ).content;
 
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+
         const statusText = document.getElementById('status');
-        const errorBox = document.getElementById('errorBox');
         const errorMessage = document.getElementById('errorMessage');
-        const actions = document.getElementById('actions');
-        const loader = document.getElementById('loader');
-        const progressTrack = document.getElementById('progressTrack');
-        const pageTitle = document.getElementById('pageTitle');
+
         const retryButton = document.getElementById('retryButton');
 
         let generating = false;
@@ -366,17 +546,14 @@
         }
 
         async function generateSummary() {
+
             if (generating) return;
 
             generating = true;
 
-            errorBox.classList.remove('show');
-            actions.classList.remove('show');
+            loadingState.hidden = false;
+            errorState.hidden = true;
 
-            loader.classList.remove('hidden');
-            progressTrack.classList.remove('hidden');
-
-            pageTitle.textContent = 'Preparing your study notes!';
             statusText.textContent = messages[0];
 
             retryButton.disabled = true;
@@ -385,15 +562,18 @@
             startStatusMessages();
 
             try {
+
                 const response = await fetch(generateUrl, {
                     method: 'POST',
                     credentials: 'same-origin',
+
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
+
                     body: JSON.stringify({})
                 });
 
@@ -413,6 +593,7 @@
                 }
 
                 if (!response.ok) {
+
                     if (response.status === 419) {
                         throw new Error(
                             'Your session has expired. Please return to summary settings and try again.'
@@ -463,36 +644,32 @@
                 statusText.textContent =
                     'Your study notes are ready! Opening them now...';
 
-                pageTitle.textContent = 'Your summary is ready!';
-
-                window.location.href = result.redirect || summaryUrl;
+                window.location.assign(result.redirect || summaryUrl);
 
             } catch (error) {
+
                 clearInterval(statusInterval);
 
                 console.error('Summary generation failed:', error);
 
                 generating = false;
 
-                loader.classList.add('hidden');
-                progressTrack.classList.add('hidden');
-
-                pageTitle.textContent = 'Let’s try that again!';
-                statusText.textContent = 'Shelly needs a little help.';
+                loadingState.hidden = true;
+                errorState.hidden = false;
 
                 errorMessage.textContent = error.message;
 
-                errorBox.classList.add('show');
-                actions.classList.add('show');
-
                 retryButton.disabled = false;
                 retryButton.textContent = 'Try again';
+
             }
+
         }
 
         retryButton.addEventListener('click', generateSummary);
 
         generateSummary();
     </script>
+
 </body>
 </html>

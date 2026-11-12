@@ -53,10 +53,24 @@ Route::post('/sets/{set}/summarize', [StudySetController::class, 'summarize'])
 // Flashcard creation hub
 Route::get('/sets/{set}/flashcards/create', [StudySetController::class, 'flashcardCreate'])
     ->name('sets.flashcards.create');
+// AI flashcard setup
+Route::get('/sets/{set}/flashcards/setup', [StudySetController::class, 'flashcardSetup'])
+    ->name('sets.flashcards.setup');
+
+// Save AI flashcard settings
+Route::post('/sets/{set}/flashcards/prepare', [StudySetController::class, 'prepareFlashcards'])
+    ->name('sets.flashcards.prepare');
+
+// AI flashcard generating page
+Route::get('/sets/{set}/flashcards/generating', [StudySetController::class, 'flashcardGenerating'])
+    ->name('sets.flashcards.generating');
 
 // Flashcards study page
 Route::get('/sets/{set}/flashcards', [StudySetController::class, 'flashcards'])
     ->name('sets.flashcards');
+    // Manual flashcard management page
+Route::get('/sets/{set}/flashcards/manual', [StudySetController::class, 'flashcardManual'])
+    ->name('sets.flashcards.manual');
 
 Route::post('/sets/{set}/flashcards/generate', [StudySetController::class, 'makeFlashcards'])
     ->name('sets.flashcards.make');

@@ -315,7 +315,7 @@ class StudySetController extends Controller
     {
         $validated = $request->validate([
             'length' => 'required|in:quick,balanced,detailed',
-            'format' => 'required|in:organized,key_points,exam_revision',
+            'format' => 'required|in:organized,key_points,exam_revision,table',
             'focus' => 'nullable|string|max:2000',
         ]);
 
@@ -361,7 +361,7 @@ class StudySetController extends Controller
         try {
             $cacheKey = $this->aiCacheKey(
                 $set,
-                'summary',
+                'summary_v2',
                 $options
             );
 
@@ -408,6 +408,52 @@ public function flashcardCreate(StudySet $set)
 {
     return view('flashcard-create', compact('set'));
 }
+    // FLASHCARD AI SETUP PAGE
+    public function flashcardSetup(StudySet $set)
+    {
+        return view('flashcard-setup', compact('set'));
+    }
+
+    // PREPARE FLASHCARD GENERATION SETTINGS
+    public function prepareFlashcards(Request $request, StudySet $set)
+    {
+        $validated = $request->validate([
+            'count' => 'required|integer|min:1|max:' . self::MAX_FLASHCARDS,
+        ]);
+
+        session([
+            'flashcard_generation_' . $set->id => [
+                'count' => (int) $validated['count'],
+            ],
+        ]);
+
+        return redirect()->route(
+            'sets.flashcards.generating',
+            $set
+        );
+    }
+
+    // FLASHCARD GENERATING PAGE
+    public function flashcardGenerating(StudySet $set)
+    {
+        $settings = session(
+            'flashcard_generation_' . $set->id
+        );
+
+        if (!$settings) {
+            return redirect()
+                ->route('sets.flashcards.setup', $set)
+                ->with(
+                    'error',
+                    'Please choose your flashcard settings first.'
+                );
+        }
+
+        return view(
+            'flashcard-generating',
+            compact('set', 'settings')
+        );
+    }
     // FLASHCARDS PAGE
     public function flashcards(Request $request, StudySet $set)
     {
@@ -478,6 +524,19 @@ $manualCards = $set->flashcards()
             'reviewMode'
         ));
     }
+    // MANUAL FLASHCARD MANAGEMENT PAGE
+public function flashcardManual(StudySet $set)
+{
+    $manualCards = $set->flashcards()
+        ->where('source', 'manual')
+        ->orderBy('id')
+        ->get();
+
+    return view('flashcard-manual', compact(
+        'set',
+        'manualCards'
+    ));
+}
     // GENERATE FLASHCARDS
     public function makeFlashcards(
         Request $request,
@@ -1278,7 +1337,7 @@ $text = mb_convert_encoding(
         ]);
 
         return redirect()
-            ->route('sets.flashcards', $set)
+            ->route('sets.flashcards.manual', $set)
             ->with('success', 'Your manual flashcard has been created!');
     }
 
@@ -1304,7 +1363,7 @@ $text = mb_convert_encoding(
         ]);
 
         return redirect()
-            ->route('sets.flashcards', $set)
+            ->route('sets.flashcards.manual', $set)
             ->with('success', 'Your manual flashcard has been updated!');
     }
 
@@ -1321,7 +1380,7 @@ $text = mb_convert_encoding(
         $manualCard->delete();
 
         return redirect()
-            ->route('sets.flashcards', $set)
+           ->route('sets.flashcards.manual', $set)
             ->with('success', 'Your manual flashcard has been deleted!');
     }
 }

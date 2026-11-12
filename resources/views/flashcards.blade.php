@@ -289,7 +289,7 @@
         }
 
         .face::after {
-            content: "♡";
+            content: "✧";
             position: absolute;
             right: 20px;
             bottom: 13px;
@@ -415,28 +415,49 @@
             text-underline-offset: 4px;
         }
 
-        .generate-button {
-            display: block;
+        /* FLASHCARD ACTION BUTTONS */
+
+        .flashcard-action-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             margin: 28px auto 0;
-            padding: 13px 23px;
-            border: 1px solid var(--pink);
+            flex-wrap: wrap;
+        }
+
+        .manual-cards-link,
+        .generate-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 42px;
+            margin: 0;
+            padding: 11px 19px;
+            border: 1px solid var(--line);
             border-radius: 4px;
-            background: var(--pink);
-            color: white;
+            background: rgba(255,255,255,.85);
+            color: var(--pink-dark);
             font-size: 11px;
             font-weight: 800;
-            letter-spacing: .4px;
-            transition: .2s;
+            letter-spacing: .3px;
+            text-decoration: none;
+            transition: .2s ease;
+            cursor: pointer;
         }
 
+        .manual-cards-link:hover,
         .generate-button:hover {
-            background: var(--pink-dark);
-            border-color: var(--pink-dark);
+            border-color: var(--pink);
+            background: var(--pink-pale);
+            color: var(--pink-dark);
+            transform: translateY(-1px);
         }
 
-        .generate-button:disabled {
-            opacity: .7;
-            cursor: wait;
+        .manual-cards-link span {
+            font-size: 16px;
+            line-height: 1;
         }
 
         /* MANUAL FLASHCARD SECTION */
@@ -569,7 +590,6 @@
             font-size: 12px;
             text-align: center;
         }
-
 
         /* AI GENERATION LOADING SCREEN */
 
@@ -770,6 +790,16 @@
             .manual-actions button {
                 width: 100%;
             }
+
+            .flashcard-action-row {
+                gap: 8px;
+            }
+
+            .manual-cards-link,
+            .generate-button {
+                padding: 10px 13px;
+                font-size: 10px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -802,7 +832,7 @@
 
         <p class="subtitle">{{ $set->title }}</p>
 
-        <div class="ornament">♡ ✿ ୨୧ ✿ ♡</div>
+        <div class="ornament">✧ ✿ ୨୧ ✿ ✧</div>
     </section>
 
     @if ($errors->any())
@@ -883,7 +913,7 @@
                     <div id="card">
 
                         <div class="face">
-                            <span class="face-label">QUESTION ♡</span>
+                            <span class="face-label">QUESTION ✧</span>
                             <span class="face-content" id="frontText"></span>
                         </div>
 
@@ -953,156 +983,31 @@
             </a>
         @endif
 
-        {{-- AI FLASHCARD GENERATION --}}
+        {{-- FLASHCARD ACTION BUTTONS --}}
 
-        <form
-            method="POST"
-            action="{{ route('sets.flashcards.make', $set) }}"
-            id="generateFlashcardsForm"
-        >
-            @csrf
+        <div class="flashcard-action-row">
 
-            <button type="submit" class="generate-button" id="generateButton">
-                ✿ {{ $set->flashcards()->count() ? 'Regenerate flashcards' : 'Create flashcards' }}
-            </button>
-        </form>
-
-        {{-- MANUAL FLASHCARD CREATION --}}
-
-        <section class="manual-section">
-
-            <div class="section-heading">
-                <span class="eyebrow">A LITTLE PERSONAL TOUCH</span>
-
-                <h2>Create Your Own Cards ♡</h2>
-
-                <p>
-                    Add your own questions, terms, and answers to your study collection.
-                </p>
-            </div>
-
-            <form
-                method="POST"
-                action="{{ route('sets.flashcards.store', $set) }}"
-                class="manual-form"
+            <a
+                href="{{ route('sets.flashcards.manual', $set) }}"
+                class="manual-cards-link"
             >
-                @csrf
+                <span>＋</span>
+                Add Manual Cards
+            </a>
 
-                <label for="manualFront">QUESTION / TERM</label>
+            <a
+                href="{{ route('sets.flashcards.setup', $set) }}"
+                class="generate-button"
+            >
+                ✿ {{ $set->flashcards()->count() ? 'Generation Settings' : 'Create flashcards' }}
+            </a>
 
-                <textarea
-                    id="manualFront"
-                    name="front"
-                    rows="3"
-                    maxlength="5000"
-                    required
-                    placeholder="Write your question or term here..."
-                >{{ old('front') }}</textarea>
-
-                <label for="manualBack">ANSWER / DEFINITION</label>
-
-                <textarea
-                    id="manualBack"
-                    name="back"
-                    rows="4"
-                    maxlength="5000"
-                    required
-                    placeholder="Write the answer or definition here..."
-                >{{ old('back') }}</textarea>
-
-                <button type="submit" class="manual-submit">
-                    + Add Manual Flashcard
-                </button>
-            </form>
-
-            {{-- MANUAL FLASHCARD MANAGEMENT --}}
-
-            <div class="manual-list">
-
-                <div class="section-heading">
-                    <h2>Your Personal Flashcards</h2>
-                    <p>Edit or remove the cards you've created.</p>
-                </div>
-
-                @forelse ($manualCards as $manualCard)
-
-                    <div class="manual-card-item">
-
-                        <span class="card-number">
-                            PERSONAL CARD #{{ $loop->iteration }}
-                        </span>
-
-                        <form
-                            method="POST"
-                            action="{{ route('sets.flashcards.update', [$set, $manualCard]) }}"
-                        >
-                            @csrf
-                            @method('PUT')
-
-                            <label>QUESTION / TERM</label>
-
-                            <textarea
-                                name="front"
-                                rows="2"
-                                maxlength="5000"
-                                required
-                            >{{ $manualCard->front }}</textarea>
-
-                            <label>ANSWER / DEFINITION</label>
-
-                            <textarea
-                                name="back"
-                                rows="3"
-                                maxlength="5000"
-                                required
-                            >{{ $manualCard->back }}</textarea>
-
-                            <div class="manual-actions">
-                                <button
-                                    type="submit"
-                                    class="manual-edit-button"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
-
-                        <form
-                            method="POST"
-                            action="{{ route('sets.flashcards.destroy', [$set, $manualCard]) }}"
-                            onsubmit="return confirm('Are you sure you want to delete this personal flashcard?');"
-                        >
-                            @csrf
-                            @method('DELETE')
-
-                            <div class="manual-actions">
-                                <button
-                                    type="submit"
-                                    class="manual-delete-button"
-                                >
-                                    Delete Card
-                                </button>
-                            </div>
-                        </form>
-
-                    </div>
-
-                @empty
-
-                    <div class="manual-empty">
-                        You haven't created any personal flashcards yet. ♡
-                    </div>
-
-                @endforelse
-
-            </div>
-
-        </section>
+        </div>
 
     </main>
 
     <footer class="footer">
-        made with love by shelly ♡
+        made with love by shelly ✧
     </footer>
 
 </div>
@@ -1114,7 +1019,7 @@
 
         <div class="generation-bow">୨୧</div>
 
-        <h2>Creating Your Flashcards ♡</h2>
+        <h2>Creating Your Flashcards ✧</h2>
 
         <p>
             Shelly is preparing your study cards.
@@ -1157,58 +1062,54 @@
     const knownButton = document.getElementById('knownButton');
     const errorElement = document.getElementById('saveError');
 
-    /* ========================================
-   FLASHCARD CORRECT-ANSWER SOUND
-======================================== */
+    /* FLASHCARD SOUND */
 
-let audioCtx = null;
+    let audioCtx = null;
 
-function tone(freq, start, duration, type) {
-    try {
-        audioCtx = audioCtx ||
-            new (
-                window.AudioContext ||
-                window.webkitAudioContext
-            )();
+    function tone(freq, start, duration, type) {
+        try {
+            audioCtx = audioCtx ||
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
 
-        const oscillator = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+            const oscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
 
-        oscillator.type = type;
-        oscillator.frequency.value = freq;
+            oscillator.type = type;
+            oscillator.frequency.value = freq;
 
-        gain.gain.setValueAtTime(
-            0.18,
-            audioCtx.currentTime + start
-        );
+            gain.gain.setValueAtTime(
+                0.18,
+                audioCtx.currentTime + start
+            );
 
-        gain.gain.exponentialRampToValueAtTime(
-            0.001,
-            audioCtx.currentTime + start + duration
-        );
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                audioCtx.currentTime + start + duration
+            );
 
-        oscillator.connect(gain);
-        gain.connect(audioCtx.destination);
+            oscillator.connect(gain);
+            gain.connect(audioCtx.destination);
 
-        oscillator.start(audioCtx.currentTime + start);
+            oscillator.start(audioCtx.currentTime + start);
 
-        oscillator.stop(
-            audioCtx.currentTime + start + duration
-        );
+            oscillator.stop(
+                audioCtx.currentTime + start + duration
+            );
 
-    } catch (error) {
-        console.warn('Audio is unavailable:', error);
+        } catch (error) {
+            console.warn('Audio is unavailable:', error);
+        }
     }
-}
 
-function playDing() {
-    tone(880, 0, 0.25, 'sine');
-    tone(1320, 0.12, 0.4, 'sine');
-}
+    function playDing() {
+        tone(880, 0, 0.25, 'sine');
+        tone(1320, 0.12, 0.4, 'sine');
+    }
 
-    /* ========================================
-       FLASHCARD PROGRESS
-    ======================================== */
+    /* FLASHCARD PROGRESS */
 
     function updateStats() {
         document.getElementById('knownCount').textContent = knownCount;
@@ -1226,9 +1127,7 @@ function playDing() {
             percentage + '%';
     }
 
-    /* ========================================
-       DISPLAY CURRENT FLASHCARD
-    ======================================== */
+    /* DISPLAY CURRENT FLASHCARD */
 
     function showCard() {
         const current = cards[currentIndex];
@@ -1261,9 +1160,7 @@ function playDing() {
                 : 'Select the card to reveal the answer.';
     }
 
-    /* ========================================
-       FLIP FLASHCARD
-    ======================================== */
+    /* FLIP FLASHCARD */
 
     function flipCard() {
         if (saving) return;
@@ -1279,9 +1176,7 @@ function playDing() {
 
         cardElement.classList.add('flipped');
 
-        // Play the soft flip sound when revealing the answer.
-        // Play the same correct-answer sound used in quizzes.
-playDing();
+        playDing();
 
         againButton.disabled = false;
         knownButton.disabled = false;
@@ -1290,9 +1185,7 @@ playDing();
             'How well do you know this topic?';
     }
 
-    /* ========================================
-       MOVE BETWEEN FLASHCARDS
-    ======================================== */
+    /* MOVE BETWEEN FLASHCARDS */
 
     function moveCard(direction) {
         const nextIndex = currentIndex + direction;
@@ -1306,9 +1199,7 @@ playDing();
         showCard();
     }
 
-    /* ========================================
-       SAVE FLASHCARD PROGRESS
-    ======================================== */
+    /* SAVE FLASHCARD PROGRESS */
 
     async function rateCard(known) {
         if (saving || !cardElement.classList.contains('flipped')) {
@@ -1321,8 +1212,8 @@ playDing();
             errorElement.className = 'error-message warning';
 
             errorElement.textContent = known
-                ? '♡ This card is already saved as Known!'
-                : '♡ This card is already saved under Need Review!';
+                ? 'This card is already saved as Known!'
+                : 'This card is already saved under Need Review!';
 
             document.getElementById('flipHint').textContent = known
                 ? 'This card is already marked as Known.'
@@ -1388,8 +1279,8 @@ playDing();
             errorElement.className = 'error-message success';
 
             errorElement.textContent = known
-                ? '♡ Saved! This card is now marked as Known.'
-                : '♡ Saved! This card is now marked for Need Review.';
+                ? 'Saved! This card is now marked as Known.'
+                : 'Saved! This card is now marked for Need Review.';
 
             document.getElementById('flipHint').textContent = known
                 ? 'This card is saved as Known.'
@@ -1448,9 +1339,7 @@ playDing();
         }
     }
 
-    /* ========================================
-       CARD CLICK AND KEYBOARD CONTROLS
-    ======================================== */
+    /* CARD CLICK AND KEYBOARD CONTROLS */
 
     scene.addEventListener('click', function() {
         if (wasSwipe) {
@@ -1468,9 +1357,7 @@ playDing();
         }
     });
 
-    /* ========================================
-       SWIPE CONTROLS
-    ======================================== */
+    /* SWIPE CONTROLS */
 
     scene.addEventListener('pointerdown', function(event) {
         pointerStartX = event.clientX;
@@ -1514,9 +1401,7 @@ playDing();
         pointerStartY = null;
     });
 
-    /* ========================================
-       BUTTON EVENT LISTENERS
-    ======================================== */
+    /* BUTTON EVENT LISTENERS */
 
     againButton.addEventListener('click', () => rateCard(false));
     knownButton.addEventListener('click', () => rateCard(true));
@@ -1529,9 +1414,7 @@ playDing();
         moveCard(1);
     });
 
-    /* ========================================
-       INITIALIZE FLASHCARDS
-    ======================================== */
+    /* INITIALIZE FLASHCARDS */
 
     showCard();
     updateStats();
@@ -1539,38 +1422,6 @@ playDing();
 </script>
 
 @endif
-
-{{-- ========================================
-     AI FLASHCARD GENERATION LOADING SCRIPT
-======================================== --}}
-
-<script>
-    const generationForm =
-        document.getElementById('generateFlashcardsForm');
-
-    const generationOverlay =
-        document.getElementById('generationOverlay');
-
-    const generateButton =
-        document.getElementById('generateButton');
-
-    if (generationForm) {
-        generationForm.addEventListener('submit', function() {
-
-            // Display the loading overlay.
-            if (generationOverlay) {
-                generationOverlay.classList.add('active');
-            }
-
-            // Prevent repeated submissions.
-            if (generateButton) {
-                generateButton.disabled = true;
-                generateButton.textContent = 'Preparing your cards...';
-            }
-
-        });
-    }
-</script>
 
 </body>
 </html>

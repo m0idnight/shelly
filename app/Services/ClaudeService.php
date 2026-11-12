@@ -469,10 +469,79 @@ public function summarize(StudySet $set, array $options = []): string
     ];
 
     $formatInstructions = [
-        'organized' => 'Use clear headings, subheadings, short explanations, and bullet points.',
-        'key_points' => 'Prioritize essential information using concise bullet points and short explanations.',
-        'exam_revision' => 'Create exam-focused revision notes highlighting definitions, concepts, comparisons, and facts.',
-    ];
+    'organized' => 'Use clear headings, subheadings, short explanations, and bullet points.',
+
+    'key_points' => 'Prioritize essential information using concise bullet points and short explanations.',
+
+    'exam_revision' => 'Create exam-focused revision notes highlighting definitions, concepts, comparisons, and facts.',
+
+    'table' => "Create study notes using MULTIPLE clearly separated topic sections.
+
+MANDATORY OUTPUT STRUCTURE:
+
+1. Divide the material into logical sections based on its actual topics.
+2. Create a descriptive Markdown H2 heading (##) for every section.
+3. Each heading MUST be visible on its own line OUTSIDE the table.
+4. Under EVERY heading, create a separate Markdown table.
+5. Do not combine all topics into one continuous table.
+6. Do not put section headings inside table cells.
+7. Do not omit headings simply because the source material does not
+   contain pre-written headings. Create appropriate headings based
+   on the supplied information.
+
+EXACT TABLE COLUMNS:
+
+| Concept | Explanation | Important Details |
+| --- | --- | --- |
+
+COLUMN RULES:
+
+8. Keep the column names exactly as shown.
+9. Give each concept its own row.
+10. Every row must contain information in all three columns.
+11. Important Details must contain relevant supporting information,
+    such as examples, characteristics, functions, applications,
+    classifications, or facts from the source.
+12. Do not leave Important Details empty.
+13. Do not simply repeat the Explanation.
+14. Never invent details to fill a cell.
+
+SECTION ORGANIZATION:
+
+15. Group related concepts under the same descriptive heading.
+16. Start a new section when the subject changes.
+17. Use meaningful headings such as Definition and Key Concepts,
+    Importance in Biology, and Functions of Cells when appropriate.
+18. Keep sections in a logical learning sequence.
+19. Include all important information from the supplied materials.
+20. Do not include source lists, citations, or references.
+
+REQUIRED EXAMPLE OF THE OUTPUT STRUCTURE:
+
+## Definition and Key Concepts
+
+| Concept | Explanation | Important Details |
+| --- | --- | --- |
+| Relevant concept | Its explanation | Supporting information |
+
+## Importance in Biology
+
+| Concept | Explanation | Important Details |
+| --- | --- | --- |
+| Relevant concept | Its explanation | Supporting information |
+
+## Functions of Cells
+
+| Concept | Explanation | Important Details |
+| --- | --- | --- |
+| Relevant concept | Its explanation | Supporting information |
+
+The example demonstrates the required structure only.
+Create headings and tables that match the actual supplied material.
+
+Return the complete study summary following this structure.",
+
+];
 
     $lengthInstruction = $lengthInstructions[$length]
         ?? $lengthInstructions['balanced'];
@@ -535,8 +604,8 @@ public function summarize(StudySet $set, array $options = []): string
                 . "- Do not invent missing explanations or facts.\n\n"
                 . "LENGTH:\n{$lengthInstruction}\n\n"
                 . "FORMAT:\n{$formatInstruction}\n\n"
-                . "Additional student instructions:\n"
-                . ($focus !== '' ? $focus : 'Use your judgment to organize the material clearly.'),
+. "Additional student instructions:\n"
+. ($focus !== '' ? $focus : 'Use your judgment to organize the material clearly.'),
         ];
 
         return $this->ask($system, $parts);
@@ -558,7 +627,11 @@ public function summarize(StudySet $set, array $options = []): string
         );
     }
 
-    $combinedNotes = $this->combineNotes($chunkNotes, $system);
+    $combinedNotes = $this->combineNotes(
+    $chunkNotes,
+    $system,
+    $format
+);
 
     return $this->ask(
         $system,
@@ -572,18 +645,27 @@ public function summarize(StudySet $set, array $options = []): string
                     . "Preserve unique information from every source section.\n\n"
                     . "LENGTH:\n{$lengthInstruction}\n\n"
                     . "FORMAT:\n{$formatInstruction}\n\n"
-                    . "Additional instructions:\n"
-                    . ($focus !== '' ? $focus : 'Organize the material clearly.'),
+. "Additional student instructions:\n"
+. ($focus !== '' ? $focus : 'Organize the material clearly.')
+. "\n\nMANDATORY FORMAT PRIORITY:\n"
+. "Follow the selected summary format exactly. "
+. "Additional student instructions must never override "
+. "the required section headings, separate tables, "
+. "or the three required table columns.",
             ],
         ]
     );
 }
 
-    /**
+   
+/**
  * Combine section notes while preserving information from every file.
  */
-private function combineNotes(array $notes, string $system): string
-{
+private function combineNotes(
+    array $notes,
+    string $system,
+    string $format = 'organized'
+): string {
     if (empty($notes)) {
         return '';
     }
@@ -606,22 +688,54 @@ private function combineNotes(array $notes, string $system): string
 
             foreach ($group as $index => $note) {
                 $sections[] =
-                    "SOURCE SECTION " . ($index + 1) . ":\n"
+                    "INPUT SECTION " . ($index + 1) . ":\n"
                     . $note;
             }
 
             $text = implode("\n\n---\n\n", $sections);
 
-            $instruction =
-                "Combine the following study-note sections into one organized document.\n\n"
-                . "IMPORTANT REQUIREMENTS:\n"
-                . "1. Preserve information from EVERY source section.\n"
-                . "2. Do not completely omit a section just because it contains little information.\n"
-                . "3. Preserve titles, definitions, facts, examples, and important details.\n"
-                . "4. Do not invent information or introduce outside knowledge.\n"
-                . "5. Remove repetition only when the information is genuinely duplicated.\n"
-                . "6. Keep the information traceable to its original source section.\n\n"
-                . $text;
+            if ($format === 'table') {
+    $instruction =
+        "Combine all the following study-note sections "
+        . "into one complete collection of information.\n\n"
+        . "IMPORTANT REQUIREMENTS:\n"
+        . "1. Preserve important information from EVERY section.\n"
+        . "2. Do not omit definitions, concepts, examples, "
+        . "comparisons, facts, or explanations.\n"
+        . "3. Preserve supporting details for every concept, "
+        . "including characteristics, functions, examples, "
+        . "applications, and relevant facts when available.\n"
+        . "4. Do not discard supporting information that may be "
+        . "needed later in the Important Details column.\n"
+        . "5. Remove information only when it is genuinely duplicated.\n"
+        . "6. Do not invent information or introduce outside knowledge.\n"
+        . "7. Do not include source names, source labels, "
+        . "citations, or references in the output.\n"
+        . "8. Do not add separate topic titles or introductory "
+        . "or concluding paragraphs.\n"
+        . "9. Keep all concepts and their supporting information "
+        . "complete and understandable.\n"
+        . "10. Do not force unrelated concepts together.\n\n"
+        . "The final formatting will be handled separately.\n\n"
+        . "INPUT MATERIALS:\n"
+        . $text;
+            } else {
+                $instruction =
+                    "Combine the following study-note sections "
+                    . "into one organized document.\n\n"
+                    . "IMPORTANT REQUIREMENTS:\n"
+                    . "1. Preserve information from EVERY source section.\n"
+                    . "2. Do not completely omit a section just because "
+                    . "it contains little information.\n"
+                    . "3. Preserve titles, definitions, facts, examples, "
+                    . "and important details.\n"
+                    . "4. Do not invent information or introduce outside knowledge.\n"
+                    . "5. Remove repetition only when the information "
+                    . "is genuinely duplicated.\n"
+                    . "6. Keep the information traceable to its original "
+                    . "source section.\n\n"
+                    . $text;
+            }
 
             $newNotes[] = $this->ask(
                 $system,
@@ -634,6 +748,7 @@ private function combineNotes(array $notes, string $system): string
 
     return $notes[0] ?? '';
 }
+
 
     /**
      * Generate flashcards across all source sections.

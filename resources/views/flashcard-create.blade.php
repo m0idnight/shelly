@@ -51,13 +51,12 @@
             </ul>
 
             <a
-                href="#"
-                class="creation-button shelly-button"
-                aria-disabled="true"
-            >
-                Coming in the next step
-                <span>→</span>
-            </a>
+    href="{{ route('sets.flashcards.setup', $set) }}"
+    class="creation-button shelly-button"
+>
+    Create with Shelly
+    <span>→</span>
+</a>
 
             <span class="card-note">
                 A little help from Shelly

@@ -9,7 +9,7 @@
 
     <div class="setup-heading">
         <div>
-            <span class="page-kicker">♡ Let's prepare your notes</span>
+            <span class="page-kicker">✧ Let's prepare your notes</span>
             <h1 class="page-title">Summary Setup</h1>
             <p class="page-description">
                 Choose how Shelly should organize your study material.
@@ -53,7 +53,7 @@
                     <input type="radio" name="length" value="quick"
                         {{ old('length', 'balanced') === 'quick' ? 'checked' : '' }}>
                     <span class="option-content">
-                        <span class="option-icon">♡</span>
+                        <span class="option-icon">✦</span>
                         <strong>Quick review</strong>
                         <small>Short notes with only the most important ideas.</small>
                         <span class="option-tag">Less detail</span>
@@ -122,7 +122,17 @@
                         <small>Important definitions, concepts, comparisons, and facts.</small>
                     </span>
                 </label>
-
+                    <label class="format-option">
+    <input type="radio" name="format" value="table"
+        {{ old('format') === 'table' ? 'checked' : '' }}>
+    <span>
+        <strong>Table Format</strong>
+        <small>
+            Organize important concepts, definitions, comparisons,
+            and explanations into clear tables.
+        </small>
+    </span>
+</label>
             </div>
         </section>
 
@@ -154,13 +164,13 @@
             </a>
 
             <button type="submit" class="button generate-button">
-                Create My Summary <span>♡</span>
+                Create My Summary <span>✧</span>
             </button>
         </div>
 
     </form>
 
-    <p class="bottom-note">♡ Your notes, your way. One step at a time.</p>
+    <p class="bottom-note">✧ Your notes, your way. One step at a time.</p>
 
 </div>
 
